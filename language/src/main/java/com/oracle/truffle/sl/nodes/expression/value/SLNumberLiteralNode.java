@@ -6,7 +6,7 @@ import org.graalvm.compiler.nodeinfo.NodeInfo;
 
 import java.math.BigDecimal;
 
-@NodeInfo(shortName = "number")
+@NodeInfo(shortName = "j_number")
 public class SLNumberLiteralNode extends SLExpressionNode {
 
   private final BigDecimal val;

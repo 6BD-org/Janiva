@@ -134,10 +134,14 @@ object returns [SLExpressionNode result]
 
 primitive returns [SLExpressionNode result]
 :
-number                                  {$result = $number.result;}
+j_number                                  {$result = $j_number.result;}
+|
+j_string                                  {$result = $j_string.result;}
+|
+j_boolean                                 {$result = $j_boolean.result;}
 ;
 
-number returns [SLExpressionNode result]
+j_number returns [SLExpressionNode result]
 :
 NUMERIC_LITERAL                         {Token whole = $NUMERIC_LITERAL; Token dec = null;}
 (
@@ -145,7 +149,15 @@ NUMERIC_LITERAL                         {Token whole = $NUMERIC_LITERAL; Token d
 )?                                      {$result = factory.createDecimal(whole, dec);}
 ;
 
+j_string returns [SLExpressionNode result]
+:
+STRING_LITERAL                          {$result = factory.createStringLiteral($STRING_LITERAL, true);}
+;
 
+j_boolean returns [SLExpressionNode result]
+:
+BOOL_LITERAL                            {$result = factory.createBoolean($BOOL_LITERAL);}
+;
 
 
 

@@ -49,6 +49,7 @@ import java.util.Map;
 
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.sl.nodes.expression.value.SLBoolLiteralNode;
 import com.oracle.truffle.sl.nodes.expression.value.SLNumberLiteralNode;
 import com.oracle.truffle.sl.runtime.SLStrings;
 import org.antlr.v4.runtime.Parser;
@@ -104,6 +105,11 @@ import com.oracle.truffle.sl.nodes.util.SLUnboxNodeGen;
  * automatically generated parser to keep the attributed grammar of SL small.
  */
 public class SLNodeFactory {
+
+  public SLExpressionNode createBoolean(Token bool_literal) {
+    return new SLBoolLiteralNode(bool_literal);
+  }
+
 
   /**
    * Local variable names that are visible in the current block. Variables are not visible outside
