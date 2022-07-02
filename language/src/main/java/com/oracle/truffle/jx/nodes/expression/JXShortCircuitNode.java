@@ -43,7 +43,7 @@ package com.oracle.truffle.jx.nodes.expression;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
-import com.oracle.truffle.jx.SLException;
+import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 
 /**
@@ -78,7 +78,7 @@ public abstract class JXShortCircuitNode extends JXExpressionNode {
     try {
       leftValue = left.executeBoolean(frame);
     } catch (UnexpectedResultException e) {
-      throw SLException.typeError(this, e.getResult(), null);
+      throw JXException.typeError(this, e.getResult(), null);
     }
     boolean rightValue;
     try {
@@ -88,7 +88,7 @@ public abstract class JXShortCircuitNode extends JXExpressionNode {
         rightValue = false;
       }
     } catch (UnexpectedResultException e) {
-      throw SLException.typeError(this, leftValue, e.getResult());
+      throw JXException.typeError(this, leftValue, e.getResult());
     }
     return execute(leftValue, rightValue);
   }

@@ -44,7 +44,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
-import com.oracle.truffle.jx.SLException;
+import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
@@ -110,7 +110,7 @@ public final class JXIfNode extends JXStatementNode {
        * The condition evaluated to a non-boolean result. This is a type error in the SL
        * program.
        */
-      throw SLException.typeError(this, ex.getResult());
+      throw JXException.typeError(this, ex.getResult());
     }
   }
 }

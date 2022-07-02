@@ -74,7 +74,7 @@ import com.oracle.truffle.jx.JSONXLang;
  * dynamically added and removed). We also annotate the class with {@link ExportLibrary} with value
  * {@link InteropLibrary InteropLibrary.class}. This essentially ensures that the build system and
  * runtime know that this class specifies the interop messages (i.e. operations) that SL can do on
- * {@link SLObject} instances.
+ * {@link JXObject} instances.
  *
  * @see ExportLibrary
  * @see ExportMessage
@@ -82,10 +82,10 @@ import com.oracle.truffle.jx.JSONXLang;
  */
 @SuppressWarnings("static-method")
 @ExportLibrary(InteropLibrary.class)
-public final class SLObject extends DynamicObject implements TruffleObject {
+public final class JXObject extends DynamicObject implements TruffleObject {
   protected static final int CACHE_LIMIT = 3;
 
-  public SLObject(Shape shape) {
+  public JXObject(Shape shape) {
     super(shape);
   }
 
@@ -103,12 +103,12 @@ public final class SLObject extends DynamicObject implements TruffleObject {
   @SuppressWarnings("unused")
   static final class IsIdenticalOrUndefined {
     @Specialization
-    static TriState doSLObject(SLObject receiver, SLObject other) {
+    static TriState doSLObject(JXObject receiver, JXObject other) {
       return TriState.valueOf(receiver == other);
     }
 
     @Fallback
-    static TriState doOther(SLObject receiver, Object other) {
+    static TriState doOther(JXObject receiver, Object other) {
       return TriState.UNDEFINED;
     }
   }
@@ -126,7 +126,7 @@ public final class SLObject extends DynamicObject implements TruffleObject {
 
   @ExportMessage
   Object getMetaObject() {
-    return SLType.OBJECT;
+    return JXType.OBJECT;
   }
 
   @ExportMessage

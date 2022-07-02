@@ -44,13 +44,13 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.runtime.SLFunction;
-import com.oracle.truffle.jx.runtime.SLUndefinedNameException;
+import com.oracle.truffle.jx.runtime.JXFunction;
+import com.oracle.truffle.jx.runtime.JXUndefinedNameException;
 
 /**
- * The initial {@link RootNode} of {@link SLFunction functions} when they are created, i.e., when
+ * The initial {@link RootNode} of {@link JXFunction functions} when they are created, i.e., when
  * they are still undefined. Executing it throws an {@link
- * SLUndefinedNameException#undefinedFunction exception}.
+ * JXUndefinedNameException#undefinedFunction exception}.
  */
 public class JXUndefinedFunctionRootNode extends JXRootNode {
   public JXUndefinedFunctionRootNode(JSONXLang language, TruffleString name) {
@@ -59,6 +59,6 @@ public class JXUndefinedFunctionRootNode extends JXRootNode {
 
   @Override
   public Object execute(VirtualFrame frame) {
-    throw SLUndefinedNameException.undefinedFunction(null, getTSName());
+    throw JXUndefinedNameException.undefinedFunction(null, getTSName());
   }
 }

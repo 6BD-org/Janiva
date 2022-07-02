@@ -53,41 +53,41 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
 
-/** Manages the mapping from function names to {@link SLFunction function objects}. */
-public final class SLFunctionRegistry {
+/** Manages the mapping from function names to {@link JXFunction function objects}. */
+public final class JXFunctionRegistry {
 
   private final JSONXLang language;
   private final FunctionsObject functionsObject = new FunctionsObject();
   private final Map<Map<TruffleString, RootCallTarget>, Void> registeredFunctions =
       new IdentityHashMap<>();
 
-  public SLFunctionRegistry(JSONXLang language) {
+  public JXFunctionRegistry(JSONXLang language) {
     this.language = language;
   }
 
   /**
-   * Returns the canonical {@link SLFunction} object for the given name. If it does not exist yet,
+   * Returns the canonical {@link JXFunction} object for the given name. If it does not exist yet,
    * it is created.
    */
   @TruffleBoundary
-  public SLFunction lookup(TruffleString name, boolean createIfNotPresent) {
-    SLFunction result = functionsObject.functions.get(name);
+  public JXFunction lookup(TruffleString name, boolean createIfNotPresent) {
+    JXFunction result = functionsObject.functions.get(name);
     if (result == null && createIfNotPresent) {
-      result = new SLFunction(language, name);
+      result = new JXFunction(language, name);
       functionsObject.functions.put(name, result);
     }
     return result;
   }
 
   /**
-   * Associates the {@link SLFunction} with the given name with the given implementation root node.
+   * Associates the {@link JXFunction} with the given name with the given implementation root node.
    * If the function did not exist before, it defines the function. If the function existed before,
    * it redefines the function and the old implementation is discarded.
    */
-  SLFunction register(TruffleString name, RootCallTarget callTarget) {
-    SLFunction result = functionsObject.functions.get(name);
+  JXFunction register(TruffleString name, RootCallTarget callTarget) {
+    JXFunction result = functionsObject.functions.get(name);
     if (result == null) {
-      result = new SLFunction(name, callTarget);
+      result = new JXFunction(name, callTarget);
       functionsObject.functions.put(name, result);
     } else {
       result.setCallTarget(callTarget);
@@ -111,17 +111,17 @@ public final class SLFunctionRegistry {
     registeredFunctions.put(newFunctions, null);
   }
 
-  public SLFunction getFunction(TruffleString name) {
+  public JXFunction getFunction(TruffleString name) {
     return functionsObject.functions.get(name);
   }
 
   /** Returns the sorted list of all functions, for printing purposes only. */
-  public List<SLFunction> getFunctions() {
-    List<SLFunction> result = new ArrayList<>(functionsObject.functions.values());
+  public List<JXFunction> getFunctions() {
+    List<JXFunction> result = new ArrayList<>(functionsObject.functions.values());
     Collections.sort(
         result,
-        new Comparator<SLFunction>() {
-          public int compare(SLFunction f1, SLFunction f2) {
+        new Comparator<JXFunction>() {
+          public int compare(JXFunction f1, JXFunction f2) {
             assert JSONXLang.STRING_ENCODING == TruffleString.Encoding.UTF_16
                 : "SLLanguage.ENCODING changed, string comparison method must be adjusted accordingly!";
             return f1.getName().compareCharsUTF16Uncached(f2.getName());

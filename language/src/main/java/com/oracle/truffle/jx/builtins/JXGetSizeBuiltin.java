@@ -45,7 +45,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.jx.SLException;
+import com.oracle.truffle.jx.JXException;
 
 /**
  * Built-in function that queries the size property of a foreign object. See
@@ -59,7 +59,7 @@ public abstract class JXGetSizeBuiltin extends JXBuiltinNode {
     try {
       return arrays.getArraySize(obj);
     } catch (UnsupportedMessageException e) {
-      throw new SLException("Element is not a valid array.", this);
+      throw new JXException("Element is not a valid array.", this);
     }
   }
 }

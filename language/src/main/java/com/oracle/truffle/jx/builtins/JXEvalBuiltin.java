@@ -49,7 +49,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.runtime.SLContext;
+import com.oracle.truffle.jx.runtime.JXContext;
 
 /**
  * Builtin function to evaluate source code in any supported language.
@@ -90,7 +90,7 @@ public abstract class JXEvalBuiltin extends JXBuiltinNode {
   protected CallTarget parse(TruffleString id, TruffleString code) {
     final Source source =
         Source.newBuilder(id.toJavaStringUncached(), code.toJavaStringUncached(), "(eval)").build();
-    return SLContext.get(this).parse(source);
+    return JXContext.get(this).parse(source);
   }
 
   /* Work around findbugs warning in generate code. */

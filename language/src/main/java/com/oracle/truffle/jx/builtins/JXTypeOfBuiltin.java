@@ -45,8 +45,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.jx.runtime.SLNull;
-import com.oracle.truffle.jx.runtime.SLType;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXType;
 
 /** Built-in function that returns the type of a guest language value. */
 @NodeInfo(shortName = "typeOf")
@@ -59,11 +59,11 @@ public abstract class JXTypeOfBuiltin extends JXBuiltinNode {
   @Specialization(limit = "3")
   @ExplodeLoop
   public Object doDefault(Object operand, @CachedLibrary("operand") InteropLibrary interop) {
-    for (SLType type : SLType.PRECEDENCE) {
+    for (JXType type : JXType.PRECEDENCE) {
       if (type.isInstance(operand, interop)) {
         return type;
       }
     }
-    return SLNull.SINGLETON;
+    return JSNull.SINGLETON;
   }
 }

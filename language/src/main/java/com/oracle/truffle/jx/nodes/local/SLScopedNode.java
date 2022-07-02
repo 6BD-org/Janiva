@@ -64,9 +64,9 @@ import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
-import com.oracle.truffle.jx.runtime.SLContext;
-import com.oracle.truffle.jx.runtime.SLNull;
-import com.oracle.truffle.jx.runtime.SLStrings;
+import com.oracle.truffle.jx.runtime.JXContext;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXStrings;
 
 /**
  * The SL implementation of {@link NodeLibrary} provides fast access to local variables. It's used
@@ -122,21 +122,21 @@ public abstract class SLScopedNode extends Node {
 
   /**
    * Test if a function of that name exists. The functions are context-dependent, therefore do a
-   * context lookup via {@link SLContext#getCurrent(Node)}.
+   * context lookup via {@link JXContext#getCurrent(Node)}.
    */
   @ExportMessage
   @TruffleBoundary
   final boolean hasRootInstance(@SuppressWarnings("unused") Frame frame) {
     // The instance of the current RootNode is a function of the same name.
-    return SLContext.get(this)
+    return JXContext.get(this)
             .getFunctionRegistry()
-            .getFunction(SLStrings.getSLRootName(getRootNode()))
+            .getFunction(JXStrings.getSLRootName(getRootNode()))
         != null;
   }
 
   /**
    * Provide function instance of that name. The function is context-dependent, therefore do a
-   * context lookup via {@link SLContext#getCurrent(Node)}.
+   * context lookup via {@link JXContext#getCurrent(Node)}.
    */
   @ExportMessage
   @TruffleBoundary
@@ -144,9 +144,9 @@ public abstract class SLScopedNode extends Node {
       throws UnsupportedMessageException {
     // The instance of the current RootNode is a function of the same name.
     Object function =
-        SLContext.get(this)
+        JXContext.get(this)
             .getFunctionRegistry()
-            .getFunction(SLStrings.getSLRootName(getRootNode()));
+            .getFunction(JXStrings.getSLRootName(getRootNode()));
     if (function != null) {
       return function;
     } else {
@@ -386,7 +386,7 @@ public abstract class SLScopedNode extends Node {
         if (receiver.frame != null) {
           return receiver.frame.getArguments()[index];
         } else {
-          return SLNull.SINGLETON;
+          return JSNull.SINGLETON;
         }
       }
     }
@@ -442,7 +442,7 @@ public abstract class SLScopedNode extends Node {
     }
 
     int findArgumentIndex(String member) {
-      TruffleString memberTS = SLStrings.fromJavaString(member);
+      TruffleString memberTS = JXStrings.fromJavaString(member);
       JXWriteLocalVariableNode[] writeNodes = root.getDeclaredArguments();
       for (int i = 0; i < writeNodes.length; i++) {
         JXWriteLocalVariableNode writeNode = writeNodes[i];
@@ -680,7 +680,7 @@ public abstract class SLScopedNode extends Node {
         if (receiver.frame != null) {
           return receiver.frame.getValue(slot);
         } else {
-          return SLNull.SINGLETON;
+          return JSNull.SINGLETON;
         }
       }
     }
@@ -778,7 +778,7 @@ public abstract class SLScopedNode extends Node {
      * @param member the variable name
      */
     JXWriteLocalVariableNode findWriteNode(String member) {
-      TruffleString memberTS = SLStrings.fromJavaString(member);
+      TruffleString memberTS = JXStrings.fromJavaString(member);
       JXWriteLocalVariableNode[] writeNodes = block.getDeclaredLocalVariables();
       int parentBlockIndex = block.getParentBlockIndex();
       int index = getVisibleVariablesIndex();

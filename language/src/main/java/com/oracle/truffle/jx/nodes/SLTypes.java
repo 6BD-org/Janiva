@@ -48,8 +48,8 @@ import com.oracle.truffle.api.dsl.TypeCast;
 import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.runtime.SLBigNumber;
-import com.oracle.truffle.jx.runtime.SLNull;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXBigNumber;
 
 /**
  * The type system of SL, as explained in {@link JSONXLang}. Based on the {@link TypeSystem}
@@ -62,35 +62,35 @@ public abstract class SLTypes {
 
   /**
    * Example of a manually specified type check that replaces the automatically generated type check
-   * that the Truffle DSL would generate. For {@link SLNull}, we do not need an {@code instanceof}
-   * check, because we know that there is only a {@link SLNull#SINGLETON singleton} instance.
+   * that the Truffle DSL would generate. For {@link JSNull}, we do not need an {@code instanceof}
+   * check, because we know that there is only a {@link JSNull#SINGLETON singleton} instance.
    */
-  @TypeCheck(SLNull.class)
+  @TypeCheck(JSNull.class)
   public static boolean isSLNull(Object value) {
-    return value == SLNull.SINGLETON;
+    return value == JSNull.SINGLETON;
   }
 
   /**
    * Example of a manually specified type cast that replaces the automatically generated type cast
-   * that the Truffle DSL would generate. For {@link SLNull}, we do not need an actual cast, because
-   * we know that there is only a {@link SLNull#SINGLETON singleton} instance.
+   * that the Truffle DSL would generate. For {@link JSNull}, we do not need an actual cast, because
+   * we know that there is only a {@link JSNull#SINGLETON singleton} instance.
    */
-  @TypeCast(SLNull.class)
-  public static SLNull asSLNull(Object value) {
+  @TypeCast(JSNull.class)
+  public static JSNull asSLNull(Object value) {
     assert isSLNull(value);
-    return SLNull.SINGLETON;
+    return JSNull.SINGLETON;
   }
 
   /**
    * Informs the Truffle DSL that a primitive {@code long} value can be used in all specializations
-   * where a {@link SLBigNumber} is expected. This models the semantic of SL: It only has an
-   * arbitrary precision Number type (implemented as {@link SLBigNumber}, and {@code long} is only
-   * used as a performance optimization to avoid the costly {@link SLBigNumber} arithmetic for
+   * where a {@link JXBigNumber} is expected. This models the semantic of SL: It only has an
+   * arbitrary precision Number type (implemented as {@link JXBigNumber}, and {@code long} is only
+   * used as a performance optimization to avoid the costly {@link JXBigNumber} arithmetic for
    * values that fit into a 64-bit primitive value.
    */
   @ImplicitCast
   @TruffleBoundary
-  public static SLBigNumber castBigNumber(long value) {
-    return new SLBigNumber(BigInteger.valueOf(value));
+  public static JXBigNumber castBigNumber(long value) {
+    return new JXBigNumber(BigInteger.valueOf(value));
   }
 }

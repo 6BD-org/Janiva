@@ -72,20 +72,20 @@ import com.oracle.truffle.jx.JSONXLang;
  */
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
-public final class SLType implements TruffleObject {
+public final class JXType implements TruffleObject {
 
   /*
    * These are the sets of builtin types in simple languages. In case of simple language the types
    * nicely match those of the types in InteropLibrary. This might not be the case and more
    * additional checks need to be performed (similar to number checking for SLBigNumber).
    */
-  public static final SLType NUMBER =
-      new SLType("Number", (l, v) -> l.fitsInLong(v) || v instanceof SLBigNumber);
-  public static final SLType NULL = new SLType("NULL", (l, v) -> l.isNull(v));
-  public static final SLType STRING = new SLType("String", (l, v) -> l.isString(v));
-  public static final SLType BOOLEAN = new SLType("Boolean", (l, v) -> l.isBoolean(v));
-  public static final SLType OBJECT = new SLType("Object", (l, v) -> l.hasMembers(v));
-  public static final SLType FUNCTION = new SLType("Function", (l, v) -> l.isExecutable(v));
+  public static final JXType NUMBER =
+      new JXType("Number", (l, v) -> l.fitsInLong(v) || v instanceof JXBigNumber);
+  public static final JXType NULL = new JXType("NULL", (l, v) -> l.isNull(v));
+  public static final JXType STRING = new JXType("String", (l, v) -> l.isString(v));
+  public static final JXType BOOLEAN = new JXType("Boolean", (l, v) -> l.isBoolean(v));
+  public static final JXType OBJECT = new JXType("Object", (l, v) -> l.hasMembers(v));
+  public static final JXType FUNCTION = new JXType("Function", (l, v) -> l.isExecutable(v));
 
   /*
    * This array is used when all types need to be checked in a certain order. While most interop
@@ -94,8 +94,8 @@ public final class SLType implements TruffleObject {
    * functions and not objects.
    */
   @CompilationFinal(dimensions = 1)
-  public static final SLType[] PRECEDENCE =
-      new SLType[] {NULL, NUMBER, STRING, BOOLEAN, FUNCTION, OBJECT};
+  public static final JXType[] PRECEDENCE =
+      new JXType[] {NULL, NUMBER, STRING, BOOLEAN, FUNCTION, OBJECT};
 
   private final String name;
   private final TypeCheck isInstance;
@@ -104,14 +104,14 @@ public final class SLType implements TruffleObject {
    * We don't allow dynamic instances of SLType. Real languages might want to expose this for
    * types that are user defined.
    */
-  private SLType(String name, TypeCheck isInstance) {
+  private JXType(String name, TypeCheck isInstance) {
     this.name = name;
     this.isInstance = isInstance;
   }
 
   /**
    * Checks whether this type is of a certain instance. If used on fast-paths it is required to cast
-   * {@link SLType} to a constant.
+   * {@link JXType} to a constant.
    */
   public boolean isInstance(Object value, InteropLibrary interop) {
     CompilerAsserts.partialEvaluationConstant(this);
@@ -175,16 +175,16 @@ public final class SLType implements TruffleObject {
      */
     @Specialization(guards = "type == cachedType", limit = "3")
     static boolean doCached(
-        @SuppressWarnings("unused") SLType type,
+        @SuppressWarnings("unused") JXType type,
         Object value,
-        @Cached("type") SLType cachedType,
+        @Cached("type") JXType cachedType,
         @CachedLibrary("value") InteropLibrary valueLib) {
       return cachedType.isInstance.check(valueLib, value);
     }
 
     @TruffleBoundary
     @Specialization(replaces = "doCached")
-    static boolean doGeneric(SLType type, Object value) {
+    static boolean doGeneric(JXType type, Object value) {
       return type.isInstance.check(InteropLibrary.getFactory().getUncached(), value);
     }
   }

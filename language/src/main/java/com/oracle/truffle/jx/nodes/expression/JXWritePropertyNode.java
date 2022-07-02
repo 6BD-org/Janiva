@@ -54,8 +54,8 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.util.SLToMemberNode;
 import com.oracle.truffle.jx.nodes.util.SLToTruffleStringNode;
-import com.oracle.truffle.jx.runtime.SLObject;
-import com.oracle.truffle.jx.runtime.SLUndefinedNameException;
+import com.oracle.truffle.jx.runtime.JXObject;
+import com.oracle.truffle.jx.runtime.JXUndefinedNameException;
 
 /**
  * The node for writing a property of an object. When executed, this node:
@@ -89,14 +89,14 @@ public abstract class JXWritePropertyNode extends JXExpressionNode {
         | UnsupportedTypeException
         | InvalidArrayIndexException e) {
       // read was not successful. In SL we only have basic support for errors.
-      throw SLUndefinedNameException.undefinedProperty(this, index);
+      throw JXUndefinedNameException.undefinedProperty(this, index);
     }
     return value;
   }
 
   @Specialization(limit = "LIBRARY_LIMIT")
   protected Object writeSLObject(
-      SLObject receiver,
+      JXObject receiver,
       Object name,
       Object value,
       @CachedLibrary("receiver") DynamicObjectLibrary objectLibrary,
@@ -118,12 +118,12 @@ public abstract class JXWritePropertyNode extends JXExpressionNode {
         | UnknownIdentifierException
         | UnsupportedTypeException e) {
       // write was not successful. In SL we only have basic support for errors.
-      throw SLUndefinedNameException.undefinedProperty(this, name);
+      throw JXUndefinedNameException.undefinedProperty(this, name);
     }
     return value;
   }
 
   static boolean isSLObject(Object receiver) {
-    return receiver instanceof SLObject;
+    return receiver instanceof JXObject;
   }
 }

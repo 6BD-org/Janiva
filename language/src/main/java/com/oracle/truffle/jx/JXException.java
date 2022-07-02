@@ -49,20 +49,20 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.source.SourceSection;
-import com.oracle.truffle.jx.runtime.SLLanguageView;
+import com.oracle.truffle.jx.runtime.JXLanguageView;
 
 /**
  * SL does not need a sophisticated error checking and reporting mechanism, so all unexpected
  * conditions just abort execution. This exception class is used when we abort from within the SL
  * implementation.
  */
-public class SLException extends AbstractTruffleException {
+public class JXException extends AbstractTruffleException {
 
   private static final long serialVersionUID = -6799734410727348507L;
   private static final InteropLibrary UNCACHED_LIB = InteropLibrary.getFactory().getUncached();
 
   @TruffleBoundary
-  public SLException(String message, Node location) {
+  public JXException(String message, Node location) {
     super(message, location);
   }
 
@@ -71,7 +71,7 @@ public class SLException extends AbstractTruffleException {
    * are no automatic type conversions of values.
    */
   @TruffleBoundary
-  public static SLException typeError(Node operation, Object... values) {
+  public static JXException typeError(Node operation, Object... values) {
     StringBuilder result = new StringBuilder();
     result.append("Type error");
 
@@ -108,7 +108,7 @@ public class SLException extends AbstractTruffleException {
        * Using the language view for core builtins like the typeOf builtin might not be a good
        * idea for performance reasons.
        */
-      Object value = SLLanguageView.forValue(values[i]);
+      Object value = JXLanguageView.forValue(values[i]);
       result.append(sep);
       sep = ", ";
       if (value == null) {
@@ -136,6 +136,6 @@ public class SLException extends AbstractTruffleException {
         }
       }
     }
-    return new SLException(result.toString(), operation);
+    return new JXException(result.toString(), operation);
   }
 }

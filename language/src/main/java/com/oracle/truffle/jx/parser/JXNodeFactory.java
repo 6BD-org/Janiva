@@ -58,7 +58,7 @@ import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
 import com.oracle.truffle.jx.nodes.local.*;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
-import com.oracle.truffle.jx.runtime.SLStrings;
+import com.oracle.truffle.jx.runtime.JXStrings;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
@@ -132,7 +132,7 @@ public class JXNodeFactory {
   public JXNodeFactory(JSONXLang language, Source source) {
     this.language = language;
     this.source = source;
-    this.sourceString = SLStrings.fromJavaString(source.getCharacters().toString());
+    this.sourceString = JXStrings.fromJavaString(source.getCharacters().toString());
     this.allFunctions = new HashMap<>();
   }
 
@@ -211,7 +211,7 @@ public class JXNodeFactory {
 
   public RootNode getRootNode() {
     return new JXRootNode(
-            language, frameDescriptorBuilder.build(), rootNode, SLStrings.fromJavaString("#root")
+            language, frameDescriptorBuilder.build(), rootNode, JXStrings.fromJavaString("#root")
     );
   }
 

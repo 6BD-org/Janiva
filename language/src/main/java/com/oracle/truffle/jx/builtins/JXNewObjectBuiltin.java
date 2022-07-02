@@ -51,25 +51,25 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.runtime.SLContext;
-import com.oracle.truffle.jx.runtime.SLNull;
-import com.oracle.truffle.jx.runtime.SLUndefinedNameException;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXContext;
+import com.oracle.truffle.jx.runtime.JXUndefinedNameException;
 
 /**
  * Built-in function to create a new object. Objects in SL are simply made up of name/value pairs.
  */
 @NodeInfo(shortName = "new")
-@ImportStatic(SLContext.class)
+@ImportStatic(JXContext.class)
 public abstract class JXNewObjectBuiltin extends JXBuiltinNode {
 
   @Specialization
   @SuppressWarnings("unused")
-  public Object newObject(SLNull o, @Cached("lookup()") AllocationReporter reporter) {
+  public Object newObject(JSNull o, @Cached("lookup()") AllocationReporter reporter) {
     return JSONXLang.get(this).createObject(reporter);
   }
 
   final AllocationReporter lookup() {
-    return SLContext.get(this).getAllocationReporter();
+    return JXContext.get(this).getAllocationReporter();
   }
 
   @Specialization(guards = "!values.isNull(obj)", limit = "3")
@@ -78,7 +78,7 @@ public abstract class JXNewObjectBuiltin extends JXBuiltinNode {
       return values.instantiate(obj);
     } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
       /* Foreign access was not successful. */
-      throw SLUndefinedNameException.undefinedFunction(this, obj);
+      throw JXUndefinedNameException.undefinedFunction(this, obj);
     }
   }
 }

@@ -49,15 +49,15 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.runtime.SLContext;
-import com.oracle.truffle.jx.runtime.SLFunction;
-import com.oracle.truffle.jx.runtime.SLFunctionRegistry;
+import com.oracle.truffle.jx.runtime.JXContext;
+import com.oracle.truffle.jx.runtime.JXFunction;
+import com.oracle.truffle.jx.runtime.JXFunctionRegistry;
 
 /**
- * Constant literal for a {@link SLFunction function} value, created when a function name occurs as
+ * Constant literal for a {@link JXFunction function} value, created when a function name occurs as
  * a literal in SL source code. Note that function redefinition can change the {@link CallTarget
- * call target} that is executed when calling the function, but the {@link SLFunction} for a name
- * never changes. This is guaranteed by the {@link SLFunctionRegistry}.
+ * call target} that is executed when calling the function, but the {@link JXFunction} for a name
+ * never changes. This is guaranteed by the {@link JXFunctionRegistry}.
  */
 @NodeInfo(shortName = "func")
 public final class JXFunctionLiteralNode extends JXExpressionNode {
@@ -67,22 +67,22 @@ public final class JXFunctionLiteralNode extends JXExpressionNode {
 
   /**
    * The resolved function. During parsing (in the constructor of this node), we do not have the
-   * {@link SLContext} available yet, so the lookup can only be done at {@link #executeGeneric first
+   * {@link JXContext} available yet, so the lookup can only be done at {@link #executeGeneric first
    * execution}. The {@link CompilationFinal} annotation ensures that the function can still be
    * constant folded during compilation.
    */
-  @CompilationFinal private SLFunction cachedFunction;
+  @CompilationFinal private JXFunction cachedFunction;
 
   public JXFunctionLiteralNode(TruffleString functionName) {
     this.functionName = functionName;
   }
 
   @Override
-  public SLFunction executeGeneric(VirtualFrame frame) {
+  public JXFunction executeGeneric(VirtualFrame frame) {
     JSONXLang l = JSONXLang.get(this);
     CompilerAsserts.partialEvaluationConstant(l);
 
-    SLFunction function;
+    JXFunction function;
     if (l.isSingleContext()) {
       function = this.cachedFunction;
       if (function == null) {
@@ -90,7 +90,7 @@ public final class JXFunctionLiteralNode extends JXExpressionNode {
         CompilerDirectives.transferToInterpreterAndInvalidate();
         /* First execution of the node: lookup the function in the function registry. */
         this.cachedFunction =
-            function = SLContext.get(this).getFunctionRegistry().lookup(functionName, true);
+            function = JXContext.get(this).getFunctionRegistry().lookup(functionName, true);
       }
     } else {
       /*
@@ -102,7 +102,7 @@ public final class JXFunctionLiteralNode extends JXExpressionNode {
       }
       // in the multi-context case we are not allowed to store
       // SLFunction objects in the AST. Instead we always perform the lookup in the hash map.
-      function = SLContext.get(this).getFunctionRegistry().lookup(functionName, true);
+      function = JXContext.get(this).getFunctionRegistry().lookup(functionName, true);
     }
     return function;
   }

@@ -65,11 +65,11 @@ import com.oracle.truffle.jx.JSONXLang;
  */
 @ExportLibrary(value = InteropLibrary.class, delegateTo = "delegate")
 @SuppressWarnings("static-method")
-public final class SLLanguageView implements TruffleObject {
+public final class JXLanguageView implements TruffleObject {
 
   final Object delegate;
 
-  SLLanguageView(Object delegate) {
+  JXLanguageView(Object delegate) {
     this.delegate = delegate;
   }
 
@@ -100,7 +100,7 @@ public final class SLLanguageView implements TruffleObject {
      * SLFunction is already associated with the SLLanguage and therefore the language view will
      * not be used.
      */
-    for (SLType type : SLType.PRECEDENCE) {
+    for (JXType type : JXType.PRECEDENCE) {
       if (type.isInstance(delegate, interop)) {
         return true;
       }
@@ -115,7 +115,7 @@ public final class SLLanguageView implements TruffleObject {
     /*
      * We do the same as in hasMetaObject but actually return the type this time.
      */
-    for (SLType type : SLType.PRECEDENCE) {
+    for (JXType type : JXType.PRECEDENCE) {
       if (type.isInstance(delegate, interop)) {
         return type;
       }
@@ -128,18 +128,18 @@ public final class SLLanguageView implements TruffleObject {
   Object toDisplayString(
       @SuppressWarnings("unused") boolean allowSideEffects,
       @CachedLibrary("this.delegate") InteropLibrary interop) {
-    for (SLType type : SLType.PRECEDENCE) {
+    for (JXType type : JXType.PRECEDENCE) {
       if (type.isInstance(this.delegate, interop)) {
         try {
           /*
            * The type is a partial evaluation constant here as we use @ExplodeLoop. So
            * this if-else cascade should fold after partial evaluation.
            */
-          if (type == SLType.NUMBER) {
+          if (type == JXType.NUMBER) {
             return longToString(interop.asLong(delegate));
-          } else if (type == SLType.BOOLEAN) {
+          } else if (type == JXType.BOOLEAN) {
             return Boolean.toString(interop.asBoolean(delegate));
-          } else if (type == SLType.STRING) {
+          } else if (type == JXType.STRING) {
             return interop.asString(delegate);
           } else {
             /* We use the type name as fallback for any other type */
@@ -164,7 +164,7 @@ public final class SLLanguageView implements TruffleObject {
 
   public static Object create(Object value) {
     assert isPrimitiveOrFromOtherLanguage(value);
-    return new SLLanguageView(value);
+    return new JXLanguageView(value);
   }
 
   /*

@@ -77,18 +77,18 @@ import com.oracle.truffle.jx.nodes.JXUndefinedFunctionRootNode;
  * call node can keep the call target returned by {@link #getCallTarget()} cached until the
  * assumption returned by {@link #getCallTargetStable()} is valid.
  *
- * <p>The {@link #callTarget} can be {@code null}. To ensure that only one {@link SLFunction}
- * instance per name exists, the {@link SLFunctionRegistry} creates an instance also when performing
+ * <p>The {@link #callTarget} can be {@code null}. To ensure that only one {@link JXFunction}
+ * instance per name exists, the {@link JXFunctionRegistry} creates an instance also when performing
  * name lookup. A function that has been looked up, i.e., used, but not defined, has a call target
  * that encapsulates a {@link JXUndefinedFunctionRootNode}.
  */
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
-public final class SLFunction implements TruffleObject {
+public final class JXFunction implements TruffleObject {
 
   public static final int INLINE_CACHE_SIZE = 2;
 
-  private static final TruffleLogger LOG = TruffleLogger.getLogger(JSONXLang.ID, SLFunction.class);
+  private static final TruffleLogger LOG = TruffleLogger.getLogger(JSONXLang.ID, JXFunction.class);
 
   /** The name of the function. */
   private final TruffleString name;
@@ -103,11 +103,11 @@ public final class SLFunction implements TruffleObject {
    */
   private final CyclicAssumption callTargetStable;
 
-  protected SLFunction(JSONXLang language, TruffleString name) {
+  protected JXFunction(JSONXLang language, TruffleString name) {
     this(name, language.getOrCreateUndefinedFunction(name));
   }
 
-  protected SLFunction(TruffleString name, RootCallTarget callTarget) {
+  protected JXFunction(TruffleString name, RootCallTarget callTarget) {
     this.name = name;
     this.callTargetStable = new CyclicAssumption(name.toJavaStringUncached());
     setCallTarget(callTarget);
@@ -157,7 +157,7 @@ public final class SLFunction implements TruffleObject {
     return JSONXLang.class;
   }
 
-  /** {@link SLFunction} instances are always visible as executable to other languages. */
+  /** {@link JXFunction} instances are always visible as executable to other languages. */
   @SuppressWarnings("static-method")
   @ExportMessage
   @TruffleBoundary
@@ -171,7 +171,7 @@ public final class SLFunction implements TruffleObject {
     return true;
   }
 
-  /** {@link SLFunction} instances are always visible as executable to other languages. */
+  /** {@link JXFunction} instances are always visible as executable to other languages. */
   @ExportMessage
   boolean isExecutable() {
     return true;
@@ -184,14 +184,14 @@ public final class SLFunction implements TruffleObject {
 
   @ExportMessage
   Object getMetaObject() {
-    return SLType.FUNCTION;
+    return JXType.FUNCTION;
   }
 
   @ExportMessage
   @SuppressWarnings("unused")
   static final class IsIdenticalOrUndefined {
     @Specialization
-    static TriState doSLFunction(SLFunction receiver, SLFunction other) {
+    static TriState doSLFunction(JXFunction receiver, JXFunction other) {
       /*
        * SLFunctions are potentially identical to other SLFunctions.
        */
@@ -199,14 +199,14 @@ public final class SLFunction implements TruffleObject {
     }
 
     @Fallback
-    static TriState doOther(SLFunction receiver, Object other) {
+    static TriState doOther(JXFunction receiver, Object other) {
       return TriState.UNDEFINED;
     }
   }
 
   @ExportMessage
   @TruffleBoundary
-  static int identityHashCode(SLFunction receiver) {
+  static int identityHashCode(JXFunction receiver) {
     return System.identityHashCode(receiver);
   }
 
@@ -268,7 +268,7 @@ public final class SLFunction implements TruffleObject {
         assumptions = "callTargetStable")
     @SuppressWarnings("unused")
     protected static Object doDirect(
-        SLFunction function,
+        JXFunction function,
         Object[] arguments,
         @Cached("function.getCallTargetStable()") Assumption callTargetStable,
         @Cached("function.getCallTarget()") RootCallTarget cachedTarget,
@@ -286,7 +286,7 @@ public final class SLFunction implements TruffleObject {
      */
     @Specialization(replaces = "doDirect")
     protected static Object doIndirect(
-        SLFunction function, Object[] arguments, @Cached IndirectCallNode callNode) {
+            JXFunction function, Object[] arguments, @Cached IndirectCallNode callNode) {
       /*
        * SL has a quite simple call lookup: just ask the function for the current call target,
        * and call it.

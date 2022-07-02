@@ -57,7 +57,7 @@ import com.oracle.truffle.api.strings.TruffleStringBuilder;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.SLEvalRootNode;
-import com.oracle.truffle.jx.runtime.SLStrings;
+import com.oracle.truffle.jx.runtime.JXStrings;
 
 /**
  * Returns a string representation of the current stack. This includes the {@link CallTarget}s and
@@ -66,9 +66,9 @@ import com.oracle.truffle.jx.runtime.SLStrings;
 @NodeInfo(shortName = "stacktrace")
 public abstract class JXStackTraceBuiltin extends JXBuiltinNode {
 
-  public static final TruffleString FRAME = SLStrings.constant("Frame: root ");
-  public static final TruffleString SEPARATOR = SLStrings.constant(", ");
-  public static final TruffleString EQUALS = SLStrings.constant("=");
+  public static final TruffleString FRAME = JXStrings.constant("Frame: root ");
+  public static final TruffleString SEPARATOR = JXStrings.constant(", ");
+  public static final TruffleString EQUALS = JXStrings.constant("=");
 
   @Specialization
   public TruffleString trace() {
@@ -99,7 +99,7 @@ public abstract class JXStackTraceBuiltin extends JXBuiltinNode {
                 }
                 if (str.byteLength() > 0) {
                   str.appendStringUncached(
-                      SLStrings.fromJavaString(System.getProperty("line.separator")));
+                      JXStrings.fromJavaString(System.getProperty("line.separator")));
                 }
                 str.appendStringUncached(FRAME);
                 str.appendStringUncached(getRootNodeName(rn));
@@ -109,7 +109,7 @@ public abstract class JXStackTraceBuiltin extends JXBuiltinNode {
                   str.appendStringUncached(SEPARATOR);
                   str.appendStringUncached((TruffleString) frameDescriptor.getSlotName(i));
                   str.appendStringUncached(EQUALS);
-                  str.appendStringUncached(SLStrings.fromObject(frame.getValue(i)));
+                  str.appendStringUncached(JXStrings.fromObject(frame.getValue(i)));
                 }
                 return null;
               }
@@ -123,7 +123,7 @@ public abstract class JXStackTraceBuiltin extends JXBuiltinNode {
     } else if (rootNode instanceof SLEvalRootNode) {
       return SLEvalRootNode.getTSName();
     } else {
-      return SLStrings.fromJavaString(rootNode.getName());
+      return JXStrings.fromJavaString(rootNode.getName());
     }
   }
 }

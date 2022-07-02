@@ -46,14 +46,14 @@ import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
-import com.oracle.truffle.jx.runtime.SLNull;
+import com.oracle.truffle.jx.runtime.JSNull;
 
 /**
  * The body of a user-defined SL function. This is the node referenced by a {@link JXRootNode} for
  * user-defined functions. It handles the return value of a function: the {@link SLReturnNode return
  * statement} throws an {@link SLReturnException exception} with the return value. This node catches
  * the exception. If the method ends without an explicit {@code return}, return the {@link
- * SLNull#SINGLETON default null value}.
+ * JSNull#SINGLETON default null value}.
  */
 @NodeInfo(shortName = "body")
 public final class JXFunctionBodyNode extends JXExpressionNode {
@@ -97,6 +97,6 @@ public final class JXFunctionBodyNode extends JXExpressionNode {
      */
     nullTaken.enter();
     /* Return the default null value. */
-    return SLNull.SINGLETON;
+    return JSNull.SINGLETON;
   }
 }

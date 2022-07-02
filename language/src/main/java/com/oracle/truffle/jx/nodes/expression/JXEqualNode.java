@@ -52,9 +52,9 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.JXBinaryNode;
-import com.oracle.truffle.jx.runtime.SLBigNumber;
-import com.oracle.truffle.jx.runtime.SLFunction;
-import com.oracle.truffle.jx.runtime.SLNull;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXBigNumber;
+import com.oracle.truffle.jx.runtime.JXFunction;
 
 /**
  * The {@code ==} operator of SL is defined on all types. Therefore, we need a {@link #equal(Object,
@@ -73,7 +73,7 @@ public abstract class JXEqualNode extends JXBinaryNode {
 
   @Specialization
   @TruffleBoundary
-  protected boolean doBigNumber(SLBigNumber left, SLBigNumber right) {
+  protected boolean doBigNumber(JXBigNumber left, JXBigNumber right) {
     return left.equals(right);
   }
 
@@ -94,13 +94,13 @@ public abstract class JXEqualNode extends JXBinaryNode {
   }
 
   @Specialization
-  protected boolean doNull(SLNull left, SLNull right) {
+  protected boolean doNull(JSNull left, JSNull right) {
     /* There is only the singleton instance of SLNull, so we do not need equals(). */
     return left == right;
   }
 
   @Specialization
-  protected boolean doFunction(SLFunction left, Object right) {
+  protected boolean doFunction(JXFunction left, Object right) {
     /*
      * Our function registry maintains one canonical SLFunction object per function name, so we
      * do not need equals().
@@ -145,8 +145,8 @@ public abstract class JXEqualNode extends JXBinaryNode {
         return true;
       } else if (leftInterop.fitsInLong(left) && rightInterop.fitsInLong(right)) {
         return doLong(leftInterop.asLong(left), (rightInterop.asLong(right)));
-      } else if (left instanceof SLBigNumber && right instanceof SLBigNumber) {
-        return doBigNumber((SLBigNumber) left, (SLBigNumber) right);
+      } else if (left instanceof JXBigNumber && right instanceof JXBigNumber) {
+        return doBigNumber((JXBigNumber) left, (JXBigNumber) right);
       } else if (leftInterop.hasIdentity(left) && rightInterop.hasIdentity(right)) {
         return leftInterop.isIdentical(left, right, rightInterop);
       } else {

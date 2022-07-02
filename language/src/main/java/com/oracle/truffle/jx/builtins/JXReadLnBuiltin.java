@@ -48,12 +48,12 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.SLException;
+import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.runtime.SLContext;
-import com.oracle.truffle.jx.runtime.SLStrings;
+import com.oracle.truffle.jx.runtime.JXContext;
+import com.oracle.truffle.jx.runtime.JXStrings;
 
-/** Builtin function that reads a String from the {@link SLContext#getInput() standard input}. */
+/** Builtin function that reads a String from the {@link JXContext#getInput() standard input}. */
 @NodeInfo(shortName = "readln")
 public abstract class JXReadLnBuiltin extends JXBuiltinNode {
 
@@ -61,14 +61,14 @@ public abstract class JXReadLnBuiltin extends JXBuiltinNode {
   public TruffleString readln(@Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
     TruffleString result =
         fromJavaStringNode.execute(
-            doRead(SLContext.get(this).getInput()), JSONXLang.STRING_ENCODING);
+            doRead(JXContext.get(this).getInput()), JSONXLang.STRING_ENCODING);
     if (result == null) {
       /*
        * We do not have a sophisticated end of file handling, so returning an empty string is
        * a reasonable alternative. Note that the Java null value should never be used, since
        * it can interfere with the specialization logic in generated source code.
        */
-      result = SLStrings.EMPTY_STRING;
+      result = JXStrings.EMPTY_STRING;
     }
     return result;
   }
@@ -78,7 +78,7 @@ public abstract class JXReadLnBuiltin extends JXBuiltinNode {
     try {
       return in.readLine();
     } catch (IOException ex) {
-      throw new SLException(ex.getMessage(), this);
+      throw new JXException(ex.getMessage(), this);
     }
   }
 }

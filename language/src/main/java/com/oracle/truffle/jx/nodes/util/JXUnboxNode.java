@@ -53,9 +53,9 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.SLTypes;
-import com.oracle.truffle.jx.runtime.SLBigNumber;
-import com.oracle.truffle.jx.runtime.SLFunction;
-import com.oracle.truffle.jx.runtime.SLNull;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXBigNumber;
+import com.oracle.truffle.jx.runtime.JXFunction;
 
 /**
  * The node to normalize any value to an SL value. This is useful to reduce the number of values
@@ -89,17 +89,17 @@ public abstract class JXUnboxNode extends JXExpressionNode {
   }
 
   @Specialization
-  protected static SLBigNumber fromBigNumber(SLBigNumber value) {
+  protected static JXBigNumber fromBigNumber(JXBigNumber value) {
     return value;
   }
 
   @Specialization
-  protected static SLFunction fromFunction(SLFunction value) {
+  protected static JXFunction fromFunction(JXFunction value) {
     return value;
   }
 
   @Specialization
-  protected static SLNull fromFunction(SLNull value) {
+  protected static JSNull fromFunction(JSNull value) {
     return value;
   }
 

@@ -48,7 +48,7 @@ import com.oracle.truffle.api.frame.FrameInstance.FrameAccess;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.runtime.SLStrings;
+import com.oracle.truffle.jx.runtime.JXStrings;
 
 /** This builtin sets the variable named "hello" in the caller frame to the string "world". */
 @NodeInfo(shortName = "helloEqualsWorld")
@@ -63,14 +63,14 @@ public abstract class JXHelloEqualsWorldBuiltin extends JXBuiltinNode {
               Frame frame = f.getFrame(FrameAccess.READ_WRITE);
               int count = frame.getFrameDescriptor().getNumberOfSlots();
               for (int i = 0; i < count; i++) {
-                if (SLStrings.HELLO.equalsUncached(
+                if (JXStrings.HELLO.equalsUncached(
                     (TruffleString) frame.getFrameDescriptor().getSlotName(i),
                     JSONXLang.STRING_ENCODING)) {
-                  frame.setObject(i, SLStrings.WORLD);
+                  frame.setObject(i, JXStrings.WORLD);
                   break;
                 }
               }
-              return SLStrings.WORLD;
+              return JXStrings.WORLD;
             },
             1);
   }

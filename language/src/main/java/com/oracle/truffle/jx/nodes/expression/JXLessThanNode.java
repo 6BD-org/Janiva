@@ -44,9 +44,9 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.jx.SLException;
+import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXBinaryNode;
-import com.oracle.truffle.jx.runtime.SLBigNumber;
+import com.oracle.truffle.jx.runtime.JXBigNumber;
 
 /**
  * This class is similar to the extensively documented {@link JXAddNode}. The only difference: the
@@ -62,12 +62,12 @@ public abstract class JXLessThanNode extends JXBinaryNode {
 
   @Specialization
   @TruffleBoundary
-  protected boolean lessThan(SLBigNumber left, SLBigNumber right) {
+  protected boolean lessThan(JXBigNumber left, JXBigNumber right) {
     return left.compareTo(right) < 0;
   }
 
   @Fallback
   protected Object typeError(Object left, Object right) {
-    throw SLException.typeError(this, left, right);
+    throw JXException.typeError(this, left, right);
   }
 }

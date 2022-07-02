@@ -51,7 +51,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.runtime.SLStrings;
+import com.oracle.truffle.jx.runtime.JXStrings;
 
 /** A container class used to store per-node attributes used by the instrumentation framework. */
 public abstract class NodeObjectDescriptor implements TruffleObject {
@@ -87,7 +87,7 @@ public abstract class NodeObjectDescriptor implements TruffleObject {
   static final class ReadDescriptor extends NodeObjectDescriptor {
 
     private static final TruffleObject KEYS_READ =
-        new NodeObjectDescriptorKeys(SLStrings.constant(StandardTags.ReadVariableTag.NAME));
+        new NodeObjectDescriptorKeys(JXStrings.constant(StandardTags.ReadVariableTag.NAME));
 
     ReadDescriptor(TruffleString name) {
       super(name);
@@ -123,7 +123,7 @@ public abstract class NodeObjectDescriptor implements TruffleObject {
   static final class WriteDescriptor extends NodeObjectDescriptor {
 
     private static final TruffleObject KEYS_WRITE =
-        new NodeObjectDescriptorKeys(SLStrings.constant(StandardTags.WriteVariableTag.NAME));
+        new NodeObjectDescriptorKeys(JXStrings.constant(StandardTags.WriteVariableTag.NAME));
 
     private final Object nameSymbol;
 

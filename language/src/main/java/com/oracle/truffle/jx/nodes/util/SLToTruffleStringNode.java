@@ -54,10 +54,10 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.SLTypes;
-import com.oracle.truffle.jx.runtime.SLBigNumber;
-import com.oracle.truffle.jx.runtime.SLFunction;
-import com.oracle.truffle.jx.runtime.SLNull;
-import com.oracle.truffle.jx.runtime.SLStrings;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXBigNumber;
+import com.oracle.truffle.jx.runtime.JXFunction;
+import com.oracle.truffle.jx.runtime.JXStrings;
 
 /**
  * The node to normalize any value to an SL value. This is useful to reduce the number of values
@@ -69,15 +69,15 @@ public abstract class SLToTruffleStringNode extends Node {
 
   static final int LIMIT = 5;
 
-  private static final TruffleString TRUE = SLStrings.constant("true");
-  private static final TruffleString FALSE = SLStrings.constant("false");
-  private static final TruffleString FOREIGN_OBJECT = SLStrings.constant("[foreign object]");
+  private static final TruffleString TRUE = JXStrings.constant("true");
+  private static final TruffleString FALSE = JXStrings.constant("false");
+  private static final TruffleString FOREIGN_OBJECT = JXStrings.constant("[foreign object]");
 
   public abstract TruffleString execute(Object value);
 
   @Specialization
-  protected static TruffleString fromNull(@SuppressWarnings("unused") SLNull value) {
-    return SLStrings.NULL;
+  protected static TruffleString fromNull(@SuppressWarnings("unused") JSNull value) {
+    return JXStrings.NULL;
   }
 
   @Specialization
@@ -106,12 +106,12 @@ public abstract class SLToTruffleStringNode extends Node {
   @Specialization
   @TruffleBoundary
   protected static TruffleString fromBigNumber(
-      SLBigNumber value, @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
+          JXBigNumber value, @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
     return fromJavaStringNode.execute(value.toString(), JSONXLang.STRING_ENCODING);
   }
 
   @Specialization
-  protected static TruffleString fromFunction(SLFunction value) {
+  protected static TruffleString fromFunction(JXFunction value) {
     return value.getName();
   }
 
@@ -126,11 +126,11 @@ public abstract class SLToTruffleStringNode extends Node {
         return fromLongNode.execute(interop.asLong(value), JSONXLang.STRING_ENCODING, true);
       } else if (interop.isString(value)) {
         return fromJavaStringNode.execute(interop.asString(value), JSONXLang.STRING_ENCODING);
-      } else if (interop.isNumber(value) && value instanceof SLBigNumber) {
+      } else if (interop.isNumber(value) && value instanceof JXBigNumber) {
         return fromJavaStringNode.execute(
-            bigNumberToString((SLBigNumber) value), JSONXLang.STRING_ENCODING);
+            bigNumberToString((JXBigNumber) value), JSONXLang.STRING_ENCODING);
       } else if (interop.isNull(value)) {
-        return SLStrings.NULL_LC;
+        return JXStrings.NULL_LC;
       } else {
         return FOREIGN_OBJECT;
       }
@@ -140,7 +140,7 @@ public abstract class SLToTruffleStringNode extends Node {
   }
 
   @TruffleBoundary
-  private static String bigNumberToString(SLBigNumber value) {
+  private static String bigNumberToString(JXBigNumber value) {
     return value.toString();
   }
 }

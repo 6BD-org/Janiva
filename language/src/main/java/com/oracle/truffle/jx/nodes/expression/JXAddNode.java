@@ -47,12 +47,12 @@ import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.SLException;
+import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.JXBinaryNode;
 import com.oracle.truffle.jx.nodes.SLTypes;
 import com.oracle.truffle.jx.nodes.util.SLToTruffleStringNode;
-import com.oracle.truffle.jx.runtime.SLBigNumber;
+import com.oracle.truffle.jx.runtime.JXBigNumber;
 
 /**
  * SL node that performs the "+" operation, which performs addition on arbitrary precision numbers,
@@ -70,7 +70,7 @@ public abstract class JXAddNode extends JXBinaryNode {
   /**
    * Specialization for primitive {@code long} values. This is the fast path of the
    * arbitrary-precision arithmetic. We need to check for overflows of the addition, and switch to
-   * the {@link #add(SLBigNumber, SLBigNumber) slow path}. Therefore, we use an {@link
+   * the {@link #add(JXBigNumber, JXBigNumber) slow path}. Therefore, we use an {@link
    * Math#addExact(long, long) addition method that throws an exception on overflow}. The {@code
    * rewriteOn} attribute on the {@link Specialization} annotation automatically triggers the node
    * rewriting on the exception.
@@ -88,12 +88,12 @@ public abstract class JXAddNode extends JXBinaryNode {
   }
 
   /**
-   * This is the slow path of the arbitrary-precision arithmetic. The {@link SLBigNumber} type of
+   * This is the slow path of the arbitrary-precision arithmetic. The {@link JXBigNumber} type of
    * Java is doing everything we need.
    *
    * <p>This specialization is automatically selected by the Truffle DSL if both the left and right
-   * operand are {@link SLBigNumber} values. Because the type system defines an {@link ImplicitCast
-   * implicit conversion} from {@code long} to {@link SLBigNumber} in {@link
+   * operand are {@link JXBigNumber} values. Because the type system defines an {@link ImplicitCast
+   * implicit conversion} from {@code long} to {@link JXBigNumber} in {@link
    * SLTypes#castBigNumber(long)}, this specialization is also taken if the left or the right
    * operand is a {@code long} value. Because the {@link #add(long, long) long} specialization} has
    * the {@code rewriteOn} attribute, this specialization is also taken if both input values are
@@ -101,8 +101,8 @@ public abstract class JXAddNode extends JXBinaryNode {
    */
   @Specialization
   @TruffleBoundary
-  protected SLBigNumber add(SLBigNumber left, SLBigNumber right) {
-    return new SLBigNumber(left.getValue().add(right.getValue()));
+  protected JXBigNumber add(JXBigNumber left, JXBigNumber right) {
+    return new JXBigNumber(left.getValue().add(right.getValue()));
   }
 
   /**
@@ -138,6 +138,6 @@ public abstract class JXAddNode extends JXBinaryNode {
 
   @Fallback
   protected Object typeError(Object left, Object right) {
-    throw SLException.typeError(this, left, right);
+    throw JXException.typeError(this, left, right);
   }
 }

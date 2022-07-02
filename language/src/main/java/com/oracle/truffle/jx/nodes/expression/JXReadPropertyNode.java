@@ -54,8 +54,8 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.util.SLToMemberNode;
 import com.oracle.truffle.jx.nodes.util.SLToTruffleStringNode;
-import com.oracle.truffle.jx.runtime.SLObject;
-import com.oracle.truffle.jx.runtime.SLUndefinedNameException;
+import com.oracle.truffle.jx.runtime.JXObject;
+import com.oracle.truffle.jx.runtime.JXUndefinedNameException;
 
 /**
  * The node for reading a property of an object. When executed, this node:
@@ -83,13 +83,13 @@ public abstract class JXReadPropertyNode extends JXExpressionNode {
       return arrays.readArrayElement(receiver, numbers.asLong(index));
     } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
       // read was not successful. In SL we only have basic support for errors.
-      throw SLUndefinedNameException.undefinedProperty(this, index);
+      throw JXUndefinedNameException.undefinedProperty(this, index);
     }
   }
 
   @Specialization(limit = "LIBRARY_LIMIT")
   protected Object readSLObject(
-      SLObject receiver,
+      JXObject receiver,
       Object name,
       @CachedLibrary("receiver") DynamicObjectLibrary objectLibrary,
       @Cached SLToTruffleStringNode toTruffleStringNode) {
@@ -97,7 +97,7 @@ public abstract class JXReadPropertyNode extends JXExpressionNode {
     Object result = objectLibrary.getOrDefault(receiver, nameTS, null);
     if (result == null) {
       // read was not successful. In SL we only have basic support for errors.
-      throw SLUndefinedNameException.undefinedProperty(this, nameTS);
+      throw JXUndefinedNameException.undefinedProperty(this, nameTS);
     }
     return result;
   }
@@ -114,11 +114,11 @@ public abstract class JXReadPropertyNode extends JXExpressionNode {
       return objects.readMember(receiver, asMember.execute(name));
     } catch (UnsupportedMessageException | UnknownIdentifierException e) {
       // read was not successful. In SL we only have basic support for errors.
-      throw SLUndefinedNameException.undefinedProperty(this, name);
+      throw JXUndefinedNameException.undefinedProperty(this, name);
     }
   }
 
   static boolean isSLObject(Object receiver) {
-    return receiver instanceof SLObject;
+    return receiver instanceof JXObject;
   }
 }

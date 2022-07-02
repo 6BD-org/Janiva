@@ -60,7 +60,7 @@ import com.oracle.truffle.jx.JSONXLang;
 @SuppressWarnings("static-method")
 final class FunctionsObject implements TruffleObject {
 
-  final Map<TruffleString, SLFunction> functions = new HashMap<>();
+  final Map<TruffleString, JXFunction> functions = new HashMap<>();
 
   FunctionsObject() {}
 
@@ -82,7 +82,7 @@ final class FunctionsObject implements TruffleObject {
   @ExportMessage
   @TruffleBoundary
   Object readMember(String member) throws UnknownIdentifierException {
-    Object value = functions.get(SLStrings.fromJavaString(member));
+    Object value = functions.get(JXStrings.fromJavaString(member));
     if (value != null) {
       return value;
     }
@@ -92,7 +92,7 @@ final class FunctionsObject implements TruffleObject {
   @ExportMessage
   @TruffleBoundary
   boolean isMemberReadable(String member) {
-    return functions.containsKey(SLStrings.fromJavaString(member));
+    return functions.containsKey(JXStrings.fromJavaString(member));
   }
 
   @ExportMessage
@@ -108,7 +108,7 @@ final class FunctionsObject implements TruffleObject {
 
   @ExportMessage
   Object getMetaObject() {
-    return SLType.OBJECT;
+    return JXType.OBJECT;
   }
 
   @ExportMessage

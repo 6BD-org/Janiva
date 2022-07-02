@@ -44,9 +44,9 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.jx.SLException;
+import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXBinaryNode;
-import com.oracle.truffle.jx.runtime.SLBigNumber;
+import com.oracle.truffle.jx.runtime.JXBigNumber;
 
 /**
  * This class is similar to the extensively documented {@link JXAddNode}. Divisions by 0 throw the
@@ -70,12 +70,12 @@ public abstract class JXDivNode extends JXBinaryNode {
 
   @Specialization
   @TruffleBoundary
-  protected SLBigNumber div(SLBigNumber left, SLBigNumber right) {
-    return new SLBigNumber(left.getValue().divide(right.getValue()));
+  protected JXBigNumber div(JXBigNumber left, JXBigNumber right) {
+    return new JXBigNumber(left.getValue().divide(right.getValue()));
   }
 
   @Fallback
   protected Object typeError(Object left, Object right) {
-    throw SLException.typeError(this, left, right);
+    throw JXException.typeError(this, left, right);
   }
 }

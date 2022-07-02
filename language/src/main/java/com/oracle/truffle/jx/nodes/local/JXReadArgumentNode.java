@@ -44,7 +44,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.parser.JXNodeFactory;
-import com.oracle.truffle.jx.runtime.SLNull;
+import com.oracle.truffle.jx.runtime.JSNull;
 
 /**
  * Reads a function argument. Arguments are passed in as an object array.
@@ -77,7 +77,7 @@ public class JXReadArgumentNode extends JXExpressionNode {
       /* In the interpreter, record profiling information that the branch was used. */
       outOfBoundsTaken.enter();
       /* Use the default null value. */
-      return SLNull.SINGLETON;
+      return JSNull.SINGLETON;
     }
   }
 }

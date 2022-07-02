@@ -45,7 +45,7 @@ import java.math.BigInteger;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.runtime.SLBigNumber;
+import com.oracle.truffle.jx.runtime.JXBigNumber;
 
 /**
  * Constant literal for a arbitrary-precision number that exceeds the range of {@link
@@ -54,14 +54,14 @@ import com.oracle.truffle.jx.runtime.SLBigNumber;
 @NodeInfo(shortName = "const")
 public final class JXBigIntegerLiteralNode extends JXExpressionNode {
 
-  private final SLBigNumber value;
+  private final JXBigNumber value;
 
   public JXBigIntegerLiteralNode(BigInteger value) {
-    this.value = new SLBigNumber(value);
+    this.value = new JXBigNumber(value);
   }
 
   @Override
-  public SLBigNumber executeGeneric(VirtualFrame frame) {
+  public JXBigNumber executeGeneric(VirtualFrame frame) {
     return value;
   }
 }

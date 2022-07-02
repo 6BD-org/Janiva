@@ -58,17 +58,17 @@ import com.oracle.truffle.jx.JSONXLang;
  */
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
-public final class SLNull implements TruffleObject {
+public final class JSNull implements TruffleObject {
 
   /** The canonical value to represent {@code null} in SL. */
-  public static final SLNull SINGLETON = new SLNull();
+  public static final JSNull SINGLETON = new JSNull();
 
   private static final int IDENTITY_HASH = System.identityHashCode(SINGLETON);
 
   /**
    * Disallow instantiation from outside to ensure that the {@link #SINGLETON} is the only instance.
    */
-  private SLNull() {}
+  private JSNull() {}
 
   /**
    * This method is, e.g., called when using the {@code null} value in a string concatenation. So
@@ -89,7 +89,7 @@ public final class SLNull implements TruffleObject {
     return JSONXLang.class;
   }
 
-  /** {@link SLNull} values are interpreted as null values by other languages. */
+  /** {@link JSNull} values are interpreted as null values by other languages. */
   @ExportMessage
   boolean isNull() {
     return true;
@@ -102,20 +102,20 @@ public final class SLNull implements TruffleObject {
 
   @ExportMessage
   Object getMetaObject() {
-    return SLType.NULL;
+    return JXType.NULL;
   }
 
   @ExportMessage
   static TriState isIdenticalOrUndefined(
-      @SuppressWarnings("unused") SLNull receiver, Object other) {
+          @SuppressWarnings("unused") JSNull receiver, Object other) {
     /*
      * SLNull values are identical to other SLNull values.
      */
-    return TriState.valueOf(SLNull.SINGLETON == other);
+    return TriState.valueOf(JSNull.SINGLETON == other);
   }
 
   @ExportMessage
-  static int identityHashCode(@SuppressWarnings("unused") SLNull receiver) {
+  static int identityHashCode(@SuppressWarnings("unused") JSNull receiver) {
     /*
      * We do not use 0, as we want consistency with System.identityHashCode(receiver).
      */

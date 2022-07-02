@@ -45,17 +45,17 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.oracle.truffle.jx.SLException;
+import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.runtime.SLContext;
-import com.oracle.truffle.jx.runtime.SLFunctionRegistry;
+import com.oracle.truffle.jx.runtime.JXContext;
+import com.oracle.truffle.jx.runtime.JXFunctionRegistry;
 
 /**
  * Base class for all builtin functions. It contains the Truffle DSL annotation {@link NodeChild}
  * that defines the function arguments.<br>
- * The builtin functions are registered in {@link SLContext#installBuiltins}. Every builtin node
+ * The builtin functions are registered in {@link JXContext#installBuiltins}. Every builtin node
  * subclass is instantiated there, wrapped into a function, and added to the {@link
- * SLFunctionRegistry}. This ensures that builtin functions can be called like user-defined
+ * JXFunctionRegistry}. This ensures that builtin functions can be called like user-defined
  * functions; there is no special function lookup or call node for builtin functions.
  */
 @NodeChild(value = "arguments", type = JXExpressionNode[].class)
@@ -67,7 +67,7 @@ public abstract class JXBuiltinNode extends JXExpressionNode {
     try {
       return execute(frame);
     } catch (UnsupportedSpecializationException e) {
-      throw SLException.typeError(e.getNode(), e.getSuppliedValues());
+      throw JXException.typeError(e.getNode(), e.getSuppliedValues());
     }
   }
 

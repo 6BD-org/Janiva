@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -40,47 +40,25 @@
  */
 package com.oracle.truffle.jx.runtime;
 
-import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.nodes.RootNode;
-import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.nodes.SLEvalRootNode;
-import com.oracle.truffle.jx.nodes.JXRootNode;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.jx.JXException;
 
-public final class SLStrings {
+public final class JXUndefinedNameException extends JXException {
 
-  public static final TruffleString EMPTY_STRING = constant("");
-  public static final TruffleString NULL = constant("NULL");
-  public static final TruffleString NULL_LC = constant("null");
-  public static final TruffleString MAIN = constant("main");
-  public static final TruffleString HELLO = constant("hello");
-  public static final TruffleString WORLD = constant("world");
+  private static final long serialVersionUID = 1L;
 
-  public static TruffleString constant(String s) {
-    return fromJavaString(s);
+  @TruffleBoundary
+  public static JXUndefinedNameException undefinedFunction(Node location, Object name) {
+    throw new JXUndefinedNameException("Undefined function: " + name, location);
   }
 
-  public static TruffleString fromJavaString(String s) {
-    return TruffleString.fromJavaStringUncached(s, JSONXLang.STRING_ENCODING);
+  @TruffleBoundary
+  public static JXUndefinedNameException undefinedProperty(Node location, Object name) {
+    throw new JXUndefinedNameException("Undefined property: " + name, location);
   }
 
-  public static TruffleString fromObject(Object o) {
-    if (o == null) {
-      return NULL_LC;
-    }
-    if (o instanceof TruffleString) {
-      return (TruffleString) o;
-    }
-    return fromJavaString(o.toString());
-  }
-
-  public static TruffleString getSLRootName(RootNode rootNode) {
-    if (rootNode instanceof JXRootNode) {
-      return ((JXRootNode) rootNode).getTSName();
-    } else if (rootNode instanceof SLEvalRootNode) {
-      return SLEvalRootNode.getTSName();
-    } else {
-      throw CompilerDirectives.shouldNotReachHere();
-    }
+  private JXUndefinedNameException(String message, Node node) {
+    super(message, node);
   }
 }

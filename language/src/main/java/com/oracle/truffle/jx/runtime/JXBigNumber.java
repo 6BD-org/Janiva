@@ -53,7 +53,7 @@ import com.oracle.truffle.jx.JSONXLang;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
-public final class SLBigNumber implements TruffleObject, Comparable<SLBigNumber> {
+public final class JXBigNumber implements TruffleObject, Comparable<JXBigNumber> {
 
   private static final long LONG_MAX_SAFE_DOUBLE = 9007199254740991L; // 2 ** 53 - 1
   private static final int INT_MAX_SAFE_FLOAT = 16777215; // 2 ** 24 - 1
@@ -68,11 +68,11 @@ public final class SLBigNumber implements TruffleObject, Comparable<SLBigNumber>
 
   private final BigInteger value;
 
-  public SLBigNumber(BigInteger value) {
+  public JXBigNumber(BigInteger value) {
     this.value = value;
   }
 
-  public SLBigNumber(long value) {
+  public JXBigNumber(long value) {
     this.value = BigInteger.valueOf(value);
   }
 
@@ -81,7 +81,7 @@ public final class SLBigNumber implements TruffleObject, Comparable<SLBigNumber>
   }
 
   @TruffleBoundary
-  public int compareTo(SLBigNumber o) {
+  public int compareTo(JXBigNumber o) {
     return value.compareTo(o.getValue());
   }
 
@@ -94,8 +94,8 @@ public final class SLBigNumber implements TruffleObject, Comparable<SLBigNumber>
   @Override
   @TruffleBoundary
   public boolean equals(Object obj) {
-    if (obj instanceof SLBigNumber) {
-      return value.equals(((SLBigNumber) obj).getValue());
+    if (obj instanceof JXBigNumber) {
+      return value.equals(((JXBigNumber) obj).getValue());
     }
     return false;
   }
@@ -224,7 +224,7 @@ public final class SLBigNumber implements TruffleObject, Comparable<SLBigNumber>
 
   @ExportMessage
   Object getMetaObject() {
-    return SLType.NUMBER;
+    return JXType.NUMBER;
   }
 
   @ExportMessage

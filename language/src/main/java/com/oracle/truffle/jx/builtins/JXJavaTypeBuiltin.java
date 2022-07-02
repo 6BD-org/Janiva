@@ -45,8 +45,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.jx.SLException;
-import com.oracle.truffle.jx.runtime.SLContext;
+import com.oracle.truffle.jx.JXException;
+import com.oracle.truffle.jx.runtime.JXContext;
 
 /** Builtin that allows to lookup a Java type. */
 @NodeInfo(shortName = "java")
@@ -60,9 +60,9 @@ public abstract class JXJavaTypeBuiltin extends JXBuiltinNode {
        * lookupHostSymbol implements the interop contracts. So we can use Java for things that
        * are expressible also in SL. Like function calls on objects.
        */
-      return SLContext.get(this).getEnv().lookupHostSymbol(interop.asString(symbolName));
+      return JXContext.get(this).getEnv().lookupHostSymbol(interop.asString(symbolName));
     } catch (UnsupportedMessageException e) {
-      throw new SLException(
+      throw new JXException(
           "The java builtin expected a String argument, but a non-string argument was provided.",
           this);
     }

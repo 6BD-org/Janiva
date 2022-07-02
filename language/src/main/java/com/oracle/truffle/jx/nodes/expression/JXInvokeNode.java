@@ -51,11 +51,11 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.runtime.SLFunction;
-import com.oracle.truffle.jx.runtime.SLUndefinedNameException;
+import com.oracle.truffle.jx.runtime.JXFunction;
+import com.oracle.truffle.jx.runtime.JXUndefinedNameException;
 
 /**
- * The node for function invocation in SL. Since SL has first class functions, the {@link SLFunction
+ * The node for function invocation in SL. Since SL has first class functions, the {@link JXFunction
  * target function} can be computed by an arbitrary expression. This node is responsible for
  * evaluating this expression, as well as evaluating the {@link #argumentNodes arguments}. The
  * actual invocation is delegated to a {@link InteropLibrary} instance.
@@ -97,7 +97,7 @@ public final class JXInvokeNode extends JXExpressionNode {
       return library.execute(function, argumentValues);
     } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
       /* Execute was not successful. */
-      throw SLUndefinedNameException.undefinedFunction(this, function);
+      throw JXUndefinedNameException.undefinedFunction(this, function);
     }
   }
 

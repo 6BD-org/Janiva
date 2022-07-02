@@ -79,17 +79,17 @@ import com.oracle.truffle.jx.builtins.JXReadLnBuiltin;
  * script. However, if two separate scripts run in one Java VM at the same time, they have a
  * different context. Therefore, the context is not a singleton.
  */
-public final class SLContext {
+public final class JXContext {
 
   private final JSONXLang language;
   @CompilationFinal private Env env;
   private final BufferedReader input;
   private final PrintWriter output;
-  private final SLFunctionRegistry functionRegistry;
+  private final JXFunctionRegistry functionRegistry;
   private final AllocationReporter allocationReporter;
-  private final List<SLFunction> shutdownHooks = new ArrayList<>();
+  private final List<JXFunction> shutdownHooks = new ArrayList<>();
 
-  public SLContext(
+  public JXContext(
       JSONXLang language,
       TruffleLanguage.Env env,
       List<NodeFactory<? extends JXBuiltinNode>> externalBuiltins) {
@@ -98,7 +98,7 @@ public final class SLContext {
     this.output = new PrintWriter(env.out(), true);
     this.language = language;
     this.allocationReporter = env.lookup(AllocationReporter.class);
-    this.functionRegistry = new SLFunctionRegistry(language);
+    this.functionRegistry = new JXFunctionRegistry(language);
     installBuiltins();
     for (NodeFactory<? extends JXBuiltinNode> builtin : externalBuiltins) {
       installBuiltin(builtin);
@@ -106,7 +106,7 @@ public final class SLContext {
   }
 
   /**
-   * Patches the {@link SLContext} to use a new {@link Env}. The method is called during the native
+   * Patches the {@link JXContext} to use a new {@link Env}. The method is called during the native
    * image execution as a consequence of {@link Context#create(java.lang.String...)}.
    *
    * @param newEnv the new {@link Env} to use.
@@ -138,12 +138,12 @@ public final class SLContext {
   }
 
   /** Returns the registry of all functions that are currently defined. */
-  public SLFunctionRegistry getFunctionRegistry() {
+  public JXFunctionRegistry getFunctionRegistry() {
     return functionRegistry;
   }
 
   /**
-   * Adds all builtin functions to the {@link SLFunctionRegistry}. This method lists all {@link
+   * Adds all builtin functions to the {@link JXFunctionRegistry}. This method lists all {@link
    * JXBuiltinNode builtin implementation classes}.
    */
   private void installBuiltins() {
@@ -172,7 +172,7 @@ public final class SLContext {
   public void installBuiltin(NodeFactory<? extends JXBuiltinNode> factory) {
     /* Register the builtin function in our function registry. */
     RootCallTarget target = language.lookupBuiltin(factory);
-    getFunctionRegistry().register(SLStrings.getSLRootName(target.getRootNode()), target);
+    getFunctionRegistry().register(JXStrings.getSLRootName(target.getRootNode()), target);
   }
 
   /*
@@ -187,7 +187,7 @@ public final class SLContext {
    */
   public static Object fromForeignValue(Object a) {
     if (a instanceof Long
-        || a instanceof SLBigNumber
+        || a instanceof JXBigNumber
         || a instanceof String
         || a instanceof TruffleString
         || a instanceof Boolean) {
@@ -198,7 +198,7 @@ public final class SLContext {
       return fromForeignNumber(a);
     } else if (a instanceof TruffleObject) {
       return a;
-    } else if (a instanceof SLContext) {
+    } else if (a instanceof JXContext) {
       return a;
     }
     throw shouldNotReachHere("Value is not a truffle value.");
@@ -226,10 +226,10 @@ public final class SLContext {
     return (TruffleObject) env.getPolyglotBindings();
   }
 
-  private static final ContextReference<SLContext> REFERENCE =
+  private static final ContextReference<JXContext> REFERENCE =
       ContextReference.create(JSONXLang.class);
 
-  public static SLContext get(Node node) {
+  public static JXContext get(Node node) {
     return REFERENCE.get(node);
   }
 
@@ -239,7 +239,7 @@ public final class SLContext {
    * @param func no-parameter function to be registered as a shutdown hook
    */
   @TruffleBoundary
-  public void registerShutdownHook(SLFunction func) {
+  public void registerShutdownHook(JXFunction func) {
     shutdownHooks.add(func);
   }
 
@@ -249,7 +249,7 @@ public final class SLContext {
    */
   public void runShutdownHooks() {
     InteropLibrary interopLibrary = InteropLibrary.getUncached();
-    for (SLFunction shutdownHook : shutdownHooks) {
+    for (JXFunction shutdownHook : shutdownHooks) {
       try {
         interopLibrary.execute(shutdownHook);
       } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {

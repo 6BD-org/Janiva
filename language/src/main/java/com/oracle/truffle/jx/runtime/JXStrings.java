@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,34 +38,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.jx;
+package com.oracle.truffle.jx.runtime;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.MaterializedFrame;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.nodes.SLEvalRootNode;
+import com.oracle.truffle.jx.nodes.JXRootNode;
 
-final class SLEvaluateLocalNode extends RootNode {
+public final class JXStrings {
 
-  private final TruffleString variable;
-  private final MaterializedFrame inspectFrame;
+  public static final TruffleString EMPTY_STRING = constant("");
+  public static final TruffleString NULL = constant("NULL");
+  public static final TruffleString NULL_LC = constant("null");
+  public static final TruffleString MAIN = constant("main");
+  public static final TruffleString HELLO = constant("hello");
+  public static final TruffleString WORLD = constant("world");
 
-  SLEvaluateLocalNode(JSONXLang language, TruffleString variableName, MaterializedFrame frame) {
-    super(language);
-    this.variable = variableName;
-    this.inspectFrame = frame;
+  public static TruffleString constant(String s) {
+    return fromJavaString(s);
   }
 
-  @Override
-  public Object execute(VirtualFrame currentFrame) {
-    FrameDescriptor frameDescriptor = inspectFrame.getFrameDescriptor();
+  public static TruffleString fromJavaString(String s) {
+    return TruffleString.fromJavaStringUncached(s, JSONXLang.STRING_ENCODING);
+  }
 
-    for (int i = 0; i < frameDescriptor.getNumberOfSlots(); i++) {
-      if (variable.equals(frameDescriptor.getSlotName(i))) {
-        return inspectFrame.getValue(i);
-      }
+  public static TruffleString fromObject(Object o) {
+    if (o == null) {
+      return NULL_LC;
     }
-    return null;
+    if (o instanceof TruffleString) {
+      return (TruffleString) o;
+    }
+    return fromJavaString(o.toString());
+  }
+
+  public static TruffleString getSLRootName(RootNode rootNode) {
+    if (rootNode instanceof JXRootNode) {
+      return ((JXRootNode) rootNode).getTSName();
+    } else if (rootNode instanceof SLEvalRootNode) {
+      return SLEvalRootNode.getTSName();
+    } else {
+      throw CompilerDirectives.shouldNotReachHere();
+    }
   }
 }

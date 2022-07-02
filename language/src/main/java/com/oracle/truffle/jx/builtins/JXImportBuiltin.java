@@ -48,9 +48,9 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.SLException;
-import com.oracle.truffle.jx.runtime.SLContext;
-import com.oracle.truffle.jx.runtime.SLNull;
+import com.oracle.truffle.jx.JXException;
+import com.oracle.truffle.jx.runtime.JXContext;
+import com.oracle.truffle.jx.runtime.JSNull;
 
 /** Built-in function that goes through to import a symbol from the polyglot bindings. */
 @NodeInfo(shortName = "import")
@@ -63,11 +63,11 @@ public abstract class JXImportBuiltin extends JXBuiltinNode {
       @CachedLibrary(limit = "3") InteropLibrary arrays) {
     try {
       return arrays.readMember(
-          SLContext.get(this).getPolyglotBindings(), toJavaStringNode.execute(symbol));
+          JXContext.get(this).getPolyglotBindings(), toJavaStringNode.execute(symbol));
     } catch (UnsupportedMessageException | UnknownIdentifierException e) {
-      return SLNull.SINGLETON;
+      return JSNull.SINGLETON;
     } catch (SecurityException e) {
-      throw new SLException("No polyglot access allowed.", this);
+      throw new JXException("No polyglot access allowed.", this);
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,27 +38,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.jx.runtime;
+package com.oracle.truffle.jx;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.jx.SLException;
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.MaterializedFrame;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.strings.TruffleString;
 
-public final class SLUndefinedNameException extends SLException {
+final class JXEvaluateLocalNode extends RootNode {
 
-  private static final long serialVersionUID = 1L;
+  private final TruffleString variable;
+  private final MaterializedFrame inspectFrame;
 
-  @TruffleBoundary
-  public static SLUndefinedNameException undefinedFunction(Node location, Object name) {
-    throw new SLUndefinedNameException("Undefined function: " + name, location);
+  JXEvaluateLocalNode(JSONXLang language, TruffleString variableName, MaterializedFrame frame) {
+    super(language);
+    this.variable = variableName;
+    this.inspectFrame = frame;
   }
 
-  @TruffleBoundary
-  public static SLUndefinedNameException undefinedProperty(Node location, Object name) {
-    throw new SLUndefinedNameException("Undefined property: " + name, location);
-  }
+  @Override
+  public Object execute(VirtualFrame currentFrame) {
+    FrameDescriptor frameDescriptor = inspectFrame.getFrameDescriptor();
 
-  private SLUndefinedNameException(String message, Node node) {
-    super(message, node);
+    for (int i = 0; i < frameDescriptor.getNumberOfSlots(); i++) {
+      if (variable.equals(frameDescriptor.getSlotName(i))) {
+        return inspectFrame.getValue(i);
+      }
+    }
+    return null;
   }
 }

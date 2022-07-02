@@ -47,9 +47,9 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.runtime.SLContext;
-import com.oracle.truffle.jx.runtime.SLNull;
-import com.oracle.truffle.jx.runtime.SLStrings;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXContext;
+import com.oracle.truffle.jx.runtime.JXStrings;
 
 /**
  * This class performs two additional tasks:
@@ -64,7 +64,7 @@ import com.oracle.truffle.jx.runtime.SLStrings;
  */
 public final class SLEvalRootNode extends RootNode {
 
-  private static final TruffleString ROOT_EVAL = SLStrings.constant("root eval");
+  private static final TruffleString ROOT_EVAL = JXStrings.constant("root eval");
 
   @CompilationFinal private boolean registered;
 
@@ -107,12 +107,12 @@ public final class SLEvalRootNode extends RootNode {
   public Object execute(VirtualFrame frame) {
     if (mainCallNode == null) {
       /* The source code did not have a "main" function, so nothing to execute. */
-      return SLNull.SINGLETON;
+      return JSNull.SINGLETON;
     } else {
       /* Conversion of arguments to types understood by SL. */
       Object[] arguments = frame.getArguments();
       for (int i = 0; i < arguments.length; i++) {
-        arguments[i] = SLContext.fromForeignValue(arguments[i]);
+        arguments[i] = JXContext.fromForeignValue(arguments[i]);
       }
       return mainCallNode.call(arguments);
     }

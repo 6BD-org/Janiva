@@ -42,8 +42,8 @@ package com.oracle.truffle.jx.builtins;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.jx.runtime.SLContext;
-import com.oracle.truffle.jx.runtime.SLNull;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXContext;
 
 /** Builtin function that performs context exit. */
 @NodeInfo(shortName = "exit")
@@ -51,7 +51,7 @@ public abstract class JXExitBuiltin extends JXBuiltinNode {
 
   @Specialization
   protected Object execute(long exitCode) {
-    SLContext.get(this).getEnv().getContext().closeExited(this, (int) exitCode);
-    return SLNull.SINGLETON;
+    JXContext.get(this).getEnv().getContext().closeExited(this, (int) exitCode);
+    return JSNull.SINGLETON;
   }
 }

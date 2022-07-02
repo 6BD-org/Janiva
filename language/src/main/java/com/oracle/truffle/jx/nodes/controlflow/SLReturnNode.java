@@ -44,7 +44,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
-import com.oracle.truffle.jx.runtime.SLNull;
+import com.oracle.truffle.jx.runtime.JSNull;
 
 /**
  * Implementation of the SL return statement. We need to unwind an unknown number of interpreter
@@ -71,7 +71,7 @@ public final class SLReturnNode extends JXStatementNode {
       /*
        * Return statement that was not followed by an expression, so return the SL null value.
        */
-      result = SLNull.SINGLETON;
+      result = JSNull.SINGLETON;
     }
     throw new SLReturnException(result);
   }

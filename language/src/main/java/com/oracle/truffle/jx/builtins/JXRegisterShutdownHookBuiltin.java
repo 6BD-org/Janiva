@@ -42,9 +42,9 @@ package com.oracle.truffle.jx.builtins;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.jx.runtime.SLContext;
-import com.oracle.truffle.jx.runtime.SLFunction;
-import com.oracle.truffle.jx.runtime.SLNull;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXContext;
+import com.oracle.truffle.jx.runtime.JXFunction;
 
 /**
  * Builtin function that registers a function as a shutdown hook. Only no-parameter functions are
@@ -54,8 +54,8 @@ import com.oracle.truffle.jx.runtime.SLNull;
 public abstract class JXRegisterShutdownHookBuiltin extends JXBuiltinNode {
 
   @Specialization
-  protected Object execute(SLFunction shutdownHook) {
-    SLContext.get(this).registerShutdownHook(shutdownHook);
-    return SLNull.SINGLETON;
+  protected Object execute(JXFunction shutdownHook) {
+    JXContext.get(this).registerShutdownHook(shutdownHook);
+    return JSNull.SINGLETON;
   }
 }

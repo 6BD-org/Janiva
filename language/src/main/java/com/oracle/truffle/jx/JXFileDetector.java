@@ -44,12 +44,12 @@ import com.oracle.truffle.api.TruffleFile;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-public final class SLFileDetector implements TruffleFile.FileTypeDetector {
+public final class JXFileDetector implements TruffleFile.FileTypeDetector {
 
   @Override
   public String findMimeType(TruffleFile file) throws IOException {
     String name = file.getName();
-    if (name != null && name.endsWith(".sl")) {
+    if (name != null && name.endsWith(".jsonx")) {
       return JSONXLang.MIME_TYPE;
     }
     return null;
