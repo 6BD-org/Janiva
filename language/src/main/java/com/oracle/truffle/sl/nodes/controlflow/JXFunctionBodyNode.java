@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -40,25 +40,63 @@
  */
 package com.oracle.truffle.sl.nodes.controlflow;
 
-import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.sl.nodes.JXExpressionNode;
+import com.oracle.truffle.sl.nodes.JXRootNode;
 import com.oracle.truffle.sl.nodes.JXStatementNode;
+import com.oracle.truffle.sl.runtime.SLNull;
 
-@NodeInfo(shortName = "while", description = "The node implementing a while loop")
-public final class SLWhileNode extends JXStatementNode {
+/**
+ * The body of a user-defined SL function. This is the node referenced by a {@link JXRootNode} for
+ * user-defined functions. It handles the return value of a function: the {@link SLReturnNode return
+ * statement} throws an {@link SLReturnException exception} with the return value. This node catches
+ * the exception. If the method ends without an explicit {@code return}, return the {@link
+ * SLNull#SINGLETON default null value}.
+ */
+@NodeInfo(shortName = "body")
+public final class JXFunctionBodyNode extends JXExpressionNode {
 
-  @Child private LoopNode loopNode;
+  /** The body of the function. */
+  @Child private JXStatementNode bodyNode;
 
-  public SLWhileNode(JXExpressionNode conditionNode, JXStatementNode bodyNode) {
-    this.loopNode =
-        Truffle.getRuntime().createLoopNode(new SLWhileRepeatingNode(conditionNode, bodyNode));
+  /**
+   * Profiling information, collected by the interpreter, capturing whether the function had an
+   * {@link SLReturnNode explicit return statement}. This allows the compiler to generate better
+   * code.
+   */
+  private final BranchProfile exceptionTaken = BranchProfile.create();
+
+  private final BranchProfile nullTaken = BranchProfile.create();
+
+  public JXFunctionBodyNode(JXStatementNode bodyNode) {
+    this.bodyNode = bodyNode;
+    addRootTag();
   }
 
   @Override
-  public void executeVoid(VirtualFrame frame) {
-    loopNode.execute(frame);
+  public Object executeGeneric(VirtualFrame frame) {
+    try {
+      /* Execute the function body. */
+      bodyNode.executeVoid(frame);
+
+    } catch (SLReturnException ex) {
+      /*
+       * In the interpreter, record profiling information that the function has an explicit
+       * return.
+       */
+      exceptionTaken.enter();
+      /* The exception transports the actual return value. */
+      return ex.getResult();
+    }
+
+    /*
+     * In the interpreter, record profiling information that the function ends without an
+     * explicit return.
+     */
+    nullTaken.enter();
+    /* Return the default null value. */
+    return SLNull.SINGLETON;
   }
 }

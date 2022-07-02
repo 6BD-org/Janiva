@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,27 +38,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.builtins;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import java.io.BufferedReader;
+import java.io.IOException;
 
-/**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
- */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.sl.SLException;
+import com.oracle.truffle.sl.JSONXLang;
+import com.oracle.truffle.sl.runtime.SLContext;
+import com.oracle.truffle.sl.runtime.SLStrings;
 
-  private static final long serialVersionUID = 4073191346281369231L;
+/** Builtin function that reads a String from the {@link SLContext#getInput() standard input}. */
+@NodeInfo(shortName = "readln")
+public abstract class JXReadLnBuiltin extends JXBuiltinNode {
 
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
+  @Specialization
+  public TruffleString readln(@Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
+    TruffleString result =
+        fromJavaStringNode.execute(
+            doRead(SLContext.get(this).getInput()), JSONXLang.STRING_ENCODING);
+    if (result == null) {
+      /*
+       * We do not have a sophisticated end of file handling, so returning an empty string is
+       * a reasonable alternative. Note that the Java null value should never be used, since
+       * it can interfere with the specialization logic in generated source code.
+       */
+      result = SLStrings.EMPTY_STRING;
+    }
+    return result;
   }
 
-  public Object getResult() {
-    return result;
+  @TruffleBoundary
+  private String doRead(BufferedReader in) {
+    try {
+      return in.readLine();
+    } catch (IOException ex) {
+      throw new SLException(ex.getMessage(), this);
+    }
   }
 }

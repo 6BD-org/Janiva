@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,27 +38,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.nodes.local;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.profiles.BranchProfile;
+import com.oracle.truffle.sl.nodes.JXExpressionNode;
+import com.oracle.truffle.sl.parser.JXNodeFactory;
+import com.oracle.truffle.sl.runtime.SLNull;
 
 /**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
+ * Reads a function argument. Arguments are passed in as an object array.
+ *
+ * <p>Arguments are not type-specialized. To ensure that repeated accesses within a method are
+ * specialized and can, e.g., be accessed without unboxing, all arguments are loaded into local
+ * variables {@link JXNodeFactory#addFormalParameter in the method prologue}.
  */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+public class JXReadArgumentNode extends JXExpressionNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
+  /** The argument number, i.e., the index into the array of arguments. */
+  private final int index;
 
-  private final Object result;
+  /**
+   * Profiling information, collected by the interpreter, capturing whether the function was called
+   * with fewer actual arguments than formal arguments.
+   */
+  private final BranchProfile outOfBoundsTaken = BranchProfile.create();
 
-  public SLReturnException(Object result) {
-    this.result = result;
+  public JXReadArgumentNode(int index) {
+    this.index = index;
   }
 
-  public Object getResult() {
-    return result;
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    if (index < args.length) {
+      return args[index];
+    } else {
+      /* In the interpreter, record profiling information that the branch was used. */
+      outOfBoundsTaken.enter();
+      /* Use the default null value. */
+      return SLNull.SINGLETON;
+    }
   }
 }

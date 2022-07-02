@@ -57,14 +57,14 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.NodeUtil;
 import com.oracle.truffle.api.nodes.NodeVisitor;
 
-import com.oracle.truffle.sl.nodes.SLStatementNode;
+import com.oracle.truffle.sl.nodes.JXStatementNode;
+import com.oracle.truffle.sl.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.sl.nodes.local.SLScopedNode;
-import com.oracle.truffle.sl.nodes.local.SLWriteLocalVariableNode;
 
 /** A statement node that just executes a list of other statements. */
 @NodeInfo(shortName = "block", description = "The node implementing a source code block")
-public final class SLBlockNode extends SLStatementNode
-    implements BlockNode.ElementExecutor<SLStatementNode> {
+public final class SLBlockNode extends JXStatementNode
+    implements BlockNode.ElementExecutor<JXStatementNode> {
 
   /**
    * The block of child nodes. Using the block node allows Truffle to split the block into multiple
@@ -73,19 +73,19 @@ public final class SLBlockNode extends SLStatementNode
    * com.oracle.truffle.api.nodes.Node.Children @Children} field. However, this prevents Truffle
    * from compiling big methods, so these methods might fail to compile with a compilation bailout.
    */
-  @Child private BlockNode<SLStatementNode> block;
+  @Child private BlockNode<JXStatementNode> block;
 
   /**
    * All declared variables visible from this block (including all parent blocks). Variables
    * declared in this block only are from zero index up to {@link #parentBlockIndex} (exclusive).
    */
   @CompilationFinal(dimensions = 1)
-  private SLWriteLocalVariableNode[] writeNodesCache;
+  private JXWriteLocalVariableNode[] writeNodesCache;
 
   /** Index of the parent block's variables in the {@link #writeNodesCache list of variables}. */
   @CompilationFinal private int parentBlockIndex = -1;
 
-  public SLBlockNode(SLStatementNode[] bodyNodes) {
+  public SLBlockNode(JXStatementNode[] bodyNodes) {
     /*
      * Truffle block nodes cannot be empty, that is why we just set the entire block to null if
      * there are no elements. This is good practice as it safes memory.
@@ -96,7 +96,7 @@ public final class SLBlockNode extends SLStatementNode
   /**
    * Execute all block statements. The block node makes sure that {@link ExplodeLoop full unrolling}
    * of the loop is triggered during compilation. This allows the {@link
-   * SLStatementNode#executeVoid} method of all children to be inlined.
+   * JXStatementNode#executeVoid} method of all children to be inlined.
    */
   @Override
   public void executeVoid(VirtualFrame frame) {
@@ -105,7 +105,7 @@ public final class SLBlockNode extends SLStatementNode
     }
   }
 
-  public List<SLStatementNode> getStatements() {
+  public List<JXStatementNode> getStatements() {
     if (block == null) {
       return Collections.emptyList();
     }
@@ -122,7 +122,7 @@ public final class SLBlockNode extends SLStatementNode
    * reuse a singleton instance.
    */
   @Override
-  public void executeVoid(VirtualFrame frame, SLStatementNode node, int index, int argument) {
+  public void executeVoid(VirtualFrame frame, JXStatementNode node, int index, int argument) {
     node.executeVoid(frame);
   }
 
@@ -130,8 +130,8 @@ public final class SLBlockNode extends SLStatementNode
    * All declared local variables accessible in this block. Variables declared in parent blocks are
    * included.
    */
-  public SLWriteLocalVariableNode[] getDeclaredLocalVariables() {
-    SLWriteLocalVariableNode[] writeNodes = writeNodesCache;
+  public JXWriteLocalVariableNode[] getDeclaredLocalVariables() {
+    JXWriteLocalVariableNode[] writeNodes = writeNodesCache;
     if (writeNodes == null) {
       CompilerDirectives.transferToInterpreterAndInvalidate();
       writeNodesCache = writeNodes = findDeclaredLocalVariables();
@@ -143,12 +143,12 @@ public final class SLBlockNode extends SLStatementNode
     return parentBlockIndex;
   }
 
-  private SLWriteLocalVariableNode[] findDeclaredLocalVariables() {
+  private JXWriteLocalVariableNode[] findDeclaredLocalVariables() {
     if (block == null) {
-      return new SLWriteLocalVariableNode[] {};
+      return new JXWriteLocalVariableNode[] {};
     }
     // Search for those write nodes, which declare variables
-    List<SLWriteLocalVariableNode> writeNodes = new ArrayList<>(4);
+    List<JXWriteLocalVariableNode> writeNodes = new ArrayList<>(4);
     int[] varsIndex = new int[] {0};
     NodeUtil.forEachChild(
         block,
@@ -168,8 +168,8 @@ public final class SLBlockNode extends SLStatementNode
               NodeUtil.forEachChild(node, this);
             }
             // Write to a variable is a declaration unless it exists already in a parent scope.
-            if (node instanceof SLWriteLocalVariableNode) {
-              SLWriteLocalVariableNode wn = (SLWriteLocalVariableNode) node;
+            if (node instanceof JXWriteLocalVariableNode) {
+              JXWriteLocalVariableNode wn = (JXWriteLocalVariableNode) node;
               if (wn.isDeclaration()) {
                 writeNodes.add(wn);
                 varsIndex[0]++;
@@ -183,12 +183,12 @@ public final class SLBlockNode extends SLStatementNode
           }
         });
     Node parentBlock = findBlock();
-    SLWriteLocalVariableNode[] parentVariables = null;
+    JXWriteLocalVariableNode[] parentVariables = null;
     if (parentBlock instanceof SLBlockNode) {
       parentVariables = ((SLBlockNode) parentBlock).getDeclaredLocalVariables();
     }
-    SLWriteLocalVariableNode[] variables =
-        writeNodes.toArray(new SLWriteLocalVariableNode[writeNodes.size()]);
+    JXWriteLocalVariableNode[] variables =
+        writeNodes.toArray(new JXWriteLocalVariableNode[writeNodes.size()]);
     parentBlockIndex = variables.length;
     if (parentVariables == null || parentVariables.length == 0) {
       return variables;
@@ -197,7 +197,7 @@ public final class SLBlockNode extends SLStatementNode
       int visibleVarsIndex = getVisibleVariablesIndexOnEnter();
       int allVarsLength =
           variables.length + visibleVarsIndex + parentVariables.length - parentVariablesIndex;
-      SLWriteLocalVariableNode[] allVariables = Arrays.copyOf(variables, allVarsLength);
+      JXWriteLocalVariableNode[] allVariables = Arrays.copyOf(variables, allVarsLength);
       System.arraycopy(parentVariables, 0, allVariables, variables.length, visibleVarsIndex);
       System.arraycopy(
           parentVariables,

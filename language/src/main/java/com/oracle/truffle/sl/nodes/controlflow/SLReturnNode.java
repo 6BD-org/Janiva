@@ -42,23 +42,23 @@ package com.oracle.truffle.sl.nodes.controlflow;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.sl.nodes.SLExpressionNode;
-import com.oracle.truffle.sl.nodes.SLStatementNode;
+import com.oracle.truffle.sl.nodes.JXExpressionNode;
+import com.oracle.truffle.sl.nodes.JXStatementNode;
 import com.oracle.truffle.sl.runtime.SLNull;
 
 /**
  * Implementation of the SL return statement. We need to unwind an unknown number of interpreter
- * frames that are between this {@link SLReturnNode} and the {@link SLFunctionBodyNode} of the
+ * frames that are between this {@link SLReturnNode} and the {@link JXFunctionBodyNode} of the
  * method we are exiting. This is done by throwing an {@link SLReturnException exception} that is
- * caught by the {@link SLFunctionBodyNode#executeGeneric function body}. The exception transports
+ * caught by the {@link JXFunctionBodyNode#executeGeneric function body}. The exception transports
  * the return value.
  */
 @NodeInfo(shortName = "return", description = "The node implementing a return statement")
-public final class SLReturnNode extends SLStatementNode {
+public final class SLReturnNode extends JXStatementNode {
 
-  @Child private SLExpressionNode valueNode;
+  @Child private JXExpressionNode valueNode;
 
-  public SLReturnNode(SLExpressionNode valueNode) {
+  public SLReturnNode(JXExpressionNode valueNode) {
     this.valueNode = valueNode;
   }
 

@@ -61,8 +61,8 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.JSONXLang;
-import com.oracle.truffle.sl.nodes.SLExpressionNode;
-import com.oracle.truffle.sl.nodes.SLRootNode;
+import com.oracle.truffle.sl.nodes.JXExpressionNode;
+import com.oracle.truffle.sl.nodes.JXRootNode;
 import com.oracle.truffle.sl.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLNull;
@@ -116,7 +116,7 @@ public abstract class SLScopedNode extends Node {
     if (blockNode instanceof SLBlockNode) {
       return new VariablesObject(frame, cachedNode, nodeEnter, (SLBlockNode) blockNode);
     } else {
-      return new ArgumentsObject(frame, (SLRootNode) blockNode);
+      return new ArgumentsObject(frame, (JXRootNode) blockNode);
     }
   }
 
@@ -202,10 +202,10 @@ public abstract class SLScopedNode extends Node {
   }
 
   /**
-   * Scope of function arguments. This scope is provided by nodes just under a {@link SLRootNode},
+   * Scope of function arguments. This scope is provided by nodes just under a {@link JXRootNode},
    * outside of a {@link SLBlockNode block}.
    *
-   * <p>The arguments declared by {@link SLRootNode#getDeclaredArguments() root node} are provided
+   * <p>The arguments declared by {@link JXRootNode#getDeclaredArguments() root node} are provided
    * as scope members.
    */
   @ExportLibrary(InteropLibrary.class)
@@ -215,17 +215,17 @@ public abstract class SLScopedNode extends Node {
     static int LIMIT = 3;
 
     private final Frame frame;
-    protected final SLRootNode root;
+    protected final JXRootNode root;
 
     /** The arguments depend on the current frame and root node. */
-    ArgumentsObject(Frame frame, SLRootNode root) {
+    ArgumentsObject(Frame frame, JXRootNode root) {
       this.frame = frame;
       this.root = root;
     }
 
     /** For performance reasons, fix the library implementation for the particular root node. */
     @ExportMessage
-    boolean accepts(@Cached(value = "this.root", adopt = false) SLRootNode cachedRoot) {
+    boolean accepts(@Cached(value = "this.root", adopt = false) JXRootNode cachedRoot) {
       return this.root == cachedRoot;
     }
 
@@ -280,7 +280,7 @@ public abstract class SLScopedNode extends Node {
     /** We return an array of argument objects as scope members. */
     @ExportMessage
     Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
-      SLWriteLocalVariableNode[] writeNodes = root.getDeclaredArguments();
+      JXWriteLocalVariableNode[] writeNodes = root.getDeclaredArguments();
       return new KeysArray(writeNodes, writeNodes.length, writeNodes.length);
     }
 
@@ -443,9 +443,9 @@ public abstract class SLScopedNode extends Node {
 
     int findArgumentIndex(String member) {
       TruffleString memberTS = SLStrings.fromJavaString(member);
-      SLWriteLocalVariableNode[] writeNodes = root.getDeclaredArguments();
+      JXWriteLocalVariableNode[] writeNodes = root.getDeclaredArguments();
       for (int i = 0; i < writeNodes.length; i++) {
-        SLWriteLocalVariableNode writeNode = writeNodes[i];
+        JXWriteLocalVariableNode writeNode = writeNodes[i];
         if (memberTS.equalsUncached(writeNode.getSlotName(), JSONXLang.STRING_ENCODING)) {
           return i;
         }
@@ -516,7 +516,7 @@ public abstract class SLScopedNode extends Node {
       if (parentBlock instanceof SLBlockNode) {
         return "block";
       } else {
-        return ((SLRootNode) parentBlock).getTSName();
+        return ((JXRootNode) parentBlock).getTSName();
       }
     }
 
@@ -562,9 +562,9 @@ public abstract class SLScopedNode extends Node {
       Node parentBlock = block.findBlock();
       if (parentBlock instanceof RootNode) {
         // We're in the function block
-        assert parentBlock instanceof SLRootNode
+        assert parentBlock instanceof JXRootNode
             : String.format("In SLLanguage we expect SLRootNode, not %s", parentBlock.getClass());
-        return ((SLRootNode) parentBlock).getSourceSection();
+        return ((JXRootNode) parentBlock).getSourceSection();
       } else {
         return block.getSourceSection();
       }
@@ -704,7 +704,7 @@ public abstract class SLScopedNode extends Node {
           @Cached("member") String cachedMember,
           // We cache the member's write node for fast-path access
           @Cached(value = "receiver.findWriteNode(member)", adopt = false)
-              SLWriteLocalVariableNode writeNode)
+          JXWriteLocalVariableNode writeNode)
           throws UnknownIdentifierException, UnsupportedMessageException {
         doWrite(receiver, cachedMember, writeNode, value);
       }
@@ -714,12 +714,12 @@ public abstract class SLScopedNode extends Node {
       @TruffleBoundary
       static void doGeneric(VariablesObject receiver, String member, Object value)
           throws UnknownIdentifierException, UnsupportedMessageException {
-        SLWriteLocalVariableNode writeNode = receiver.findWriteNode(member);
+        JXWriteLocalVariableNode writeNode = receiver.findWriteNode(member);
         doWrite(receiver, member, writeNode, value);
       }
 
       private static void doWrite(
-          VariablesObject receiver, String member, SLWriteLocalVariableNode writeNode, Object value)
+              VariablesObject receiver, String member, JXWriteLocalVariableNode writeNode, Object value)
           throws UnknownIdentifierException, UnsupportedMessageException {
         if (writeNode == null) {
           throw UnknownIdentifierException.create(member);
@@ -744,7 +744,7 @@ public abstract class SLScopedNode extends Node {
                 adopt = false,
                 dimensions = 1,
                 allowUncached = true)
-            SLWriteLocalVariableNode[] writeNodes,
+            JXWriteLocalVariableNode[] writeNodes,
         @Cached(value = "this.getVisibleVariablesIndex()", allowUncached = true)
             int visibleVariablesIndex,
         @Cached(value = "this.block.getParentBlockIndex()", allowUncached = true)
@@ -763,7 +763,7 @@ public abstract class SLScopedNode extends Node {
     }
 
     int findSlot(String member) {
-      SLWriteLocalVariableNode writeNode = findWriteNode(member);
+      JXWriteLocalVariableNode writeNode = findWriteNode(member);
       if (writeNode != null) {
         return writeNode.getSlot();
       } else {
@@ -777,19 +777,19 @@ public abstract class SLScopedNode extends Node {
      *
      * @param member the variable name
      */
-    SLWriteLocalVariableNode findWriteNode(String member) {
+    JXWriteLocalVariableNode findWriteNode(String member) {
       TruffleString memberTS = SLStrings.fromJavaString(member);
-      SLWriteLocalVariableNode[] writeNodes = block.getDeclaredLocalVariables();
+      JXWriteLocalVariableNode[] writeNodes = block.getDeclaredLocalVariables();
       int parentBlockIndex = block.getParentBlockIndex();
       int index = getVisibleVariablesIndex();
       for (int i = 0; i < index; i++) {
-        SLWriteLocalVariableNode writeNode = writeNodes[i];
+        JXWriteLocalVariableNode writeNode = writeNodes[i];
         if (memberTS.equalsUncached(writeNode.getSlotName(), JSONXLang.STRING_ENCODING)) {
           return writeNode;
         }
       }
       for (int i = parentBlockIndex; i < writeNodes.length; i++) {
-        SLWriteLocalVariableNode writeNode = writeNodes[i];
+        JXWriteLocalVariableNode writeNode = writeNodes[i];
         if (memberTS.equalsUncached(writeNode.getSlotName(), JSONXLang.STRING_ENCODING)) {
           return writeNode;
         }
@@ -806,7 +806,7 @@ public abstract class SLScopedNode extends Node {
   static final class KeysArray implements TruffleObject {
 
     @CompilationFinal(dimensions = 1)
-    private final SLWriteLocalVariableNode[] writeNodes;
+    private final JXWriteLocalVariableNode[] writeNodes;
 
     private final int variableIndex;
     private final int parentBlockIndex;
@@ -821,7 +821,7 @@ public abstract class SLScopedNode extends Node {
      *     block's scope (from <code>parentBlockIndex</code> to the end of the <code>writeNodes
      *     </code> array).
      */
-    KeysArray(SLWriteLocalVariableNode[] writeNodes, int variableIndex, int parentBlockIndex) {
+    KeysArray(JXWriteLocalVariableNode[] writeNodes, int variableIndex, int parentBlockIndex) {
       this.writeNodes = writeNodes;
       this.variableIndex = variableIndex;
       this.parentBlockIndex = parentBlockIndex;
@@ -861,7 +861,7 @@ public abstract class SLScopedNode extends Node {
   }
 
   /**
-   * Representation of a variable based on a {@link SLWriteLocalVariableNode write node} that
+   * Representation of a variable based on a {@link JXWriteLocalVariableNode write node} that
    * declares the variable. It provides the variable name as a {@link Key#asString() string} and the
    * name node associated with the variable's write node as a {@link Key#getSourceLocation() source
    * location}.
@@ -869,9 +869,9 @@ public abstract class SLScopedNode extends Node {
   @ExportLibrary(InteropLibrary.class)
   static final class Key implements TruffleObject {
 
-    private final SLWriteLocalVariableNode writeNode;
+    private final JXWriteLocalVariableNode writeNode;
 
-    Key(SLWriteLocalVariableNode writeNode) {
+    Key(JXWriteLocalVariableNode writeNode) {
       this.writeNode = writeNode;
     }
 
@@ -906,7 +906,7 @@ public abstract class SLScopedNode extends Node {
       if (!hasSourceLocation()) {
         throw UnsupportedMessageException.create();
       }
-      SLExpressionNode nameNode = writeNode.getNameNode();
+      JXExpressionNode nameNode = writeNode.getNameNode();
       return writeNode
           .getRootNode()
           .getSourceSection()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,27 +38,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.builtins;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.sl.runtime.SLNull;
+import com.oracle.truffle.sl.runtime.SLType;
 
-/**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
- */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+/** Built-in function that returns the type of a guest language value. */
+@NodeInfo(shortName = "typeOf")
+@SuppressWarnings("unused")
+public abstract class JXTypeOfBuiltin extends JXBuiltinNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
-
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
-  }
-
-  public Object getResult() {
-    return result;
+  /*
+   * This returns the SL type for a particular operand value.
+   */
+  @Specialization(limit = "3")
+  @ExplodeLoop
+  public Object doDefault(Object operand, @CachedLibrary("operand") InteropLibrary interop) {
+    for (SLType type : SLType.PRECEDENCE) {
+      if (type.isInstance(operand, interop)) {
+        return type;
+      }
+    }
+    return SLNull.SINGLETON;
   }
 }

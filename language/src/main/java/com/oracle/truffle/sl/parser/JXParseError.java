@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,27 +38,58 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+package com.oracle.truffle.sl.parser;
 
-/**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
- */
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.interop.ExceptionType;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.exception.AbstractTruffleException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.source.SourceSection;
+
+@ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+public class JXParseError extends AbstractTruffleException {
 
-  private static final long serialVersionUID = 4073191346281369231L;
+  public static final long serialVersionUID = 1L;
+  private final Source source;
+  private final int line;
+  private final int column;
+  private final int length;
 
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
+  public JXParseError(Source source, int line, int column, int length, String message) {
+    super(message);
+    this.source = source;
+    this.line = line;
+    this.column = column;
+    this.length = length;
   }
 
-  public Object getResult() {
-    return result;
+  /**
+   * Note that any subclass of {@link AbstractTruffleException} must always return <code>true</code>
+   * for {@link InteropLibrary#isException(Object)}. That is why it is correct to export {@link
+   * #getExceptionType()} without implementing {@link InteropLibrary#isException(Object)}.
+   */
+  @ExportMessage
+  ExceptionType getExceptionType() {
+    return ExceptionType.PARSE_ERROR;
+  }
+
+  @ExportMessage
+  boolean hasSourceLocation() {
+    return source != null;
+  }
+
+  @ExportMessage(name = "getSourceLocation")
+  @TruffleBoundary
+  SourceSection getSourceSection() throws UnsupportedMessageException {
+    if (source == null) {
+      throw UnsupportedMessageException.create();
+    }
+    return source.createSection(line, column, length);
   }
 }

@@ -50,6 +50,7 @@ import java.util.List;
 
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.JSONXLang;
+import com.oracle.truffle.sl.builtins.*;
 import org.graalvm.polyglot.Context;
 
 import com.oracle.truffle.api.CallTarget;
@@ -68,33 +69,11 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.sl.builtins.SLAddToHostClassPathBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLBuiltinNode;
-import com.oracle.truffle.sl.builtins.SLDefineFunctionBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLEvalBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLExitBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLGetSizeBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLHasSizeBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLHelloEqualsWorldBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLImportBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLIsExecutableBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLIsInstanceBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLIsNullBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLJavaTypeBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLNanoTimeBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLNewObjectBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLPrintlnBuiltin;
-import com.oracle.truffle.sl.builtins.SLPrintlnBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLReadlnBuiltin;
-import com.oracle.truffle.sl.builtins.SLReadlnBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLRegisterShutdownHookBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLStackTraceBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLTypeOfBuiltinFactory;
-import com.oracle.truffle.sl.builtins.SLWrapPrimitiveBuiltinFactory;
+import com.oracle.truffle.sl.builtins.JXReadLnBuiltin;
 
 /**
  * The run-time state of SL during execution. The context is created by the {@link JSONXLang}. It
- * is used, for example, by {@link SLBuiltinNode#getContext() builtin functions}.
+ * is used, for example, by {@link JXBuiltinNode#getContext() builtin functions}.
  *
  * <p>It would be an error to have two different context instances during the execution of one
  * script. However, if two separate scripts run in one Java VM at the same time, they have a
@@ -113,7 +92,7 @@ public final class SLContext {
   public SLContext(
       JSONXLang language,
       TruffleLanguage.Env env,
-      List<NodeFactory<? extends SLBuiltinNode>> externalBuiltins) {
+      List<NodeFactory<? extends JXBuiltinNode>> externalBuiltins) {
     this.env = env;
     this.input = new BufferedReader(new InputStreamReader(env.in()));
     this.output = new PrintWriter(env.out(), true);
@@ -121,7 +100,7 @@ public final class SLContext {
     this.allocationReporter = env.lookup(AllocationReporter.class);
     this.functionRegistry = new SLFunctionRegistry(language);
     installBuiltins();
-    for (NodeFactory<? extends SLBuiltinNode> builtin : externalBuiltins) {
+    for (NodeFactory<? extends JXBuiltinNode> builtin : externalBuiltins) {
       installBuiltin(builtin);
     }
   }
@@ -143,7 +122,7 @@ public final class SLContext {
   }
 
   /**
-   * Returns the default input, i.e., the source for the {@link SLReadlnBuiltin}. To allow unit
+   * Returns the default input, i.e., the source for the {@link JXReadLnBuiltin}. To allow unit
    * testing, we do not use {@link System#in} directly.
    */
   public BufferedReader getInput() {
@@ -151,7 +130,7 @@ public final class SLContext {
   }
 
   /**
-   * The default default, i.e., the output for the {@link SLPrintlnBuiltin}. To allow unit testing,
+   * The default default, i.e., the output for the {@link JXPrintLnBuiltin}. To allow unit testing,
    * we do not use {@link System#out} directly.
    */
   public PrintWriter getOutput() {
@@ -165,32 +144,32 @@ public final class SLContext {
 
   /**
    * Adds all builtin functions to the {@link SLFunctionRegistry}. This method lists all {@link
-   * SLBuiltinNode builtin implementation classes}.
+   * JXBuiltinNode builtin implementation classes}.
    */
   private void installBuiltins() {
-    installBuiltin(SLReadlnBuiltinFactory.getInstance());
-    installBuiltin(SLPrintlnBuiltinFactory.getInstance());
-    installBuiltin(SLNanoTimeBuiltinFactory.getInstance());
-    installBuiltin(SLDefineFunctionBuiltinFactory.getInstance());
-    installBuiltin(SLStackTraceBuiltinFactory.getInstance());
-    installBuiltin(SLHelloEqualsWorldBuiltinFactory.getInstance());
-    installBuiltin(SLNewObjectBuiltinFactory.getInstance());
-    installBuiltin(SLEvalBuiltinFactory.getInstance());
-    installBuiltin(SLImportBuiltinFactory.getInstance());
-    installBuiltin(SLGetSizeBuiltinFactory.getInstance());
-    installBuiltin(SLHasSizeBuiltinFactory.getInstance());
-    installBuiltin(SLIsExecutableBuiltinFactory.getInstance());
-    installBuiltin(SLIsNullBuiltinFactory.getInstance());
-    installBuiltin(SLWrapPrimitiveBuiltinFactory.getInstance());
-    installBuiltin(SLTypeOfBuiltinFactory.getInstance());
-    installBuiltin(SLIsInstanceBuiltinFactory.getInstance());
-    installBuiltin(SLJavaTypeBuiltinFactory.getInstance());
-    installBuiltin(SLExitBuiltinFactory.getInstance());
-    installBuiltin(SLRegisterShutdownHookBuiltinFactory.getInstance());
-    installBuiltin(SLAddToHostClassPathBuiltinFactory.getInstance());
+    installBuiltin(JXReadLnBuiltinFactory.getInstance());
+    installBuiltin(JXPrintLnBuiltinFactory.getInstance());
+    installBuiltin(JXNanoTimeBuiltinFactory.getInstance());
+    installBuiltin(JXDefineFunctionBuiltinFactory.getInstance());
+    installBuiltin(JXStackTraceBuiltinFactory.getInstance());
+    installBuiltin(JXHelloEqualsWorldBuiltinFactory.getInstance());
+    installBuiltin(JXNewObjectBuiltinFactory.getInstance());
+    installBuiltin(JXEvalBuiltinFactory.getInstance());
+    installBuiltin(JXImportBuiltinFactory.getInstance());
+    installBuiltin(JXGetSizeBuiltinFactory.getInstance());
+    installBuiltin(JXHasSizeBuiltinFactory.getInstance());
+    installBuiltin(JXIsExecutableBuiltinFactory.getInstance());
+    installBuiltin(JXIsNullBuiltinFactory.getInstance());
+    installBuiltin(JXWrapPrimitiveBuiltinFactory.getInstance());
+    installBuiltin(JXTypeOfBuiltinFactory.getInstance());
+    installBuiltin(JXIsInstanceBuiltinFactory.getInstance());
+    installBuiltin(JXJavaTypeBuiltinFactory.getInstance());
+    installBuiltin(JXExitBuiltinFactory.getInstance());
+    installBuiltin(JXRegisterShutdownHookBuiltinFactory.getInstance());
+    installBuiltin(JXAddToHostClassPathBuiltinFactory.getInstance());
   }
 
-  public void installBuiltin(NodeFactory<? extends SLBuiltinNode> factory) {
+  public void installBuiltin(NodeFactory<? extends JXBuiltinNode> factory) {
     /* Register the builtin function in our function registry. */
     RootCallTarget target = language.lookupBuiltin(factory);
     getFunctionRegistry().register(SLStrings.getSLRootName(target.getRootNode()), target);

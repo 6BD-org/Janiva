@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,27 +38,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.builtins;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.dsl.GenerateNodeFactory;
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.sl.SLException;
+import com.oracle.truffle.sl.nodes.JXExpressionNode;
+import com.oracle.truffle.sl.runtime.SLContext;
+import com.oracle.truffle.sl.runtime.SLFunctionRegistry;
 
 /**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
+ * Base class for all builtin functions. It contains the Truffle DSL annotation {@link NodeChild}
+ * that defines the function arguments.<br>
+ * The builtin functions are registered in {@link SLContext#installBuiltins}. Every builtin node
+ * subclass is instantiated there, wrapped into a function, and added to the {@link
+ * SLFunctionRegistry}. This ensures that builtin functions can be called like user-defined
+ * functions; there is no special function lookup or call node for builtin functions.
  */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+@NodeChild(value = "arguments", type = JXExpressionNode[].class)
+@GenerateNodeFactory
+public abstract class JXBuiltinNode extends JXExpressionNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
-
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
+  @Override
+  public final Object executeGeneric(VirtualFrame frame) {
+    try {
+      return execute(frame);
+    } catch (UnsupportedSpecializationException e) {
+      throw SLException.typeError(e.getNode(), e.getSuppliedValues());
+    }
   }
 
-  public Object getResult() {
-    return result;
+  @Override
+  public final boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
+    return super.executeBoolean(frame);
   }
+
+  @Override
+  public final long executeLong(VirtualFrame frame) throws UnexpectedResultException {
+    return super.executeLong(frame);
+  }
+
+  @Override
+  public final void executeVoid(VirtualFrame frame) {
+    super.executeVoid(frame);
+  }
+
+  protected abstract Object execute(VirtualFrame frame);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -40,25 +40,21 @@
  */
 package com.oracle.truffle.sl.nodes.controlflow;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.sl.nodes.JXStatementNode;
 
 /**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
+ * Implementation of the SL break statement. We need to unwind an unknown number of interpreter
+ * frames that are between this {@link JXBreakNode} and the {@link SLWhileNode} of the loop we are
+ * breaking out. This is done by throwing an {@link SLBreakException exception} that is caught by
+ * the {@link SLWhileNode#executeVoid loop node}.
  */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+@NodeInfo(shortName = "break", description = "The node implementing a break statement")
+public final class JXBreakNode extends JXStatementNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
-
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
-  }
-
-  public Object getResult() {
-    return result;
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    throw SLBreakException.SINGLETON;
   }
 }

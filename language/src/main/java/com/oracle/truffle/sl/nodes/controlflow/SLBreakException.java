@@ -43,7 +43,7 @@ package com.oracle.truffle.sl.nodes.controlflow;
 import com.oracle.truffle.api.nodes.ControlFlowException;
 
 /**
- * Exception thrown by the {@link SLBreakNode break statement} and caught by the {@link SLWhileNode
+ * Exception thrown by the {@link JXBreakNode break statement} and caught by the {@link SLWhileNode
  * loop statement}. Since the exception is stateless, i.e., has no instance fields, we can use a
  * {@link #SINGLETON} to avoid memory allocation during interpretation.
  */

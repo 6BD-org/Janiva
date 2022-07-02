@@ -58,10 +58,10 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.strings.TruffleString;
 
 import com.oracle.truffle.sl.JSONXLang;
-import com.oracle.truffle.sl.nodes.SLExpressionNode;
-import com.oracle.truffle.sl.nodes.SLRootNode;
-import com.oracle.truffle.sl.nodes.SLStatementNode;
-import com.oracle.truffle.sl.parser.SLParseError;
+import com.oracle.truffle.sl.nodes.JXExpressionNode;
+import com.oracle.truffle.sl.nodes.JXRootNode;
+import com.oracle.truffle.sl.nodes.JXStatementNode;
+import com.oracle.truffle.sl.parser.JXParseError;
 import com.oracle.truffle.api.nodes.RootNode;
 
 }
@@ -127,12 +127,12 @@ primitive                               {factory.registerRootNode($primitive.res
 EOF
 ;
 
-object returns [SLExpressionNode result]
+object returns [JXExpressionNode result]
 :
 '{}'
 ;
 
-primitive returns [SLExpressionNode result]
+primitive returns [JXExpressionNode result]
 :
 j_number                                  {$result = $j_number.result;}
 |
@@ -141,7 +141,7 @@ j_string                                  {$result = $j_string.result;}
 j_boolean                                 {$result = $j_boolean.result;}
 ;
 
-j_number returns [SLExpressionNode result]
+j_number returns [JXExpressionNode result]
 :
 NUMERIC_LITERAL                         {Token whole = $NUMERIC_LITERAL; Token dec = null;}
 (
@@ -149,12 +149,12 @@ NUMERIC_LITERAL                         {Token whole = $NUMERIC_LITERAL; Token d
 )?                                      {$result = factory.createDecimal(whole, dec);}
 ;
 
-j_string returns [SLExpressionNode result]
+j_string returns [JXExpressionNode result]
 :
 STRING_LITERAL                          {$result = factory.createStringLiteral($STRING_LITERAL, true);}
 ;
 
-j_boolean returns [SLExpressionNode result]
+j_boolean returns [JXExpressionNode result]
 :
 BOOL_LITERAL                            {$result = factory.createBoolean($BOOL_LITERAL);}
 ;

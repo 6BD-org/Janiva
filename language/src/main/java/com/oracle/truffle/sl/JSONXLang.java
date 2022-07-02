@@ -67,44 +67,20 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.builtins.SLBuiltinNode;
-import com.oracle.truffle.sl.builtins.SLDefineFunctionBuiltin;
-import com.oracle.truffle.sl.builtins.SLNanoTimeBuiltin;
-import com.oracle.truffle.sl.builtins.SLPrintlnBuiltin;
-import com.oracle.truffle.sl.builtins.SLReadlnBuiltin;
-import com.oracle.truffle.sl.builtins.SLStackTraceBuiltin;
-import com.oracle.truffle.sl.nodes.SLEvalRootNode;
-import com.oracle.truffle.sl.nodes.SLExpressionNode;
-import com.oracle.truffle.sl.nodes.SLRootNode;
-import com.oracle.truffle.sl.nodes.SLTypes;
-import com.oracle.truffle.sl.nodes.SLUndefinedFunctionRootNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLBlockNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLBreakNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLContinueNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLDebuggerNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLIfNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLReturnNode;
-import com.oracle.truffle.sl.nodes.controlflow.SLWhileNode;
-import com.oracle.truffle.sl.nodes.expression.SLAddNode;
-import com.oracle.truffle.sl.nodes.expression.SLBigIntegerLiteralNode;
-import com.oracle.truffle.sl.nodes.expression.SLDivNode;
-import com.oracle.truffle.sl.nodes.expression.SLEqualNode;
-import com.oracle.truffle.sl.nodes.expression.SLFunctionLiteralNode;
-import com.oracle.truffle.sl.nodes.expression.SLInvokeNode;
-import com.oracle.truffle.sl.nodes.expression.SLLessOrEqualNode;
-import com.oracle.truffle.sl.nodes.expression.SLLessThanNode;
-import com.oracle.truffle.sl.nodes.expression.SLLogicalAndNode;
-import com.oracle.truffle.sl.nodes.expression.SLLogicalOrNode;
-import com.oracle.truffle.sl.nodes.expression.SLMulNode;
-import com.oracle.truffle.sl.nodes.expression.SLReadPropertyNode;
-import com.oracle.truffle.sl.nodes.expression.value.SLStringLiteralNode;
-import com.oracle.truffle.sl.nodes.expression.SLSubNode;
-import com.oracle.truffle.sl.nodes.expression.SLWritePropertyNode;
-import com.oracle.truffle.sl.nodes.local.SLReadArgumentNode;
-import com.oracle.truffle.sl.nodes.local.SLReadLocalVariableNode;
-import com.oracle.truffle.sl.nodes.local.SLWriteLocalVariableNode;
+import com.oracle.truffle.sl.builtins.*;
+import com.oracle.truffle.sl.builtins.JXBuiltinNode;
+import com.oracle.truffle.sl.nodes.*;
+import com.oracle.truffle.sl.nodes.JXExpressionNode;
+import com.oracle.truffle.sl.nodes.controlflow.*;
+import com.oracle.truffle.sl.nodes.controlflow.JXBreakNode;
+import com.oracle.truffle.sl.nodes.expression.*;
+import com.oracle.truffle.sl.nodes.expression.JXFunctionLiteralNode;
+import com.oracle.truffle.sl.nodes.expression.value.JXStringLiteralNode;
+import com.oracle.truffle.sl.nodes.local.JXReadArgumentNode;
+import com.oracle.truffle.sl.nodes.local.JXReadLocalVariableNode;
+import com.oracle.truffle.sl.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.sl.parser.JSONXLangParser;
-import com.oracle.truffle.sl.parser.SLNodeFactory;
+import com.oracle.truffle.sl.parser.JXNodeFactory;
 import com.oracle.truffle.sl.runtime.SLBigNumber;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLFunction;
@@ -147,23 +123,23 @@ import com.oracle.truffle.sl.runtime.SLStrings;
  * <p><b>Language concepts:</b>
  *
  * <ul>
- *   <li>Literals for {@link SLBigIntegerLiteralNode numbers} , {@link SLStringLiteralNode strings},
- *       and {@link SLFunctionLiteralNode functions}.
- *   <li>Basic arithmetic, logical, and comparison operations: {@link SLAddNode +}, {@link SLSubNode
- *       -}, {@link SLMulNode *}, {@link SLDivNode /}, {@link SLLogicalAndNode logical and}, {@link
- *       SLLogicalOrNode logical or}, {@link SLEqualNode ==}, !=, {@link SLLessThanNode &lt;},
- *       {@link SLLessOrEqualNode &le;}, &gt;, &ge;.
- *   <li>Local variables: local variables must be defined (via a {@link SLWriteLocalVariableNode
- *       write}) before they can be used (by a {@link SLReadLocalVariableNode read}). Local
+ *   <li>Literals for {@link JXBigIntegerLiteralNode numbers} , {@link JXStringLiteralNode strings},
+ *       and {@link JXFunctionLiteralNode functions}.
+ *   <li>Basic arithmetic, logical, and comparison operations: {@link JXAddNode +}, {@link JXSubNode
+ *       -}, {@link JXMulNode *}, {@link JXDivNode /}, {@link JXLogicalAndNode logical and}, {@link
+ *       JXLogicalOrNode logical or}, {@link JXEqualNode ==}, !=, {@link JXLessThanNode &lt;},
+ *       {@link JXLessOrEqualNode &le;}, &gt;, &ge;.
+ *   <li>Local variables: local variables must be defined (via a {@link JXWriteLocalVariableNode
+ *       write}) before they can be used (by a {@link JXReadLocalVariableNode read}). Local
  *       variables are not visible outside of the block where they were first defined.
- *   <li>Basic control flow statements: {@link SLBlockNode blocks}, {@link SLIfNode if}, {@link
- *       SLWhileNode while} with {@link SLBreakNode break} and {@link SLContinueNode continue},
+ *   <li>Basic control flow statements: {@link SLBlockNode blocks}, {@link JXIfNode if}, {@link
+ *       SLWhileNode while} with {@link JXBreakNode break} and {@link SLContinueNode continue},
  *       {@link SLReturnNode return}.
  *   <li>Debugging control: {@link SLDebuggerNode debugger} statement uses {@link
  *       DebuggerTags#AlwaysHalt} tag to halt the execution when run under the debugger.
- *   <li>Function calls: {@link SLInvokeNode invocations} are efficiently implemented with {@link
+ *   <li>Function calls: {@link JXInvokeNode invocations} are efficiently implemented with {@link
  *       SLDispatchNode polymorphic inline caches}.
- *   <li>Object access: {@link SLReadPropertyNode} and {@link SLWritePropertyNode} use a cached
+ *   <li>Object access: {@link JXReadPropertyNode} and {@link JXWritePropertyNode} use a cached
  *       {@link DynamicObjectLibrary} as the polymorphic inline cache for property reads and writes,
  *       respectively.
  * </ul>
@@ -172,7 +148,7 @@ import com.oracle.truffle.sl.runtime.SLStrings;
  * The syntax is described as an attributed grammar. The {@link SimpleLanguageParser} and {@link
  * SimpleLanguageLexer} are automatically generated by ANTLR 4. The grammar contains semantic
  * actions that build the AST for a method. To keep these semantic actions short, they are mostly
- * calls to the {@link SLNodeFactory} that performs the actual node creation. All functions found in
+ * calls to the {@link JXNodeFactory} that performs the actual node creation. All functions found in
  * the SL source are added to the {@link SLFunctionRegistry}, which is accessible from the {@link
  * SLContext}.
  *
@@ -182,16 +158,16 @@ import com.oracle.truffle.sl.runtime.SLStrings;
  * created. Some of the current builtin functions are
  *
  * <ul>
- *   <li>{@link SLReadlnBuiltin readln}: Read a String from the {@link SLContext#getInput() standard
+ *   <li>{@link JXReadLnBuiltin readln}: Read a String from the {@link SLContext#getInput() standard
  *       input}.
- *   <li>{@link SLPrintlnBuiltin println}: Write a value to the {@link SLContext#getOutput()
+ *   <li>{@link JXPrintLnBuiltin println}: Write a value to the {@link SLContext#getOutput()
  *       standard output}.
- *   <li>{@link SLNanoTimeBuiltin nanoTime}: Returns the value of a high-resolution time, in
+ *   <li>{@link JXNanoTimeBuiltin nanoTime}: Returns the value of a high-resolution time, in
  *       nanoseconds.
- *   <li>{@link SLDefineFunctionBuiltin defineFunction}: Parses the functions provided as a String
+ *   <li>{@link JXDefineFunctionBuiltin defineFunction}: Parses the functions provided as a String
  *       argument and adds them to the function registry. Functions that are already defined are
  *       replaced with the new version.
- *   <li>{@link SLStackTraceBuiltin stckTrace}: Print all function activations with all local
+ *   <li>{@link JXStackTraceBuiltin stckTrace}: Print all function activations with all local
  *       variables.
  * </ul>
  */
@@ -226,7 +202,7 @@ public final class JSONXLang extends TruffleLanguage<SLContext> {
   private final Assumption singleContext =
       Truffle.getRuntime().createAssumption("Single SL context.");
 
-  private final Map<NodeFactory<? extends SLBuiltinNode>, RootCallTarget> builtinTargets =
+  private final Map<NodeFactory<? extends JXBuiltinNode>, RootCallTarget> builtinTargets =
       new ConcurrentHashMap<>();
   private final Map<TruffleString, RootCallTarget> undefinedFunctions = new ConcurrentHashMap<>();
 
@@ -251,7 +227,7 @@ public final class JSONXLang extends TruffleLanguage<SLContext> {
   public RootCallTarget getOrCreateUndefinedFunction(TruffleString name) {
     RootCallTarget target = undefinedFunctions.get(name);
     if (target == null) {
-      target = new SLUndefinedFunctionRootNode(this, name).getCallTarget();
+      target = new JXUndefinedFunctionRootNode(this, name).getCallTarget();
       RootCallTarget other = undefinedFunctions.putIfAbsent(name, target);
       if (other != null) {
         target = other;
@@ -260,7 +236,7 @@ public final class JSONXLang extends TruffleLanguage<SLContext> {
     return target;
   }
 
-  public RootCallTarget lookupBuiltin(NodeFactory<? extends SLBuiltinNode> factory) {
+  public RootCallTarget lookupBuiltin(NodeFactory<? extends JXBuiltinNode> factory) {
     RootCallTarget target = builtinTargets.get(factory);
     if (target != null) {
       return target;
@@ -273,17 +249,17 @@ public final class JSONXLang extends TruffleLanguage<SLContext> {
      * methods in the builtin classes.
      */
     int argumentCount = factory.getExecutionSignature().size();
-    SLExpressionNode[] argumentNodes = new SLExpressionNode[argumentCount];
+    JXExpressionNode[] argumentNodes = new JXExpressionNode[argumentCount];
     /*
      * Builtin functions are like normal functions, i.e., the arguments are passed in as an
      * Object[] array encapsulated in SLArguments. A SLReadArgumentNode extracts a parameter
      * from this array.
      */
     for (int i = 0; i < argumentCount; i++) {
-      argumentNodes[i] = new SLReadArgumentNode(i);
+      argumentNodes[i] = new JXReadArgumentNode(i);
     }
     /* Instantiate the builtin node. This node performs the actual functionality. */
-    SLBuiltinNode builtinBodyNode = factory.createNode((Object) argumentNodes);
+    JXBuiltinNode builtinBodyNode = factory.createNode((Object) argumentNodes);
     builtinBodyNode.addRootTag();
     /* The name of the builtin function is specified via an annotation on the node class. */
     TruffleString name =
@@ -291,8 +267,8 @@ public final class JSONXLang extends TruffleLanguage<SLContext> {
     builtinBodyNode.setUnavailableSourceSection();
 
     /* Wrap the builtin in a RootNode. Truffle requires all AST to start with a RootNode. */
-    SLRootNode rootNode =
-        new SLRootNode(
+    JXRootNode rootNode =
+        new JXRootNode(
             this,
             new FrameDescriptor(),
             builtinBodyNode,
@@ -416,10 +392,10 @@ public final class JSONXLang extends TruffleLanguage<SLContext> {
     return REFERENCE.get(node);
   }
 
-  private static final List<NodeFactory<? extends SLBuiltinNode>> EXTERNAL_BUILTINS =
+  private static final List<NodeFactory<? extends JXBuiltinNode>> EXTERNAL_BUILTINS =
       Collections.synchronizedList(new ArrayList<>());
 
-  public static void installBuiltin(NodeFactory<? extends SLBuiltinNode> builtin) {
+  public static void installBuiltin(NodeFactory<? extends JXBuiltinNode> builtin) {
     EXTERNAL_BUILTINS.add(builtin);
   }
 

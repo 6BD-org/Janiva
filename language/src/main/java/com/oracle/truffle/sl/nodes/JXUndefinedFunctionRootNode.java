@@ -38,27 +38,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.nodes;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.sl.JSONXLang;
+import com.oracle.truffle.sl.runtime.SLFunction;
+import com.oracle.truffle.sl.runtime.SLUndefinedNameException;
 
 /**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
+ * The initial {@link RootNode} of {@link SLFunction functions} when they are created, i.e., when
+ * they are still undefined. Executing it throws an {@link
+ * SLUndefinedNameException#undefinedFunction exception}.
  */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
-
-  private static final long serialVersionUID = 4073191346281369231L;
-
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
+public class JXUndefinedFunctionRootNode extends JXRootNode {
+  public JXUndefinedFunctionRootNode(JSONXLang language, TruffleString name) {
+    super(language, null, null, name);
   }
 
-  public Object getResult() {
-    return result;
+  @Override
+  public Object execute(VirtualFrame frame) {
+    throw SLUndefinedNameException.undefinedFunction(null, getTSName());
   }
 }

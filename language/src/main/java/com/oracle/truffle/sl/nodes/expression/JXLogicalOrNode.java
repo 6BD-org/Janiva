@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,27 +38,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.nodes.expression;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.sl.nodes.JXExpressionNode;
 
-/**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
- */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+/** Logical disjunction node with short circuit evaluation. */
+@NodeInfo(shortName = "||")
+public final class JXLogicalOrNode extends JXShortCircuitNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
-
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
+  public JXLogicalOrNode(JXExpressionNode left, JXExpressionNode right) {
+    super(left, right);
   }
 
-  public Object getResult() {
-    return result;
+  @Override
+  protected boolean isEvaluateRight(boolean left) {
+    return !left;
+  }
+
+  @Override
+  protected boolean execute(boolean left, boolean right) {
+    return left || right;
   }
 }

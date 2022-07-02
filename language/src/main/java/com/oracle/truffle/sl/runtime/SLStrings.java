@@ -45,7 +45,7 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.SLEvalRootNode;
-import com.oracle.truffle.sl.nodes.SLRootNode;
+import com.oracle.truffle.sl.nodes.JXRootNode;
 
 public final class SLStrings {
 
@@ -75,8 +75,8 @@ public final class SLStrings {
   }
 
   public static TruffleString getSLRootName(RootNode rootNode) {
-    if (rootNode instanceof SLRootNode) {
-      return ((SLRootNode) rootNode).getTSName();
+    if (rootNode instanceof JXRootNode) {
+      return ((JXRootNode) rootNode).getTSName();
     } else if (rootNode instanceof SLEvalRootNode) {
       return SLEvalRootNode.getTSName();
     } else {

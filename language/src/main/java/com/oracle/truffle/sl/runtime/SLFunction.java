@@ -63,7 +63,7 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.CyclicAssumption;
 import com.oracle.truffle.api.utilities.TriState;
 import com.oracle.truffle.sl.JSONXLang;
-import com.oracle.truffle.sl.nodes.SLUndefinedFunctionRootNode;
+import com.oracle.truffle.sl.nodes.JXUndefinedFunctionRootNode;
 
 /**
  * Represents a SL function. On the Truffle level, a callable element is represented by a {@link
@@ -80,7 +80,7 @@ import com.oracle.truffle.sl.nodes.SLUndefinedFunctionRootNode;
  * <p>The {@link #callTarget} can be {@code null}. To ensure that only one {@link SLFunction}
  * instance per name exists, the {@link SLFunctionRegistry} creates an instance also when performing
  * name lookup. A function that has been looked up, i.e., used, but not defined, has a call target
- * that encapsulates a {@link SLUndefinedFunctionRootNode}.
+ * that encapsulates a {@link JXUndefinedFunctionRootNode}.
  */
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")

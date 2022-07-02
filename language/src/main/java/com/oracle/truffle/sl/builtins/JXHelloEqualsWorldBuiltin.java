@@ -38,27 +38,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.builtins;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.Frame;
+import com.oracle.truffle.api.frame.FrameInstance.FrameAccess;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.sl.JSONXLang;
+import com.oracle.truffle.sl.runtime.SLStrings;
 
-/**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
- */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+/** This builtin sets the variable named "hello" in the caller frame to the string "world". */
+@NodeInfo(shortName = "helloEqualsWorld")
+public abstract class JXHelloEqualsWorldBuiltin extends JXBuiltinNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
-
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
-  }
-
-  public Object getResult() {
-    return result;
+  @Specialization
+  @TruffleBoundary
+  public TruffleString change() {
+    return Truffle.getRuntime()
+        .iterateFrames(
+            (f) -> {
+              Frame frame = f.getFrame(FrameAccess.READ_WRITE);
+              int count = frame.getFrameDescriptor().getNumberOfSlots();
+              for (int i = 0; i < count; i++) {
+                if (SLStrings.HELLO.equalsUncached(
+                    (TruffleString) frame.getFrameDescriptor().getSlotName(i),
+                    JSONXLang.STRING_ENCODING)) {
+                  frame.setObject(i, SLStrings.WORLD);
+                  break;
+                }
+              }
+              return SLStrings.WORLD;
+            },
+            1);
   }
 }

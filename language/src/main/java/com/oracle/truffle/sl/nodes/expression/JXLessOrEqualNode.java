@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,27 +38,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.nodes.expression;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.Fallback;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.sl.SLException;
+import com.oracle.truffle.sl.nodes.JXBinaryNode;
+import com.oracle.truffle.sl.runtime.SLBigNumber;
 
-/**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
- */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+/** This class is similar to the {@link JXLessThanNode}. */
+@NodeInfo(shortName = "<=")
+public abstract class JXLessOrEqualNode extends JXBinaryNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
-
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
+  @Specialization
+  protected boolean lessOrEqual(long left, long right) {
+    return left <= right;
   }
 
-  public Object getResult() {
-    return result;
+  @Specialization
+  @TruffleBoundary
+  protected boolean lessOrEqual(SLBigNumber left, SLBigNumber right) {
+    return left.compareTo(right) <= 0;
+  }
+
+  @Fallback
+  protected Object typeError(Object left, Object right) {
+    throw SLException.typeError(this, left, right);
   }
 }

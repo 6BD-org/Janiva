@@ -38,27 +38,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.nodes.expression.value;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.sl.nodes.JXExpressionNode;
 
-/**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
- */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+/** Constant literal for a String value. */
+@NodeInfo(shortName = "const")
+public final class JXStringLiteralNode extends JXExpressionNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
+  private final TruffleString value;
 
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
+  public JXStringLiteralNode(TruffleString value) {
+    this.value = value;
   }
 
-  public Object getResult() {
-    return result;
+  @Override
+  public TruffleString executeGeneric(VirtualFrame frame) {
+    return value;
   }
 }

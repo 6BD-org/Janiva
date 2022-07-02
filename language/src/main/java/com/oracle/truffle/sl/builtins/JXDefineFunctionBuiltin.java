@@ -38,27 +38,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.builtins;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.sl.JSONXLang;
 
 /**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
+ * Builtin function to define (or redefine) functions. The provided source code is parsed the same
+ * way as the initial source of the script, so the same syntax applies.
  */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+@NodeInfo(shortName = "defineFunction")
+public abstract class JXDefineFunctionBuiltin extends JXBuiltinNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
+  @TruffleBoundary
+  @Specialization
+  public TruffleString defineFunction(TruffleString code) {
+    // @formatter:off
+    Source source =
+        Source.newBuilder(JSONXLang.ID, code.toJavaStringUncached(), "[defineFunction]").build();
+    // @formatter:on
+    /* The same parsing code as for parsing the initial source. */
+    //SLContext.get(this).getFunctionRegistry().register(source);
 
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
-  }
-
-  public Object getResult() {
-    return result;
+    return code;
   }
 }

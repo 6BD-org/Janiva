@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,27 +38,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.builtins;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.ImportStatic;
+import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.instrumentation.AllocationReporter;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
+import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.sl.JSONXLang;
+import com.oracle.truffle.sl.runtime.SLContext;
+import com.oracle.truffle.sl.runtime.SLNull;
+import com.oracle.truffle.sl.runtime.SLUndefinedNameException;
 
 /**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
+ * Built-in function to create a new object. Objects in SL are simply made up of name/value pairs.
  */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+@NodeInfo(shortName = "new")
+@ImportStatic(SLContext.class)
+public abstract class JXNewObjectBuiltin extends JXBuiltinNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
-
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
+  @Specialization
+  @SuppressWarnings("unused")
+  public Object newObject(SLNull o, @Cached("lookup()") AllocationReporter reporter) {
+    return JSONXLang.get(this).createObject(reporter);
   }
 
-  public Object getResult() {
-    return result;
+  final AllocationReporter lookup() {
+    return SLContext.get(this).getAllocationReporter();
+  }
+
+  @Specialization(guards = "!values.isNull(obj)", limit = "3")
+  public Object newObject(Object obj, @CachedLibrary("obj") InteropLibrary values) {
+    try {
+      return values.instantiate(obj);
+    } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
+      /* Foreign access was not successful. */
+      throw SLUndefinedNameException.undefinedFunction(this, obj);
+    }
   }
 }

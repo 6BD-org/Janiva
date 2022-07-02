@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,27 +38,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.nodes.expression;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import com.oracle.truffle.sl.nodes.JXExpressionNode;
 
 /**
- * Exception thrown by the {@link SLReturnNode return statement} and caught by the {@link
- * JXFunctionBodyNode function body}. The exception transports the return value in its {@link
- * #result} field.
+ * A {@link JXExpressionNode} that represents a parenthesized expression; it simply returns the
+ * value of the enclosed (child) expression. It is represented separately in the AST for the purpose
+ * of correct source attribution; this preserves the lexical relationship between the two
+ * parentheses and allows a tool to describe the expression as distinct from its contents.
  */
-@SuppressWarnings("serial")
-public final class SLReturnException extends ControlFlowException {
+@NodeInfo(description = "A parenthesized expression")
+public class JXParenExpressionNode extends JXExpressionNode {
 
-  private static final long serialVersionUID = 4073191346281369231L;
+  @Child private JXExpressionNode expression;
 
-  private final Object result;
-
-  public SLReturnException(Object result) {
-    this.result = result;
+  public JXParenExpressionNode(JXExpressionNode expression) {
+    this.expression = expression;
   }
 
-  public Object getResult() {
-    return result;
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    return expression.executeGeneric(frame);
+  }
+
+  @Override
+  public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
+    return expression.executeLong(frame);
+  }
+
+  @Override
+  public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
+    return expression.executeBoolean(frame);
   }
 }

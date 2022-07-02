@@ -42,7 +42,7 @@ package com.oracle.truffle.sl.nodes.controlflow;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.sl.nodes.SLStatementNode;
+import com.oracle.truffle.sl.nodes.JXStatementNode;
 
 /**
  * Implementation of the SL continue statement. We need to unwind an unknown number of interpreter
@@ -51,7 +51,7 @@ import com.oracle.truffle.sl.nodes.SLStatementNode;
  * by the {@link SLWhileNode#executeVoid loop node}.
  */
 @NodeInfo(shortName = "continue", description = "The node implementing a continue statement")
-public final class SLContinueNode extends SLStatementNode {
+public final class SLContinueNode extends JXStatementNode {
 
   @Override
   public void executeVoid(VirtualFrame frame) {
