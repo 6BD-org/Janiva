@@ -50,7 +50,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
 import com.oracle.truffle.sl.nodes.SLTypes;
 import com.oracle.truffle.sl.runtime.SLBigNumber;
@@ -70,7 +70,7 @@ public abstract class SLUnboxNode extends SLExpressionNode {
   @Specialization
   protected static TruffleString fromString(
       String value, @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
-    return fromJavaStringNode.execute(value, SLLanguage.STRING_ENCODING);
+    return fromJavaStringNode.execute(value, JSONXLang.STRING_ENCODING);
   }
 
   @Specialization

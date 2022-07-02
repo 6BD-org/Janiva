@@ -54,7 +54,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.strings.TruffleStringBuilder;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.SLEvalRootNode;
 import com.oracle.truffle.sl.nodes.SLRootNode;
 import com.oracle.truffle.sl.runtime.SLStrings;
@@ -77,7 +77,7 @@ public abstract class SLStackTraceBuiltin extends SLBuiltinNode {
 
   @TruffleBoundary
   private static TruffleString createStackTrace() {
-    final TruffleStringBuilder str = TruffleStringBuilder.create(SLLanguage.STRING_ENCODING);
+    final TruffleStringBuilder str = TruffleStringBuilder.create(JSONXLang.STRING_ENCODING);
 
     Truffle.getRuntime()
         .iterateFrames(

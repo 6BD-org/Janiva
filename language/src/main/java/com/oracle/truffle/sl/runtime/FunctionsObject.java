@@ -54,7 +54,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
@@ -71,7 +71,7 @@ final class FunctionsObject implements TruffleObject {
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return SLLanguage.class;
+    return JSONXLang.class;
   }
 
   @ExportMessage

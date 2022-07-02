@@ -43,4 +43,4 @@ if [[ ! -f  antlr-4.9.2-complete.jar ]]
 then
   curl -O https://www.antlr.org/download/antlr-4.9.2-complete.jar
 fi
-java -cp antlr-4.9.2-complete.jar org.antlr.v4.Tool -package com.oracle.truffle.sl.parser -no-listener language/src/main/java/com/oracle/truffle/sl/parser/SimpleLanguage.g4
+java -cp antlr-4.9.2-complete.jar org.antlr.v4.Tool -package com.oracle.truffle.sl.parser -no-listener language/src/main/java/com/oracle/truffle/sl/parser/JSONXLang.g4

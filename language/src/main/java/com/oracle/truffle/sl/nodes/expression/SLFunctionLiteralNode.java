@@ -47,7 +47,7 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLFunction;
@@ -79,7 +79,7 @@ public final class SLFunctionLiteralNode extends SLExpressionNode {
 
   @Override
   public SLFunction executeGeneric(VirtualFrame frame) {
-    SLLanguage l = SLLanguage.get(this);
+    JSONXLang l = JSONXLang.get(this);
     CompilerAsserts.partialEvaluationConstant(l);
 
     SLFunction function;

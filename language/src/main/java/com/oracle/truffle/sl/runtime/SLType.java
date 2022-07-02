@@ -51,7 +51,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 
 /**
  * The builtin type definitions for SimpleLanguage. SL has no custom types, so it is not possible
@@ -68,7 +68,7 @@ import com.oracle.truffle.sl.SLLanguage;
  * <p>In order to assign types to guest language values, SL values implement {@link
  * InteropLibrary#getMetaObject(Object)}. The interop contracts for primitive values cannot be
  * overriden, so in order to assign meta-objects to primitive values, the primitive values are
- * assigned using language views. See {@link SLLanguage#getLanguageView}.
+ * assigned using language views. See {@link JSONXLang#getLanguageView}.
  */
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
@@ -125,7 +125,7 @@ public final class SLType implements TruffleObject {
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return SLLanguage.class;
+    return JSONXLang.class;
   }
 
   /*

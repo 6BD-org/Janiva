@@ -50,20 +50,18 @@ import java.util.Map;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
-import com.oracle.truffle.sl.parser.SimpleLanguageParser;
+import com.oracle.truffle.sl.JSONXLang;
 
 /** Manages the mapping from function names to {@link SLFunction function objects}. */
 public final class SLFunctionRegistry {
 
-  private final SLLanguage language;
+  private final JSONXLang language;
   private final FunctionsObject functionsObject = new FunctionsObject();
   private final Map<Map<TruffleString, RootCallTarget>, Void> registeredFunctions =
       new IdentityHashMap<>();
 
-  public SLFunctionRegistry(SLLanguage language) {
+  public SLFunctionRegistry(JSONXLang language) {
     this.language = language;
   }
 
@@ -124,7 +122,7 @@ public final class SLFunctionRegistry {
         result,
         new Comparator<SLFunction>() {
           public int compare(SLFunction f1, SLFunction f2) {
-            assert SLLanguage.STRING_ENCODING == TruffleString.Encoding.UTF_16
+            assert JSONXLang.STRING_ENCODING == TruffleString.Encoding.UTF_16
                 : "SLLanguage.ENCODING changed, string comparison method must be adjusted accordingly!";
             return f1.getName().compareCharsUTF16Uncached(f2.getName());
           }

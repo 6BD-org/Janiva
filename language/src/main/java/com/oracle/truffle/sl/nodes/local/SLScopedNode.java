@@ -60,7 +60,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
 import com.oracle.truffle.sl.nodes.SLRootNode;
 import com.oracle.truffle.sl.nodes.controlflow.SLBlockNode;
@@ -246,7 +246,7 @@ public abstract class SLScopedNode extends Node {
     @ExportMessage
     @SuppressWarnings("static-method")
     Class<? extends TruffleLanguage<?>> getLanguage() {
-      return SLLanguage.class;
+      return JSONXLang.class;
     }
 
     /** Provide the function name as the scope's display string. */
@@ -446,7 +446,7 @@ public abstract class SLScopedNode extends Node {
       SLWriteLocalVariableNode[] writeNodes = root.getDeclaredArguments();
       for (int i = 0; i < writeNodes.length; i++) {
         SLWriteLocalVariableNode writeNode = writeNodes[i];
-        if (memberTS.equalsUncached(writeNode.getSlotName(), SLLanguage.STRING_ENCODING)) {
+        if (memberTS.equalsUncached(writeNode.getSlotName(), JSONXLang.STRING_ENCODING)) {
           return i;
         }
       }
@@ -500,7 +500,7 @@ public abstract class SLScopedNode extends Node {
     @ExportMessage
     @SuppressWarnings("static-method")
     Class<? extends TruffleLanguage<?>> getLanguage() {
-      return SLLanguage.class;
+      return JSONXLang.class;
     }
 
     /** Provide either "block", or the function name as the scope's display string. */
@@ -784,13 +784,13 @@ public abstract class SLScopedNode extends Node {
       int index = getVisibleVariablesIndex();
       for (int i = 0; i < index; i++) {
         SLWriteLocalVariableNode writeNode = writeNodes[i];
-        if (memberTS.equalsUncached(writeNode.getSlotName(), SLLanguage.STRING_ENCODING)) {
+        if (memberTS.equalsUncached(writeNode.getSlotName(), JSONXLang.STRING_ENCODING)) {
           return writeNode;
         }
       }
       for (int i = parentBlockIndex; i < writeNodes.length; i++) {
         SLWriteLocalVariableNode writeNode = writeNodes[i];
-        if (memberTS.equalsUncached(writeNode.getSlotName(), SLLanguage.STRING_ENCODING)) {
+        if (memberTS.equalsUncached(writeNode.getSlotName(), JSONXLang.STRING_ENCODING)) {
           return writeNode;
         }
       }

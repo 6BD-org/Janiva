@@ -103,9 +103,8 @@ import com.oracle.truffle.sl.nodes.expression.SLWritePropertyNode;
 import com.oracle.truffle.sl.nodes.local.SLReadArgumentNode;
 import com.oracle.truffle.sl.nodes.local.SLReadLocalVariableNode;
 import com.oracle.truffle.sl.nodes.local.SLWriteLocalVariableNode;
+import com.oracle.truffle.sl.parser.JSONXLangParser;
 import com.oracle.truffle.sl.parser.SLNodeFactory;
-import com.oracle.truffle.sl.parser.SimpleLanguageLexer;
-import com.oracle.truffle.sl.parser.SimpleLanguageParser;
 import com.oracle.truffle.sl.runtime.SLBigNumber;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLFunction;
@@ -197,10 +196,10 @@ import com.oracle.truffle.sl.runtime.SLStrings;
  * </ul>
  */
 @TruffleLanguage.Registration(
-    id = SLLanguage.ID,
-    name = "SL",
-    defaultMimeType = SLLanguage.MIME_TYPE,
-    characterMimeTypes = SLLanguage.MIME_TYPE,
+    id = JSONXLang.ID,
+    name = "JSONX",
+    defaultMimeType = JSONXLang.MIME_TYPE,
+    characterMimeTypes = JSONXLang.MIME_TYPE,
     contextPolicy = ContextPolicy.SHARED,
     fileTypeDetectors = SLFileDetector.class, //
     website = "https://www.graalvm.org/graalvm-as-a-platform/implement-language/")
@@ -214,13 +213,13 @@ import com.oracle.truffle.sl.runtime.SLStrings;
   StandardTags.ReadVariableTag.class,
   StandardTags.WriteVariableTag.class
 })
-public final class SLLanguage extends TruffleLanguage<SLContext> {
+public final class JSONXLang extends TruffleLanguage<SLContext> {
   public static volatile int counter;
 
-  public static final String ID = "sl";
-  public static final String MIME_TYPE = "application/x-sl";
+  public static final String ID = "jsonx";
+  public static final String MIME_TYPE = "application/jsonx";
   private static final Source BUILTIN_SOURCE =
-      Source.newBuilder(SLLanguage.ID, "", "SL builtin").build();
+      Source.newBuilder(JSONXLang.ID, "", "SL builtin").build();
 
   public static final TruffleString.Encoding STRING_ENCODING = TruffleString.Encoding.UTF_16;
 
@@ -233,7 +232,7 @@ public final class SLLanguage extends TruffleLanguage<SLContext> {
 
   private final Shape rootShape;
 
-  public SLLanguage() {
+  public JSONXLang() {
     counter++;
     this.rootShape = Shape.newBuilder().layout(SLObject.class).build();
   }
@@ -331,7 +330,7 @@ public final class SLLanguage extends TruffleLanguage<SLContext> {
      * Parse the provided source. At this point, we do not have a SLContext yet. Registration of
      * the functions with the SLContext happens lazily in SLEvalRootNode.
      */
-    rootNode = SimpleLanguageParser.parseSL(this, source);
+    rootNode = JSONXLangParser.parseSL(this, source);
 
 
     RootCallTarget main = rootNode.getCallTarget();
@@ -410,10 +409,10 @@ public final class SLLanguage extends TruffleLanguage<SLContext> {
     return object;
   }
 
-  private static final LanguageReference<SLLanguage> REFERENCE =
-      LanguageReference.create(SLLanguage.class);
+  private static final LanguageReference<JSONXLang> REFERENCE =
+      LanguageReference.create(JSONXLang.class);
 
-  public static SLLanguage get(Node node) {
+  public static JSONXLang get(Node node) {
     return REFERENCE.get(node);
   }
 

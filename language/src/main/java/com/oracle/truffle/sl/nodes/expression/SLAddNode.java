@@ -48,7 +48,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.SLException;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.SLBinaryNode;
 import com.oracle.truffle.sl.nodes.SLTypes;
 import com.oracle.truffle.sl.nodes.util.SLToTruffleStringNode;
@@ -124,7 +124,7 @@ public abstract class SLAddNode extends SLBinaryNode {
     return concatNode.execute(
         toTruffleStringNodeLeft.execute(left),
         toTruffleStringNodeRight.execute(right),
-        SLLanguage.STRING_ENCODING,
+        JSONXLang.STRING_ENCODING,
         true);
   }
 

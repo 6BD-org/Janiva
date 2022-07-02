@@ -47,8 +47,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.expression.value.SLBoolLiteralNode;
 import com.oracle.truffle.sl.nodes.expression.value.SLNumberLiteralNode;
 import com.oracle.truffle.sl.runtime.SLStrings;
@@ -61,7 +61,6 @@ import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
 import com.oracle.truffle.sl.nodes.SLRootNode;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
@@ -154,9 +153,9 @@ public class SLNodeFactory {
 
   /* State while parsing a block. */
   private LexicalScope lexicalScope;
-  private final SLLanguage language;
+  private final JSONXLang language;
 
-  public SLNodeFactory(SLLanguage language, Source source) {
+  public SLNodeFactory(JSONXLang language, Source source) {
     this.language = language;
     this.source = source;
     this.sourceString = SLStrings.fromJavaString(source.getCharacters().toString());
@@ -595,7 +594,7 @@ public class SLNodeFactory {
       length -= 2;
     }
     return sourceString.substringByteIndexUncached(
-        fromIndex * 2, length * 2, SLLanguage.STRING_ENCODING, true);
+        fromIndex * 2, length * 2, JSONXLang.STRING_ENCODING, true);
   }
 
   public SLExpressionNode createNumericLiteral(Token literalToken) {

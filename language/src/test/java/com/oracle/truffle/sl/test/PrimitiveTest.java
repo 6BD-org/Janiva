@@ -44,27 +44,49 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.oracle.truffle.sl.JSONXLang;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.swing.plaf.TextUI;
+
 public class PrimitiveTest {
-    Context context;
+  Context context;
 
-    @Before
-    public void initialize() {
-        context = Context.create();
-    }
+  @Before
+  public void initialize() {
+    context = Context.create();
+  }
 
-    @After
-    public void dispose() {
-        context.close();
-    }
+  @After
+  public void dispose() {
+    context.close();
+  }
 
-    @Test
-    public void checkToStringOnAFunction() {
-        Value v = context.eval("sl", "3.5");
-    }
+  @Test
+  public void testNumber() {
+    Value v = context.eval(JSONXLang.ID, "3.5");
+    Assert.assertEquals(3.5, v.asDouble(), 0.001);
+  }
+
+  @Test
+  public void testString() {
+    Value v = context.eval(JSONXLang.ID, "\"asd\"");
+    Assert.assertEquals("asd", v.asString());
+  }
+
+  @Test
+  public void testBoolean() {
+    TestUtil.runWithStackTrace(() -> {
+      Value v = context.eval(JSONXLang.ID, "true");
+      assertTrue(v.asBoolean());
+
+      v = context.eval(JSONXLang.ID, "false");
+      Assert.assertFalse(v.asBoolean());
+    });
+  }
 }

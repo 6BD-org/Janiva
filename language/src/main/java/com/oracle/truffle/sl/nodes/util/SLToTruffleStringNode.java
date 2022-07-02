@@ -52,7 +52,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.SLTypes;
 import com.oracle.truffle.sl.runtime.SLBigNumber;
 import com.oracle.truffle.sl.runtime.SLFunction;
@@ -83,7 +83,7 @@ public abstract class SLToTruffleStringNode extends Node {
   @Specialization
   protected static TruffleString fromString(
       String value, @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
-    return fromJavaStringNode.execute(value, SLLanguage.STRING_ENCODING);
+    return fromJavaStringNode.execute(value, JSONXLang.STRING_ENCODING);
   }
 
   @Specialization
@@ -100,14 +100,14 @@ public abstract class SLToTruffleStringNode extends Node {
   @TruffleBoundary
   protected static TruffleString fromLong(
       long value, @Cached TruffleString.FromLongNode fromLongNode) {
-    return fromLongNode.execute(value, SLLanguage.STRING_ENCODING, true);
+    return fromLongNode.execute(value, JSONXLang.STRING_ENCODING, true);
   }
 
   @Specialization
   @TruffleBoundary
   protected static TruffleString fromBigNumber(
       SLBigNumber value, @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
-    return fromJavaStringNode.execute(value.toString(), SLLanguage.STRING_ENCODING);
+    return fromJavaStringNode.execute(value.toString(), JSONXLang.STRING_ENCODING);
   }
 
   @Specialization
@@ -123,12 +123,12 @@ public abstract class SLToTruffleStringNode extends Node {
       @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
     try {
       if (interop.fitsInLong(value)) {
-        return fromLongNode.execute(interop.asLong(value), SLLanguage.STRING_ENCODING, true);
+        return fromLongNode.execute(interop.asLong(value), JSONXLang.STRING_ENCODING, true);
       } else if (interop.isString(value)) {
-        return fromJavaStringNode.execute(interop.asString(value), SLLanguage.STRING_ENCODING);
+        return fromJavaStringNode.execute(interop.asString(value), JSONXLang.STRING_ENCODING);
       } else if (interop.isNumber(value) && value instanceof SLBigNumber) {
         return fromJavaStringNode.execute(
-            bigNumberToString((SLBigNumber) value), SLLanguage.STRING_ENCODING);
+            bigNumberToString((SLBigNumber) value), JSONXLang.STRING_ENCODING);
       } else if (interop.isNull(value)) {
         return SLStrings.NULL_LC;
       } else {

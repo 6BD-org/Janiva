@@ -52,9 +52,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.NodeUtil;
 import com.oracle.truffle.api.nodes.NodeVisitor;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.builtins.SLBuiltinNode;
 import com.oracle.truffle.sl.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.sl.nodes.controlflow.SLFunctionBodyNode;
@@ -83,7 +82,7 @@ public class SLRootNode extends RootNode {
   private volatile SLWriteLocalVariableNode[] argumentNodesCache;
 
   public SLRootNode(
-      SLLanguage language,
+      JSONXLang language,
       FrameDescriptor frameDescriptor,
       SLExpressionNode bodyNode,
       TruffleString name) {

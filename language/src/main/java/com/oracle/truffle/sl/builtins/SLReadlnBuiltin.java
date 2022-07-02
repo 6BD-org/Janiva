@@ -49,7 +49,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.SLException;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLStrings;
 
@@ -61,7 +61,7 @@ public abstract class SLReadlnBuiltin extends SLBuiltinNode {
   public TruffleString readln(@Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
     TruffleString result =
         fromJavaStringNode.execute(
-            doRead(SLContext.get(this).getInput()), SLLanguage.STRING_ENCODING);
+            doRead(SLContext.get(this).getInput()), JSONXLang.STRING_ENCODING);
     if (result == null) {
       /*
        * We do not have a sophisticated end of file handling, so returning an empty string is

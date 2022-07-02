@@ -90,7 +90,7 @@ public class SLException extends AbstractTruffleException {
 
     result.append(": operation");
     if (operation != null) {
-      NodeInfo nodeInfo = SLLanguage.lookupNodeInfo(operation.getClass());
+      NodeInfo nodeInfo = JSONXLang.lookupNodeInfo(operation.getClass());
       if (nodeInfo != null) {
         result.append(" \"").append(nodeInfo.shortName()).append("\"");
       }

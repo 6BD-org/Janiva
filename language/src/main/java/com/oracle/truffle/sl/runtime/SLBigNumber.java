@@ -49,7 +49,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
@@ -214,7 +214,7 @@ public final class SLBigNumber implements TruffleObject, Comparable<SLBigNumber>
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return SLLanguage.class;
+    return JSONXLang.class;
   }
 
   @ExportMessage

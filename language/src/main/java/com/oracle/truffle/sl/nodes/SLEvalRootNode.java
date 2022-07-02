@@ -40,18 +40,13 @@
  */
 package com.oracle.truffle.sl.nodes;
 
-import java.util.Collections;
-import java.util.Map;
-
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLNull;
 import com.oracle.truffle.sl.runtime.SLStrings;
@@ -74,10 +69,10 @@ public final class SLEvalRootNode extends RootNode {
   @CompilationFinal private boolean registered;
 
   @Child private DirectCallNode mainCallNode;
-  private final SLLanguage language;
+  private final JSONXLang language;
 
   public SLEvalRootNode(
-      SLLanguage language,
+      JSONXLang language,
       RootCallTarget rootFunction) {
     super(language);
     this.language = language;

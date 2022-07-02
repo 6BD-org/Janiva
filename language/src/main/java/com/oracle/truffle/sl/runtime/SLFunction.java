@@ -62,7 +62,7 @@ import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.CyclicAssumption;
 import com.oracle.truffle.api.utilities.TriState;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.SLUndefinedFunctionRootNode;
 
 /**
@@ -88,7 +88,7 @@ public final class SLFunction implements TruffleObject {
 
   public static final int INLINE_CACHE_SIZE = 2;
 
-  private static final TruffleLogger LOG = TruffleLogger.getLogger(SLLanguage.ID, SLFunction.class);
+  private static final TruffleLogger LOG = TruffleLogger.getLogger(JSONXLang.ID, SLFunction.class);
 
   /** The name of the function. */
   private final TruffleString name;
@@ -103,7 +103,7 @@ public final class SLFunction implements TruffleObject {
    */
   private final CyclicAssumption callTargetStable;
 
-  protected SLFunction(SLLanguage language, TruffleString name) {
+  protected SLFunction(JSONXLang language, TruffleString name) {
     this(name, language.getOrCreateUndefinedFunction(name));
   }
 
@@ -154,7 +154,7 @@ public final class SLFunction implements TruffleObject {
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return SLLanguage.class;
+    return JSONXLang.class;
   }
 
   /** {@link SLFunction} instances are always visible as executable to other languages. */

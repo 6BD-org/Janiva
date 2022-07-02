@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.sl.JSONXLang;
 import org.graalvm.polyglot.Context;
 
 import com.oracle.truffle.api.CallTarget;
@@ -67,7 +68,6 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.sl.SLLanguage;
 import com.oracle.truffle.sl.builtins.SLAddToHostClassPathBuiltinFactory;
 import com.oracle.truffle.sl.builtins.SLBuiltinNode;
 import com.oracle.truffle.sl.builtins.SLDefineFunctionBuiltinFactory;
@@ -93,7 +93,7 @@ import com.oracle.truffle.sl.builtins.SLTypeOfBuiltinFactory;
 import com.oracle.truffle.sl.builtins.SLWrapPrimitiveBuiltinFactory;
 
 /**
- * The run-time state of SL during execution. The context is created by the {@link SLLanguage}. It
+ * The run-time state of SL during execution. The context is created by the {@link JSONXLang}. It
  * is used, for example, by {@link SLBuiltinNode#getContext() builtin functions}.
  *
  * <p>It would be an error to have two different context instances during the execution of one
@@ -102,7 +102,7 @@ import com.oracle.truffle.sl.builtins.SLWrapPrimitiveBuiltinFactory;
  */
 public final class SLContext {
 
-  private final SLLanguage language;
+  private final JSONXLang language;
   @CompilationFinal private Env env;
   private final BufferedReader input;
   private final PrintWriter output;
@@ -111,7 +111,7 @@ public final class SLContext {
   private final List<SLFunction> shutdownHooks = new ArrayList<>();
 
   public SLContext(
-      SLLanguage language,
+      JSONXLang language,
       TruffleLanguage.Env env,
       List<NodeFactory<? extends SLBuiltinNode>> externalBuiltins) {
     this.env = env;
@@ -248,7 +248,7 @@ public final class SLContext {
   }
 
   private static final ContextReference<SLContext> REFERENCE =
-      ContextReference.create(SLLanguage.class);
+      ContextReference.create(JSONXLang.class);
 
   public static SLContext get(Node node) {
     return REFERENCE.get(node);

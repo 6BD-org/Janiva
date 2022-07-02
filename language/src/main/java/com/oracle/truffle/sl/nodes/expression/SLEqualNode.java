@@ -50,7 +50,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.SLBinaryNode;
 import com.oracle.truffle.sl.runtime.SLBigNumber;
 import com.oracle.truffle.sl.runtime.SLFunction;
@@ -90,7 +90,7 @@ public abstract class SLEqualNode extends SLBinaryNode {
   @Specialization
   protected boolean doTruffleString(
       TruffleString left, TruffleString right, @Cached TruffleString.EqualNode equalNode) {
-    return equalNode.execute(left, right, SLLanguage.STRING_ENCODING);
+    return equalNode.execute(left, right, JSONXLang.STRING_ENCODING);
   }
 
   @Specialization

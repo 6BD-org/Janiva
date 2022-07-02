@@ -43,7 +43,7 @@
  * The parser and lexer need to be generated using "mx create-sl-parser".
  */
 
-grammar SimpleLanguage;
+grammar JSONXLang;
 
 @parser::header
 {
@@ -57,7 +57,7 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.strings.TruffleString;
 
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
 import com.oracle.truffle.sl.nodes.SLRootNode;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
@@ -99,9 +99,9 @@ private static void throwParseError(Source source, int line, int charPositionInL
     throw new SLParseError(source, line, col, length, String.format("Error(s) parsing script:%n" + location + message));
 }
 
-public static RootNode parseSL(SLLanguage language, Source source) {
-    SimpleLanguageLexer lexer = new SimpleLanguageLexer(CharStreams.fromString(source.getCharacters().toString()));
-    SimpleLanguageParser parser = new SimpleLanguageParser(new CommonTokenStream(lexer));
+public static RootNode parseSL(JSONXLang language, Source source) {
+    JSONXLangLexer lexer = new JSONXLangLexer(CharStreams.fromString(source.getCharacters().toString()));
+    JSONXLangParser parser = new JSONXLangParser(new CommonTokenStream(lexer));
     lexer.removeErrorListeners();
     parser.removeErrorListeners();
     BailoutErrorListener listener = new BailoutErrorListener(source);
@@ -175,8 +175,10 @@ fragment OCT_DIGIT : [0-7];
 fragment BINARY_DIGIT : '0' | '1';
 fragment TAB : '\t';
 fragment STRING_CHAR : ~('"' | '\r' | '\n');
+fragment TRUE : 'true';
+fragment FALSE : 'false';
 
+BOOL_LITERAL : TRUE | FALSE;
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
 STRING_LITERAL : '"' STRING_CHAR* '"';
 NUMERIC_LITERAL : '0' | NON_ZERO_DIGIT DIGIT*;
-BOOL_LITERAL : 'true' | 'false';

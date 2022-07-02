@@ -51,7 +51,7 @@ final class SLEvaluateLocalNode extends RootNode {
   private final TruffleString variable;
   private final MaterializedFrame inspectFrame;
 
-  SLEvaluateLocalNode(SLLanguage language, TruffleString variableName, MaterializedFrame frame) {
+  SLEvaluateLocalNode(JSONXLang language, TruffleString variableName, MaterializedFrame frame) {
     super(language);
     this.variable = variableName;
     this.inspectFrame = frame;

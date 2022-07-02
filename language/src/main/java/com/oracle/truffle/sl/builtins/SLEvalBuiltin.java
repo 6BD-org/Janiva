@@ -48,7 +48,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.JSONXLang;
 import com.oracle.truffle.sl.runtime.SLContext;
 
 /**
@@ -96,6 +96,6 @@ public abstract class SLEvalBuiltin extends SLBuiltinNode {
   /* Work around findbugs warning in generate code. */
   protected static boolean stringsEqual(
       TruffleString.EqualNode node, TruffleString a, TruffleString b) {
-    return node.execute(a, b, SLLanguage.STRING_ENCODING);
+    return node.execute(a, b, JSONXLang.STRING_ENCODING);
   }
 }
