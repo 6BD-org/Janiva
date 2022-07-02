@@ -95,183 +95,187 @@ import com.oracle.truffle.sl.builtins.SLWrapPrimitiveBuiltinFactory;
 /**
  * The run-time state of SL during execution. The context is created by the {@link SLLanguage}. It
  * is used, for example, by {@link SLBuiltinNode#getContext() builtin functions}.
- * <p>
- * It would be an error to have two different context instances during the execution of one script.
- * However, if two separate scripts run in one Java VM at the same time, they have a different
- * context. Therefore, the context is not a singleton.
+ *
+ * <p>It would be an error to have two different context instances during the execution of one
+ * script. However, if two separate scripts run in one Java VM at the same time, they have a
+ * different context. Therefore, the context is not a singleton.
  */
 public final class SLContext {
 
-    private final SLLanguage language;
-    @CompilationFinal private Env env;
-    private final BufferedReader input;
-    private final PrintWriter output;
-    private final SLFunctionRegistry functionRegistry;
-    private final AllocationReporter allocationReporter;
-    private final List<SLFunction> shutdownHooks = new ArrayList<>();
+  private final SLLanguage language;
+  @CompilationFinal private Env env;
+  private final BufferedReader input;
+  private final PrintWriter output;
+  private final SLFunctionRegistry functionRegistry;
+  private final AllocationReporter allocationReporter;
+  private final List<SLFunction> shutdownHooks = new ArrayList<>();
 
-    public SLContext(SLLanguage language, TruffleLanguage.Env env, List<NodeFactory<? extends SLBuiltinNode>> externalBuiltins) {
-        this.env = env;
-        this.input = new BufferedReader(new InputStreamReader(env.in()));
-        this.output = new PrintWriter(env.out(), true);
-        this.language = language;
-        this.allocationReporter = env.lookup(AllocationReporter.class);
-        this.functionRegistry = new SLFunctionRegistry(language);
-        installBuiltins();
-        for (NodeFactory<? extends SLBuiltinNode> builtin : externalBuiltins) {
-            installBuiltin(builtin);
-        }
+  public SLContext(
+      SLLanguage language,
+      TruffleLanguage.Env env,
+      List<NodeFactory<? extends SLBuiltinNode>> externalBuiltins) {
+    this.env = env;
+    this.input = new BufferedReader(new InputStreamReader(env.in()));
+    this.output = new PrintWriter(env.out(), true);
+    this.language = language;
+    this.allocationReporter = env.lookup(AllocationReporter.class);
+    this.functionRegistry = new SLFunctionRegistry(language);
+    installBuiltins();
+    for (NodeFactory<? extends SLBuiltinNode> builtin : externalBuiltins) {
+      installBuiltin(builtin);
     }
+  }
 
-    /**
-     * Patches the {@link SLContext} to use a new {@link Env}. The method is called during the
-     * native image execution as a consequence of {@link Context#create(java.lang.String...)}.
-     *
-     * @param newEnv the new {@link Env} to use.
-     * @see TruffleLanguage#patchContext(Object, Env)
-     */
-    public void patchContext(Env newEnv) {
-        this.env = newEnv;
+  /**
+   * Patches the {@link SLContext} to use a new {@link Env}. The method is called during the native
+   * image execution as a consequence of {@link Context#create(java.lang.String...)}.
+   *
+   * @param newEnv the new {@link Env} to use.
+   * @see TruffleLanguage#patchContext(Object, Env)
+   */
+  public void patchContext(Env newEnv) {
+    this.env = newEnv;
+  }
+
+  /** Return the current Truffle environment. */
+  public Env getEnv() {
+    return env;
+  }
+
+  /**
+   * Returns the default input, i.e., the source for the {@link SLReadlnBuiltin}. To allow unit
+   * testing, we do not use {@link System#in} directly.
+   */
+  public BufferedReader getInput() {
+    return input;
+  }
+
+  /**
+   * The default default, i.e., the output for the {@link SLPrintlnBuiltin}. To allow unit testing,
+   * we do not use {@link System#out} directly.
+   */
+  public PrintWriter getOutput() {
+    return output;
+  }
+
+  /** Returns the registry of all functions that are currently defined. */
+  public SLFunctionRegistry getFunctionRegistry() {
+    return functionRegistry;
+  }
+
+  /**
+   * Adds all builtin functions to the {@link SLFunctionRegistry}. This method lists all {@link
+   * SLBuiltinNode builtin implementation classes}.
+   */
+  private void installBuiltins() {
+    installBuiltin(SLReadlnBuiltinFactory.getInstance());
+    installBuiltin(SLPrintlnBuiltinFactory.getInstance());
+    installBuiltin(SLNanoTimeBuiltinFactory.getInstance());
+    installBuiltin(SLDefineFunctionBuiltinFactory.getInstance());
+    installBuiltin(SLStackTraceBuiltinFactory.getInstance());
+    installBuiltin(SLHelloEqualsWorldBuiltinFactory.getInstance());
+    installBuiltin(SLNewObjectBuiltinFactory.getInstance());
+    installBuiltin(SLEvalBuiltinFactory.getInstance());
+    installBuiltin(SLImportBuiltinFactory.getInstance());
+    installBuiltin(SLGetSizeBuiltinFactory.getInstance());
+    installBuiltin(SLHasSizeBuiltinFactory.getInstance());
+    installBuiltin(SLIsExecutableBuiltinFactory.getInstance());
+    installBuiltin(SLIsNullBuiltinFactory.getInstance());
+    installBuiltin(SLWrapPrimitiveBuiltinFactory.getInstance());
+    installBuiltin(SLTypeOfBuiltinFactory.getInstance());
+    installBuiltin(SLIsInstanceBuiltinFactory.getInstance());
+    installBuiltin(SLJavaTypeBuiltinFactory.getInstance());
+    installBuiltin(SLExitBuiltinFactory.getInstance());
+    installBuiltin(SLRegisterShutdownHookBuiltinFactory.getInstance());
+    installBuiltin(SLAddToHostClassPathBuiltinFactory.getInstance());
+  }
+
+  public void installBuiltin(NodeFactory<? extends SLBuiltinNode> factory) {
+    /* Register the builtin function in our function registry. */
+    RootCallTarget target = language.lookupBuiltin(factory);
+    getFunctionRegistry().register(SLStrings.getSLRootName(target.getRootNode()), target);
+  }
+
+  /*
+   * Methods for object creation / object property access.
+   */
+  public AllocationReporter getAllocationReporter() {
+    return allocationReporter;
+  }
+
+  /*
+   * Methods for language interoperability.
+   */
+  public static Object fromForeignValue(Object a) {
+    if (a instanceof Long
+        || a instanceof SLBigNumber
+        || a instanceof String
+        || a instanceof TruffleString
+        || a instanceof Boolean) {
+      return a;
+    } else if (a instanceof Character) {
+      return fromForeignCharacter((Character) a);
+    } else if (a instanceof Number) {
+      return fromForeignNumber(a);
+    } else if (a instanceof TruffleObject) {
+      return a;
+    } else if (a instanceof SLContext) {
+      return a;
     }
+    throw shouldNotReachHere("Value is not a truffle value.");
+  }
 
-    /**
-     * Return the current Truffle environment.
-     */
-    public Env getEnv() {
-        return env;
+  @TruffleBoundary
+  private static long fromForeignNumber(Object a) {
+    return ((Number) a).longValue();
+  }
+
+  @TruffleBoundary
+  private static String fromForeignCharacter(char c) {
+    return String.valueOf(c);
+  }
+
+  public CallTarget parse(Source source) {
+    return env.parsePublic(source);
+  }
+
+  /**
+   * Returns an object that contains bindings that were exported across all used languages. To read
+   * or write from this object the {@link TruffleObject interop} API can be used.
+   */
+  public TruffleObject getPolyglotBindings() {
+    return (TruffleObject) env.getPolyglotBindings();
+  }
+
+  private static final ContextReference<SLContext> REFERENCE =
+      ContextReference.create(SLLanguage.class);
+
+  public static SLContext get(Node node) {
+    return REFERENCE.get(node);
+  }
+
+  /**
+   * Register a function as a shutdown hook. Only no-parameter functions are supported.
+   *
+   * @param func no-parameter function to be registered as a shutdown hook
+   */
+  @TruffleBoundary
+  public void registerShutdownHook(SLFunction func) {
+    shutdownHooks.add(func);
+  }
+
+  /**
+   * Run registered shutdown hooks. This method is designed to be executed in {@link
+   * TruffleLanguage#exitContext(Object, TruffleLanguage.ExitMode, int)}.
+   */
+  public void runShutdownHooks() {
+    InteropLibrary interopLibrary = InteropLibrary.getUncached();
+    for (SLFunction shutdownHook : shutdownHooks) {
+      try {
+        interopLibrary.execute(shutdownHook);
+      } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
+        throw shouldNotReachHere("Shutdown hook is not executable!", e);
+      }
     }
-
-    /**
-     * Returns the default input, i.e., the source for the {@link SLReadlnBuiltin}. To allow unit
-     * testing, we do not use {@link System#in} directly.
-     */
-    public BufferedReader getInput() {
-        return input;
-    }
-
-    /**
-     * The default default, i.e., the output for the {@link SLPrintlnBuiltin}. To allow unit
-     * testing, we do not use {@link System#out} directly.
-     */
-    public PrintWriter getOutput() {
-        return output;
-    }
-
-    /**
-     * Returns the registry of all functions that are currently defined.
-     */
-    public SLFunctionRegistry getFunctionRegistry() {
-        return functionRegistry;
-    }
-
-    /**
-     * Adds all builtin functions to the {@link SLFunctionRegistry}. This method lists all
-     * {@link SLBuiltinNode builtin implementation classes}.
-     */
-    private void installBuiltins() {
-        installBuiltin(SLReadlnBuiltinFactory.getInstance());
-        installBuiltin(SLPrintlnBuiltinFactory.getInstance());
-        installBuiltin(SLNanoTimeBuiltinFactory.getInstance());
-        installBuiltin(SLDefineFunctionBuiltinFactory.getInstance());
-        installBuiltin(SLStackTraceBuiltinFactory.getInstance());
-        installBuiltin(SLHelloEqualsWorldBuiltinFactory.getInstance());
-        installBuiltin(SLNewObjectBuiltinFactory.getInstance());
-        installBuiltin(SLEvalBuiltinFactory.getInstance());
-        installBuiltin(SLImportBuiltinFactory.getInstance());
-        installBuiltin(SLGetSizeBuiltinFactory.getInstance());
-        installBuiltin(SLHasSizeBuiltinFactory.getInstance());
-        installBuiltin(SLIsExecutableBuiltinFactory.getInstance());
-        installBuiltin(SLIsNullBuiltinFactory.getInstance());
-        installBuiltin(SLWrapPrimitiveBuiltinFactory.getInstance());
-        installBuiltin(SLTypeOfBuiltinFactory.getInstance());
-        installBuiltin(SLIsInstanceBuiltinFactory.getInstance());
-        installBuiltin(SLJavaTypeBuiltinFactory.getInstance());
-        installBuiltin(SLExitBuiltinFactory.getInstance());
-        installBuiltin(SLRegisterShutdownHookBuiltinFactory.getInstance());
-        installBuiltin(SLAddToHostClassPathBuiltinFactory.getInstance());
-    }
-
-    public void installBuiltin(NodeFactory<? extends SLBuiltinNode> factory) {
-        /* Register the builtin function in our function registry. */
-        RootCallTarget target = language.lookupBuiltin(factory);
-        getFunctionRegistry().register(SLStrings.getSLRootName(target.getRootNode()), target);
-    }
-
-    /*
-     * Methods for object creation / object property access.
-     */
-    public AllocationReporter getAllocationReporter() {
-        return allocationReporter;
-    }
-
-    /*
-     * Methods for language interoperability.
-     */
-    public static Object fromForeignValue(Object a) {
-        if (a instanceof Long || a instanceof SLBigNumber || a instanceof String || a instanceof TruffleString || a instanceof Boolean) {
-            return a;
-        } else if (a instanceof Character) {
-            return fromForeignCharacter((Character) a);
-        } else if (a instanceof Number) {
-            return fromForeignNumber(a);
-        } else if (a instanceof TruffleObject) {
-            return a;
-        } else if (a instanceof SLContext) {
-            return a;
-        }
-        throw shouldNotReachHere("Value is not a truffle value.");
-    }
-
-    @TruffleBoundary
-    private static long fromForeignNumber(Object a) {
-        return ((Number) a).longValue();
-    }
-
-    @TruffleBoundary
-    private static String fromForeignCharacter(char c) {
-        return String.valueOf(c);
-    }
-
-    public CallTarget parse(Source source) {
-        return env.parsePublic(source);
-    }
-
-    /**
-     * Returns an object that contains bindings that were exported across all used languages. To
-     * read or write from this object the {@link TruffleObject interop} API can be used.
-     */
-    public TruffleObject getPolyglotBindings() {
-        return (TruffleObject) env.getPolyglotBindings();
-    }
-
-    private static final ContextReference<SLContext> REFERENCE = ContextReference.create(SLLanguage.class);
-
-    public static SLContext get(Node node) {
-        return REFERENCE.get(node);
-    }
-
-    /**
-     * Register a function as a shutdown hook. Only no-parameter functions are supported.
-     *
-     * @param func no-parameter function to be registered as a shutdown hook
-     */
-    @TruffleBoundary
-    public void registerShutdownHook(SLFunction func) {
-        shutdownHooks.add(func);
-    }
-
-    /**
-     * Run registered shutdown hooks. This method is designed to be executed in
-     * {@link TruffleLanguage#exitContext(Object, TruffleLanguage.ExitMode, int)}.
-     */
-    public void runShutdownHooks() {
-        InteropLibrary interopLibrary = InteropLibrary.getUncached();
-        for (SLFunction shutdownHook : shutdownHooks) {
-            try {
-                interopLibrary.execute(shutdownHook);
-            } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
-                throw shouldNotReachHere("Shutdown hook is not executable!", e);
-            }
-        }
-    }
+  }
 }

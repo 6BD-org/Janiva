@@ -66,61 +66,64 @@ import com.oracle.truffle.sl.runtime.SLStrings;
 @NodeInfo(shortName = "stacktrace")
 public abstract class SLStackTraceBuiltin extends SLBuiltinNode {
 
-    public static final TruffleString FRAME = SLStrings.constant("Frame: root ");
-    public static final TruffleString SEPARATOR = SLStrings.constant(", ");
-    public static final TruffleString EQUALS = SLStrings.constant("=");
+  public static final TruffleString FRAME = SLStrings.constant("Frame: root ");
+  public static final TruffleString SEPARATOR = SLStrings.constant(", ");
+  public static final TruffleString EQUALS = SLStrings.constant("=");
 
-    @Specialization
-    public TruffleString trace() {
-        return createStackTrace();
-    }
+  @Specialization
+  public TruffleString trace() {
+    return createStackTrace();
+  }
 
-    @TruffleBoundary
-    private static TruffleString createStackTrace() {
-        final TruffleStringBuilder str = TruffleStringBuilder.create(SLLanguage.STRING_ENCODING);
+  @TruffleBoundary
+  private static TruffleString createStackTrace() {
+    final TruffleStringBuilder str = TruffleStringBuilder.create(SLLanguage.STRING_ENCODING);
 
-        Truffle.getRuntime().iterateFrames(new FrameInstanceVisitor<Integer>() {
-            private int skip = 1; // skip stack trace builtin
+    Truffle.getRuntime()
+        .iterateFrames(
+            new FrameInstanceVisitor<Integer>() {
+              private int skip = 1; // skip stack trace builtin
 
-            @Override
-            public Integer visitFrame(FrameInstance frameInstance) {
+              @Override
+              public Integer visitFrame(FrameInstance frameInstance) {
                 if (skip > 0) {
-                    skip--;
-                    return null;
+                  skip--;
+                  return null;
                 }
                 CallTarget callTarget = frameInstance.getCallTarget();
                 Frame frame = frameInstance.getFrame(FrameAccess.READ_ONLY);
                 RootNode rn = ((RootCallTarget) callTarget).getRootNode();
                 // ignore internal or interop stack frames
                 if (rn.isInternal() || rn.getLanguageInfo() == null) {
-                    return 1;
+                  return 1;
                 }
                 if (str.byteLength() > 0) {
-                    str.appendStringUncached(SLStrings.fromJavaString(System.getProperty("line.separator")));
+                  str.appendStringUncached(
+                      SLStrings.fromJavaString(System.getProperty("line.separator")));
                 }
                 str.appendStringUncached(FRAME);
                 str.appendStringUncached(getRootNodeName(rn));
                 FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
                 int count = frameDescriptor.getNumberOfSlots();
                 for (int i = 0; i < count; i++) {
-                    str.appendStringUncached(SEPARATOR);
-                    str.appendStringUncached((TruffleString) frameDescriptor.getSlotName(i));
-                    str.appendStringUncached(EQUALS);
-                    str.appendStringUncached(SLStrings.fromObject(frame.getValue(i)));
+                  str.appendStringUncached(SEPARATOR);
+                  str.appendStringUncached((TruffleString) frameDescriptor.getSlotName(i));
+                  str.appendStringUncached(EQUALS);
+                  str.appendStringUncached(SLStrings.fromObject(frame.getValue(i)));
                 }
                 return null;
-            }
-        });
-        return str.toStringUncached();
-    }
+              }
+            });
+    return str.toStringUncached();
+  }
 
-    private static TruffleString getRootNodeName(RootNode rootNode) {
-        if (rootNode instanceof SLRootNode) {
-            return ((SLRootNode) rootNode).getTSName();
-        } else if (rootNode instanceof SLEvalRootNode) {
-            return SLEvalRootNode.getTSName();
-        } else {
-            return SLStrings.fromJavaString(rootNode.getName());
-        }
+  private static TruffleString getRootNodeName(RootNode rootNode) {
+    if (rootNode instanceof SLRootNode) {
+      return ((SLRootNode) rootNode).getTSName();
+    } else if (rootNode instanceof SLEvalRootNode) {
+      return SLEvalRootNode.getTSName();
+    } else {
+      return SLStrings.fromJavaString(rootNode.getName());
     }
+  }
 }

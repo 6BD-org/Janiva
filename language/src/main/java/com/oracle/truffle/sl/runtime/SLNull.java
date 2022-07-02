@@ -60,74 +60,70 @@ import com.oracle.truffle.sl.SLLanguage;
 @SuppressWarnings("static-method")
 public final class SLNull implements TruffleObject {
 
-    /**
-     * The canonical value to represent {@code null} in SL.
+  /** The canonical value to represent {@code null} in SL. */
+  public static final SLNull SINGLETON = new SLNull();
+
+  private static final int IDENTITY_HASH = System.identityHashCode(SINGLETON);
+
+  /**
+   * Disallow instantiation from outside to ensure that the {@link #SINGLETON} is the only instance.
+   */
+  private SLNull() {}
+
+  /**
+   * This method is, e.g., called when using the {@code null} value in a string concatenation. So
+   * changing it has an effect on SL programs.
+   */
+  @Override
+  public String toString() {
+    return "NULL";
+  }
+
+  @ExportMessage
+  boolean hasLanguage() {
+    return true;
+  }
+
+  @ExportMessage
+  Class<? extends TruffleLanguage<?>> getLanguage() {
+    return SLLanguage.class;
+  }
+
+  /** {@link SLNull} values are interpreted as null values by other languages. */
+  @ExportMessage
+  boolean isNull() {
+    return true;
+  }
+
+  @ExportMessage
+  boolean hasMetaObject() {
+    return true;
+  }
+
+  @ExportMessage
+  Object getMetaObject() {
+    return SLType.NULL;
+  }
+
+  @ExportMessage
+  static TriState isIdenticalOrUndefined(
+      @SuppressWarnings("unused") SLNull receiver, Object other) {
+    /*
+     * SLNull values are identical to other SLNull values.
      */
-    public static final SLNull SINGLETON = new SLNull();
-    private static final int IDENTITY_HASH = System.identityHashCode(SINGLETON);
+    return TriState.valueOf(SLNull.SINGLETON == other);
+  }
 
-    /**
-     * Disallow instantiation from outside to ensure that the {@link #SINGLETON} is the only
-     * instance.
+  @ExportMessage
+  static int identityHashCode(@SuppressWarnings("unused") SLNull receiver) {
+    /*
+     * We do not use 0, as we want consistency with System.identityHashCode(receiver).
      */
-    private SLNull() {
-    }
+    return IDENTITY_HASH;
+  }
 
-    /**
-     * This method is, e.g., called when using the {@code null} value in a string concatenation. So
-     * changing it has an effect on SL programs.
-     */
-    @Override
-    public String toString() {
-        return "NULL";
-    }
-
-    @ExportMessage
-    boolean hasLanguage() {
-        return true;
-    }
-
-    @ExportMessage
-    Class<? extends TruffleLanguage<?>> getLanguage() {
-        return SLLanguage.class;
-    }
-
-    /**
-     * {@link SLNull} values are interpreted as null values by other languages.
-     */
-    @ExportMessage
-    boolean isNull() {
-        return true;
-    }
-
-    @ExportMessage
-    boolean hasMetaObject() {
-        return true;
-    }
-
-    @ExportMessage
-    Object getMetaObject() {
-        return SLType.NULL;
-    }
-
-    @ExportMessage
-    static TriState isIdenticalOrUndefined(@SuppressWarnings("unused") SLNull receiver, Object other) {
-        /*
-         * SLNull values are identical to other SLNull values.
-         */
-        return TriState.valueOf(SLNull.SINGLETON == other);
-    }
-
-    @ExportMessage
-    static int identityHashCode(@SuppressWarnings("unused") SLNull receiver) {
-        /*
-         * We do not use 0, as we want consistency with System.identityHashCode(receiver).
-         */
-        return IDENTITY_HASH;
-    }
-
-    @ExportMessage
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
-        return "NULL";
-    }
+  @ExportMessage
+  Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    return "NULL";
+  }
 }

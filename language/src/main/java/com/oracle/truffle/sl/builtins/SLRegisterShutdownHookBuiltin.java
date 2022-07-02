@@ -53,9 +53,9 @@ import com.oracle.truffle.sl.runtime.SLNull;
 @NodeInfo(shortName = "registerShutdownHook")
 public abstract class SLRegisterShutdownHookBuiltin extends SLBuiltinNode {
 
-    @Specialization
-    protected Object execute(SLFunction shutdownHook) {
-        SLContext.get(this).registerShutdownHook(shutdownHook);
-        return SLNull.SINGLETON;
-    }
+  @Specialization
+  protected Object execute(SLFunction shutdownHook) {
+    SLContext.get(this).registerShutdownHook(shutdownHook);
+    return SLNull.SINGLETON;
+  }
 }

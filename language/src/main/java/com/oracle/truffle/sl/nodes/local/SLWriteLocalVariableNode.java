@@ -64,112 +64,115 @@ import com.oracle.truffle.sl.nodes.interop.NodeObjectDescriptor;
 @NodeField(name = "declaration", type = boolean.class)
 public abstract class SLWriteLocalVariableNode extends SLExpressionNode {
 
-    /**
-     * Returns the descriptor of the accessed local variable. The implementation of this method is
-     * created by the Truffle DSL based on the {@link NodeField} annotation on the class.
-     */
-    protected abstract int getSlot();
+  /**
+   * Returns the descriptor of the accessed local variable. The implementation of this method is
+   * created by the Truffle DSL based on the {@link NodeField} annotation on the class.
+   */
+  protected abstract int getSlot();
 
-    /**
-     * Returns the child node <code>nameNode</code>. The implementation of this method is created by
-     * the Truffle DSL based on the {@link NodeChild} annotation on the class.
-     */
-    protected abstract SLExpressionNode getNameNode();
+  /**
+   * Returns the child node <code>nameNode</code>. The implementation of this method is created by
+   * the Truffle DSL based on the {@link NodeChild} annotation on the class.
+   */
+  protected abstract SLExpressionNode getNameNode();
 
-    public abstract boolean isDeclaration();
+  public abstract boolean isDeclaration();
 
-    public final TruffleString getSlotName() {
-        return (TruffleString) getRootNode().getFrameDescriptor().getSlotName(getSlot());
-    }
+  public final TruffleString getSlotName() {
+    return (TruffleString) getRootNode().getFrameDescriptor().getSlotName(getSlot());
+  }
 
-    /**
-     * Specialized method to write a primitive {@code long} value. This is only possible if the
-     * local variable also has currently the type {@code long} or was never written before,
-     * therefore a Truffle DSL {@link #isLongOrIllegal(VirtualFrame) custom guard} is specified.
-     */
-    @Specialization(guards = "isLongOrIllegal(frame)")
-    protected long writeLong(VirtualFrame frame, long value) {
-        /* Initialize type on first write of the local variable. No-op if kind is already Long. */
-        frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Long);
+  /**
+   * Specialized method to write a primitive {@code long} value. This is only possible if the local
+   * variable also has currently the type {@code long} or was never written before, therefore a
+   * Truffle DSL {@link #isLongOrIllegal(VirtualFrame) custom guard} is specified.
+   */
+  @Specialization(guards = "isLongOrIllegal(frame)")
+  protected long writeLong(VirtualFrame frame, long value) {
+    /* Initialize type on first write of the local variable. No-op if kind is already Long. */
+    frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Long);
 
-        frame.setLong(getSlot(), value);
-        return value;
-    }
+    frame.setLong(getSlot(), value);
+    return value;
+  }
 
-    @Specialization(guards = "isBooleanOrIllegal(frame)")
-    protected boolean writeBoolean(VirtualFrame frame, boolean value) {
-        /* Initialize type on first write of the local variable. No-op if kind is already Long. */
-        frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Boolean);
+  @Specialization(guards = "isBooleanOrIllegal(frame)")
+  protected boolean writeBoolean(VirtualFrame frame, boolean value) {
+    /* Initialize type on first write of the local variable. No-op if kind is already Long. */
+    frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Boolean);
 
-        frame.setBoolean(getSlot(), value);
-        return value;
-    }
+    frame.setBoolean(getSlot(), value);
+    return value;
+  }
 
-    /**
-     * Generic write method that works for all possible types.
-     * <p>
-     * Why is this method annotated with {@link Specialization} and not {@link Fallback}? For a
-     * {@link Fallback} method, the Truffle DSL generated code would try all other specializations
-     * first before calling this method. We know that all these specializations would fail their
-     * guards, so there is no point in calling them. Since this method takes a value of type
-     * {@link Object}, it is guaranteed to never fail, i.e., once we are in this specialization the
-     * node will never be re-specialized.
-     */
-    @Specialization(replaces = {"writeLong", "writeBoolean"})
-    protected Object write(VirtualFrame frame, Object value) {
-        /*
-         * Regardless of the type before, the new and final type of the local variable is Object.
-         * Changing the slot kind also discards compiled code, because the variable type is
-         * important when the compiler optimizes a method.
-         *
-         * No-op if kind is already Object.
-         */
-        frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Object);
-
-        frame.setObject(getSlot(), value);
-        return value;
-    }
-
-    public abstract void executeWrite(VirtualFrame frame, Object value);
-
-    /**
-     * Guard function that the local variable has the type {@code long}.
+  /**
+   * Generic write method that works for all possible types.
+   *
+   * <p>Why is this method annotated with {@link Specialization} and not {@link Fallback}? For a
+   * {@link Fallback} method, the Truffle DSL generated code would try all other specializations
+   * first before calling this method. We know that all these specializations would fail their
+   * guards, so there is no point in calling them. Since this method takes a value of type {@link
+   * Object}, it is guaranteed to never fail, i.e., once we are in this specialization the node will
+   * never be re-specialized.
+   */
+  @Specialization(replaces = {"writeLong", "writeBoolean"})
+  protected Object write(VirtualFrame frame, Object value) {
+    /*
+     * Regardless of the type before, the new and final type of the local variable is Object.
+     * Changing the slot kind also discards compiled code, because the variable type is
+     * important when the compiler optimizes a method.
      *
-     * @param frame The parameter seems unnecessary, but it is required: Without the parameter, the
-     *            Truffle DSL would not check the guard on every execution of the specialization.
-     *            Guards without parameters are assumed to be pure, but our guard depends on the
-     *            slot kind which can change.
+     * No-op if kind is already Object.
      */
-    protected boolean isLongOrIllegal(VirtualFrame frame) {
-        final FrameSlotKind kind = frame.getFrameDescriptor().getSlotKind(getSlot());
-        return kind == FrameSlotKind.Long || kind == FrameSlotKind.Illegal;
-    }
+    frame.getFrameDescriptor().setSlotKind(getSlot(), FrameSlotKind.Object);
 
-    protected boolean isBooleanOrIllegal(VirtualFrame frame) {
-        final FrameSlotKind kind = frame.getFrameDescriptor().getSlotKind(getSlot());
-        return kind == FrameSlotKind.Boolean || kind == FrameSlotKind.Illegal;
-    }
+    frame.setObject(getSlot(), value);
+    return value;
+  }
 
-    @Override
-    public boolean hasTag(Class<? extends Tag> tag) {
-        return tag == WriteVariableTag.class || super.hasTag(tag);
-    }
+  public abstract void executeWrite(VirtualFrame frame, Object value);
 
-    @Override
-    public Object getNodeObject() {
-        SLExpressionNode nameNode = getNameNode();
-        SourceSection nameSourceSection;
-        if (nameNode.getSourceCharIndex() == -1) {
-            nameSourceSection = null;
-        } else {
-            SourceSection rootSourceSection = getRootNode().getSourceSection();
-            if (rootSourceSection == null) {
-                nameSourceSection = null;
-            } else {
-                Source source = rootSourceSection.getSource();
-                nameSourceSection = source.createSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
-            }
-        }
-        return NodeObjectDescriptor.writeVariable((TruffleString) getRootNode().getFrameDescriptor().getSlotName(getSlot()), nameSourceSection);
+  /**
+   * Guard function that the local variable has the type {@code long}.
+   *
+   * @param frame The parameter seems unnecessary, but it is required: Without the parameter, the
+   *     Truffle DSL would not check the guard on every execution of the specialization. Guards
+   *     without parameters are assumed to be pure, but our guard depends on the slot kind which can
+   *     change.
+   */
+  protected boolean isLongOrIllegal(VirtualFrame frame) {
+    final FrameSlotKind kind = frame.getFrameDescriptor().getSlotKind(getSlot());
+    return kind == FrameSlotKind.Long || kind == FrameSlotKind.Illegal;
+  }
+
+  protected boolean isBooleanOrIllegal(VirtualFrame frame) {
+    final FrameSlotKind kind = frame.getFrameDescriptor().getSlotKind(getSlot());
+    return kind == FrameSlotKind.Boolean || kind == FrameSlotKind.Illegal;
+  }
+
+  @Override
+  public boolean hasTag(Class<? extends Tag> tag) {
+    return tag == WriteVariableTag.class || super.hasTag(tag);
+  }
+
+  @Override
+  public Object getNodeObject() {
+    SLExpressionNode nameNode = getNameNode();
+    SourceSection nameSourceSection;
+    if (nameNode.getSourceCharIndex() == -1) {
+      nameSourceSection = null;
+    } else {
+      SourceSection rootSourceSection = getRootNode().getSourceSection();
+      if (rootSourceSection == null) {
+        nameSourceSection = null;
+      } else {
+        Source source = rootSourceSection.getSource();
+        nameSourceSection =
+            source.createSection(nameNode.getSourceCharIndex(), nameNode.getSourceLength());
+      }
     }
+    return NodeObjectDescriptor.writeVariable(
+        (TruffleString) getRootNode().getFrameDescriptor().getSlotName(getSlot()),
+        nameSourceSection);
+  }
 }

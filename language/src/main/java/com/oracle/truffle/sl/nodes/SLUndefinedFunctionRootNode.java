@@ -49,16 +49,16 @@ import com.oracle.truffle.sl.runtime.SLUndefinedNameException;
 
 /**
  * The initial {@link RootNode} of {@link SLFunction functions} when they are created, i.e., when
- * they are still undefined. Executing it throws an
- * {@link SLUndefinedNameException#undefinedFunction exception}.
+ * they are still undefined. Executing it throws an {@link
+ * SLUndefinedNameException#undefinedFunction exception}.
  */
 public class SLUndefinedFunctionRootNode extends SLRootNode {
-    public SLUndefinedFunctionRootNode(SLLanguage language, TruffleString name) {
-        super(language, null, null, null, name);
-    }
+  public SLUndefinedFunctionRootNode(SLLanguage language, TruffleString name) {
+    super(language, null, null, name);
+  }
 
-    @Override
-    public Object execute(VirtualFrame frame) {
-        throw SLUndefinedNameException.undefinedFunction(null, getTSName());
-    }
+  @Override
+  public Object execute(VirtualFrame frame) {
+    throw SLUndefinedNameException.undefinedFunction(null, getTSName());
+  }
 }

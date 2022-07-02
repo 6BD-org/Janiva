@@ -52,17 +52,16 @@ import com.oracle.truffle.sl.nodes.SLStatementNode;
 @NodeInfo(shortName = "debugger", description = "The node implementing a debugger statement")
 public class SLDebuggerNode extends SLStatementNode {
 
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        // No op.
-    }
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    // No op.
+  }
 
-    @Override
-    public boolean hasTag(Class<? extends Tag> tag) {
-        if (tag == DebuggerTags.AlwaysHalt.class) {
-            return true;
-        }
-        return super.hasTag(tag);
+  @Override
+  public boolean hasTag(Class<? extends Tag> tag) {
+    if (tag == DebuggerTags.AlwaysHalt.class) {
+      return true;
     }
-
+    return super.hasTag(tag);
+  }
 }

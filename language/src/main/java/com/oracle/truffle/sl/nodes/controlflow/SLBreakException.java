@@ -49,11 +49,10 @@ import com.oracle.truffle.api.nodes.ControlFlowException;
  */
 public final class SLBreakException extends ControlFlowException {
 
-    public static final SLBreakException SINGLETON = new SLBreakException();
+  public static final SLBreakException SINGLETON = new SLBreakException();
 
-    private static final long serialVersionUID = -91013036379258890L;
+  private static final long serialVersionUID = -91013036379258890L;
 
-    /* Prevent instantiation from outside. */
-    private SLBreakException() {
-    }
+  /* Prevent instantiation from outside. */
+  private SLBreakException() {}
 }

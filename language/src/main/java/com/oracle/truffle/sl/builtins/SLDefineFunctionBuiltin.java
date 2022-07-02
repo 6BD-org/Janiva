@@ -55,16 +55,16 @@ import com.oracle.truffle.sl.runtime.SLContext;
 @NodeInfo(shortName = "defineFunction")
 public abstract class SLDefineFunctionBuiltin extends SLBuiltinNode {
 
-    @TruffleBoundary
-    @Specialization
-    public TruffleString defineFunction(TruffleString code) {
-        // @formatter:off
-        Source source = Source.newBuilder(SLLanguage.ID, code.toJavaStringUncached(), "[defineFunction]").
-            build();
-        // @formatter:on
-        /* The same parsing code as for parsing the initial source. */
-        SLContext.get(this).getFunctionRegistry().register(source);
+  @TruffleBoundary
+  @Specialization
+  public TruffleString defineFunction(TruffleString code) {
+    // @formatter:off
+    Source source =
+        Source.newBuilder(SLLanguage.ID, code.toJavaStringUncached(), "[defineFunction]").build();
+    // @formatter:on
+    /* The same parsing code as for parsing the initial source. */
+    //SLContext.get(this).getFunctionRegistry().register(source);
 
-        return code;
-    }
+    return code;
+  }
 }

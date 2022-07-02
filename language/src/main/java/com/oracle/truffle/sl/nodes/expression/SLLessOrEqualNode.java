@@ -48,25 +48,23 @@ import com.oracle.truffle.sl.SLException;
 import com.oracle.truffle.sl.nodes.SLBinaryNode;
 import com.oracle.truffle.sl.runtime.SLBigNumber;
 
-/**
- * This class is similar to the {@link SLLessThanNode}.
- */
+/** This class is similar to the {@link SLLessThanNode}. */
 @NodeInfo(shortName = "<=")
 public abstract class SLLessOrEqualNode extends SLBinaryNode {
 
-    @Specialization
-    protected boolean lessOrEqual(long left, long right) {
-        return left <= right;
-    }
+  @Specialization
+  protected boolean lessOrEqual(long left, long right) {
+    return left <= right;
+  }
 
-    @Specialization
-    @TruffleBoundary
-    protected boolean lessOrEqual(SLBigNumber left, SLBigNumber right) {
-        return left.compareTo(right) <= 0;
-    }
+  @Specialization
+  @TruffleBoundary
+  protected boolean lessOrEqual(SLBigNumber left, SLBigNumber right) {
+    return left.compareTo(right) <= 0;
+  }
 
-    @Fallback
-    protected Object typeError(Object left, Object right) {
-        throw SLException.typeError(this, left, right);
-    }
+  @Fallback
+  protected Object typeError(Object left, Object right) {
+    throw SLException.typeError(this, left, right);
+  }
 }

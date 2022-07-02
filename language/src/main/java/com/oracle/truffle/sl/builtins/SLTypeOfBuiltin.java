@@ -48,26 +48,22 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.sl.runtime.SLNull;
 import com.oracle.truffle.sl.runtime.SLType;
 
-/**
- * Built-in function that returns the type of a guest language value.
- */
+/** Built-in function that returns the type of a guest language value. */
 @NodeInfo(shortName = "typeOf")
 @SuppressWarnings("unused")
 public abstract class SLTypeOfBuiltin extends SLBuiltinNode {
 
-    /*
-     * This returns the SL type for a particular operand value.
-     */
-    @Specialization(limit = "3")
-    @ExplodeLoop
-    public Object doDefault(Object operand,
-                    @CachedLibrary("operand") InteropLibrary interop) {
-        for (SLType type : SLType.PRECEDENCE) {
-            if (type.isInstance(operand, interop)) {
-                return type;
-            }
-        }
-        return SLNull.SINGLETON;
+  /*
+   * This returns the SL type for a particular operand value.
+   */
+  @Specialization(limit = "3")
+  @ExplodeLoop
+  public Object doDefault(Object operand, @CachedLibrary("operand") InteropLibrary interop) {
+    for (SLType type : SLType.PRECEDENCE) {
+      if (type.isInstance(operand, interop)) {
+        return type;
+      }
     }
-
+    return SLNull.SINGLETON;
+  }
 }

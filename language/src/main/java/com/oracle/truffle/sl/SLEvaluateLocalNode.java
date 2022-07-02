@@ -48,24 +48,24 @@ import com.oracle.truffle.api.strings.TruffleString;
 
 final class SLEvaluateLocalNode extends RootNode {
 
-    private final TruffleString variable;
-    private final MaterializedFrame inspectFrame;
+  private final TruffleString variable;
+  private final MaterializedFrame inspectFrame;
 
-    SLEvaluateLocalNode(SLLanguage language, TruffleString variableName, MaterializedFrame frame) {
-        super(language);
-        this.variable = variableName;
-        this.inspectFrame = frame;
+  SLEvaluateLocalNode(SLLanguage language, TruffleString variableName, MaterializedFrame frame) {
+    super(language);
+    this.variable = variableName;
+    this.inspectFrame = frame;
+  }
+
+  @Override
+  public Object execute(VirtualFrame currentFrame) {
+    FrameDescriptor frameDescriptor = inspectFrame.getFrameDescriptor();
+
+    for (int i = 0; i < frameDescriptor.getNumberOfSlots(); i++) {
+      if (variable.equals(frameDescriptor.getSlotName(i))) {
+        return inspectFrame.getValue(i);
+      }
     }
-
-    @Override
-    public Object execute(VirtualFrame currentFrame) {
-        FrameDescriptor frameDescriptor = inspectFrame.getFrameDescriptor();
-
-        for (int i = 0; i < frameDescriptor.getNumberOfSlots(); i++) {
-            if (variable.equals(frameDescriptor.getSlotName(i))) {
-                return inspectFrame.getValue(i);
-            }
-        }
-        return null;
-    }
+    return null;
+  }
 }

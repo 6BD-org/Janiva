@@ -53,8 +53,8 @@ import com.oracle.truffle.sl.runtime.SLContext;
 
 /**
  * Builtin function to evaluate source code in any supported language.
- * <p>
- * The call target is cached against the language id and the source code, so that if they are the
+ *
+ * <p>The call target is cached against the language id and the source code, so that if they are the
  * same each time then a direct call will be made to a cached AST, allowing it to be compiled and
  * possibly inlined.
  */
@@ -62,31 +62,40 @@ import com.oracle.truffle.sl.runtime.SLContext;
 @SuppressWarnings("unused")
 public abstract class SLEvalBuiltin extends SLBuiltinNode {
 
-    static final int LIMIT = 2;
+  static final int LIMIT = 2;
 
-    @Specialization(guards = {"stringsEqual(equalNodeId, cachedId, id)", "stringsEqual(equalNodeCode, cachedCode, code)"}, limit = "LIMIT")
-    public Object evalCached(TruffleString id, TruffleString code,
-                    @Cached("id") TruffleString cachedId,
-                    @Cached("code") TruffleString cachedCode,
-                    @Cached("create(parse(id, code))") DirectCallNode callNode,
-                    @Cached TruffleString.EqualNode equalNodeId,
-                    @Cached TruffleString.EqualNode equalNodeCode) {
-        return callNode.call(new Object[]{});
-    }
+  @Specialization(
+      guards = {
+        "stringsEqual(equalNodeId, cachedId, id)",
+        "stringsEqual(equalNodeCode, cachedCode, code)"
+      },
+      limit = "LIMIT")
+  public Object evalCached(
+      TruffleString id,
+      TruffleString code,
+      @Cached("id") TruffleString cachedId,
+      @Cached("code") TruffleString cachedCode,
+      @Cached("create(parse(id, code))") DirectCallNode callNode,
+      @Cached TruffleString.EqualNode equalNodeId,
+      @Cached TruffleString.EqualNode equalNodeCode) {
+    return callNode.call(new Object[] {});
+  }
 
-    @TruffleBoundary
-    @Specialization(replaces = "evalCached")
-    public Object evalUncached(TruffleString id, TruffleString code) {
-        return parse(id, code).call();
-    }
+  @TruffleBoundary
+  @Specialization(replaces = "evalCached")
+  public Object evalUncached(TruffleString id, TruffleString code) {
+    return parse(id, code).call();
+  }
 
-    protected CallTarget parse(TruffleString id, TruffleString code) {
-        final Source source = Source.newBuilder(id.toJavaStringUncached(), code.toJavaStringUncached(), "(eval)").build();
-        return SLContext.get(this).parse(source);
-    }
+  protected CallTarget parse(TruffleString id, TruffleString code) {
+    final Source source =
+        Source.newBuilder(id.toJavaStringUncached(), code.toJavaStringUncached(), "(eval)").build();
+    return SLContext.get(this).parse(source);
+  }
 
-    /* Work around findbugs warning in generate code. */
-    protected static boolean stringsEqual(TruffleString.EqualNode node, TruffleString a, TruffleString b) {
-        return node.execute(a, b, SLLanguage.STRING_ENCODING);
-    }
+  /* Work around findbugs warning in generate code. */
+  protected static boolean stringsEqual(
+      TruffleString.EqualNode node, TruffleString a, TruffleString b) {
+    return node.execute(a, b, SLLanguage.STRING_ENCODING);
+  }
 }

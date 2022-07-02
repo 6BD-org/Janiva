@@ -55,14 +55,13 @@ import com.oracle.truffle.sl.nodes.SLExpressionNode;
 @NodeInfo(shortName = "!")
 public abstract class SLLogicalNotNode extends SLExpressionNode {
 
-    @Specialization
-    protected boolean doBoolean(boolean value) {
-        return !value;
-    }
+  @Specialization
+  protected boolean doBoolean(boolean value) {
+    return !value;
+  }
 
-    @Fallback
-    protected Object typeError(Object value) {
-        throw SLException.typeError(this, value);
-    }
-
+  @Fallback
+  protected Object typeError(Object value) {
+    throw SLException.typeError(this, value);
+  }
 }

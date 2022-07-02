@@ -65,61 +65,60 @@ import com.oracle.truffle.sl.runtime.SLNull;
 @NodeChild
 public abstract class SLUnboxNode extends SLExpressionNode {
 
-    static final int LIMIT = 5;
+  static final int LIMIT = 5;
 
-    @Specialization
-    protected static TruffleString fromString(String value,
-                    @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
-        return fromJavaStringNode.execute(value, SLLanguage.STRING_ENCODING);
-    }
+  @Specialization
+  protected static TruffleString fromString(
+      String value, @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
+    return fromJavaStringNode.execute(value, SLLanguage.STRING_ENCODING);
+  }
 
-    @Specialization
-    protected static TruffleString fromTruffleString(TruffleString value) {
+  @Specialization
+  protected static TruffleString fromTruffleString(TruffleString value) {
+    return value;
+  }
+
+  @Specialization
+  protected static boolean fromBoolean(boolean value) {
+    return value;
+  }
+
+  @Specialization
+  protected static long fromLong(long value) {
+    return value;
+  }
+
+  @Specialization
+  protected static SLBigNumber fromBigNumber(SLBigNumber value) {
+    return value;
+  }
+
+  @Specialization
+  protected static SLFunction fromFunction(SLFunction value) {
+    return value;
+  }
+
+  @Specialization
+  protected static SLNull fromFunction(SLNull value) {
+    return value;
+  }
+
+  @Specialization(limit = "LIMIT")
+  public static Object fromForeign(Object value, @CachedLibrary("value") InteropLibrary interop) {
+    try {
+      if (interop.fitsInLong(value)) {
+        return interop.asLong(value);
+      } else if (interop.fitsInDouble(value)) {
+        return (long) interop.asDouble(value);
+      } else if (interop.isString(value)) {
+        return interop.asTruffleString(value);
+      } else if (interop.isBoolean(value)) {
+        return interop.asBoolean(value);
+      } else {
         return value;
+      }
+    } catch (UnsupportedMessageException e) {
+      throw shouldNotReachHere(e);
     }
-
-    @Specialization
-    protected static boolean fromBoolean(boolean value) {
-        return value;
-    }
-
-    @Specialization
-    protected static long fromLong(long value) {
-        return value;
-    }
-
-    @Specialization
-    protected static SLBigNumber fromBigNumber(SLBigNumber value) {
-        return value;
-    }
-
-    @Specialization
-    protected static SLFunction fromFunction(SLFunction value) {
-        return value;
-    }
-
-    @Specialization
-    protected static SLNull fromFunction(SLNull value) {
-        return value;
-    }
-
-    @Specialization(limit = "LIMIT")
-    public static Object fromForeign(Object value, @CachedLibrary("value") InteropLibrary interop) {
-        try {
-            if (interop.fitsInLong(value)) {
-                return interop.asLong(value);
-            } else if (interop.fitsInDouble(value)) {
-                return (long) interop.asDouble(value);
-            } else if (interop.isString(value)) {
-                return interop.asTruffleString(value);
-            } else if (interop.isBoolean(value)) {
-                return interop.asBoolean(value);
-            } else {
-                return value;
-            }
-        } catch (UnsupportedMessageException e) {
-            throw shouldNotReachHere(e);
-        }
-    }
-
+  }
 }

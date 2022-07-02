@@ -64,68 +64,68 @@ import com.oracle.truffle.sl.runtime.SLBigNumber;
 @GenerateUncached
 public abstract class SLToMemberNode extends Node {
 
-    static final int LIMIT = 5;
+  static final int LIMIT = 5;
 
-    public abstract String execute(Object value) throws UnknownIdentifierException;
+  public abstract String execute(Object value) throws UnknownIdentifierException;
 
-    @Specialization
-    protected static String fromString(String value) {
-        return value;
+  @Specialization
+  protected static String fromString(String value) {
+    return value;
+  }
+
+  @Specialization
+  protected static String fromTruffleString(
+      TruffleString value, @Cached TruffleString.ToJavaStringNode toJavaStringNode) {
+    return toJavaStringNode.execute(value);
+  }
+
+  @Specialization
+  protected static String fromBoolean(boolean value) {
+    return String.valueOf(value);
+  }
+
+  @Specialization
+  @TruffleBoundary
+  protected static String fromLong(long value) {
+    return String.valueOf(value);
+  }
+
+  @Specialization
+  @TruffleBoundary
+  protected static String fromBigNumber(SLBigNumber value) {
+    return value.toString();
+  }
+
+  @Specialization(limit = "LIMIT")
+  protected static String fromInterop(Object value, @CachedLibrary("value") InteropLibrary interop)
+      throws UnknownIdentifierException {
+    try {
+      if (interop.fitsInLong(value)) {
+        return longToString(interop.asLong(value));
+      } else if (interop.isString(value)) {
+        return interop.asString(value);
+      } else if (interop.isNumber(value) && value instanceof SLBigNumber) {
+        return bigNumberToString((SLBigNumber) value);
+      } else {
+        throw error(value);
+      }
+    } catch (UnsupportedMessageException e) {
+      throw shouldNotReachHere(e);
     }
+  }
 
-    @Specialization
-    protected static String fromTruffleString(TruffleString value,
-                    @Cached TruffleString.ToJavaStringNode toJavaStringNode) {
-        return toJavaStringNode.execute(value);
-    }
+  @TruffleBoundary
+  private static UnknownIdentifierException error(Object value) {
+    return UnknownIdentifierException.create(value.toString());
+  }
 
-    @Specialization
-    protected static String fromBoolean(boolean value) {
-        return String.valueOf(value);
-    }
+  @TruffleBoundary
+  private static String bigNumberToString(SLBigNumber value) {
+    return value.toString();
+  }
 
-    @Specialization
-    @TruffleBoundary
-    protected static String fromLong(long value) {
-        return String.valueOf(value);
-    }
-
-    @Specialization
-    @TruffleBoundary
-    protected static String fromBigNumber(SLBigNumber value) {
-        return value.toString();
-    }
-
-    @Specialization(limit = "LIMIT")
-    protected static String fromInterop(Object value, @CachedLibrary("value") InteropLibrary interop) throws UnknownIdentifierException {
-        try {
-            if (interop.fitsInLong(value)) {
-                return longToString(interop.asLong(value));
-            } else if (interop.isString(value)) {
-                return interop.asString(value);
-            } else if (interop.isNumber(value) && value instanceof SLBigNumber) {
-                return bigNumberToString((SLBigNumber) value);
-            } else {
-                throw error(value);
-            }
-        } catch (UnsupportedMessageException e) {
-            throw shouldNotReachHere(e);
-        }
-    }
-
-    @TruffleBoundary
-    private static UnknownIdentifierException error(Object value) {
-        return UnknownIdentifierException.create(value.toString());
-    }
-
-    @TruffleBoundary
-    private static String bigNumberToString(SLBigNumber value) {
-        return value.toString();
-    }
-
-    @TruffleBoundary
-    private static String longToString(long longValue) {
-        return String.valueOf(longValue);
-    }
-
+  @TruffleBoundary
+  private static String longToString(long longValue) {
+    return String.valueOf(longValue);
+  }
 }

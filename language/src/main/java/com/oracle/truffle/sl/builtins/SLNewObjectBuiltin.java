@@ -62,24 +62,23 @@ import com.oracle.truffle.sl.runtime.SLUndefinedNameException;
 @ImportStatic(SLContext.class)
 public abstract class SLNewObjectBuiltin extends SLBuiltinNode {
 
-    @Specialization
-    @SuppressWarnings("unused")
-    public Object newObject(SLNull o,
-                    @Cached("lookup()") AllocationReporter reporter) {
-        return SLLanguage.get(this).createObject(reporter);
-    }
+  @Specialization
+  @SuppressWarnings("unused")
+  public Object newObject(SLNull o, @Cached("lookup()") AllocationReporter reporter) {
+    return SLLanguage.get(this).createObject(reporter);
+  }
 
-    final AllocationReporter lookup() {
-        return SLContext.get(this).getAllocationReporter();
-    }
+  final AllocationReporter lookup() {
+    return SLContext.get(this).getAllocationReporter();
+  }
 
-    @Specialization(guards = "!values.isNull(obj)", limit = "3")
-    public Object newObject(Object obj, @CachedLibrary("obj") InteropLibrary values) {
-        try {
-            return values.instantiate(obj);
-        } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
-            /* Foreign access was not successful. */
-            throw SLUndefinedNameException.undefinedFunction(this, obj);
-        }
+  @Specialization(guards = "!values.isNull(obj)", limit = "3")
+  public Object newObject(Object obj, @CachedLibrary("obj") InteropLibrary values) {
+    try {
+      return values.instantiate(obj);
+    } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
+      /* Foreign access was not successful. */
+      throw SLUndefinedNameException.undefinedFunction(this, obj);
     }
+  }
 }

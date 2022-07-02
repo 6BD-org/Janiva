@@ -53,149 +53,151 @@ import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.runtime.SLStrings;
 
-/**
- * A container class used to store per-node attributes used by the instrumentation framework.
- */
+/** A container class used to store per-node attributes used by the instrumentation framework. */
 public abstract class NodeObjectDescriptor implements TruffleObject {
 
+  private final TruffleString name;
+
+  private NodeObjectDescriptor(TruffleString name) {
+    assert name != null;
+    this.name = name;
+  }
+
+  public static NodeObjectDescriptor readVariable(TruffleString name) {
+    return new ReadDescriptor(name);
+  }
+
+  public static NodeObjectDescriptor writeVariable(
+      TruffleString name, SourceSection sourceSection) {
+    return new WriteDescriptor(name, sourceSection);
+  }
+
+  Object readMember(String member, @Cached BranchProfile error) throws UnknownIdentifierException {
+    if (isMemberReadable(member)) {
+      return name;
+    } else {
+      error.enter();
+      throw UnknownIdentifierException.create(member);
+    }
+  }
+
+  abstract boolean isMemberReadable(String member);
+
+  @ExportLibrary(InteropLibrary.class)
+  static final class ReadDescriptor extends NodeObjectDescriptor {
+
+    private static final TruffleObject KEYS_READ =
+        new NodeObjectDescriptorKeys(SLStrings.constant(StandardTags.ReadVariableTag.NAME));
+
+    ReadDescriptor(TruffleString name) {
+      super(name);
+    }
+
+    @ExportMessage
+    @SuppressWarnings("static-method")
+    boolean hasMembers() {
+      return true;
+    }
+
+    @Override
+    @ExportMessage
+    boolean isMemberReadable(String member) {
+      return StandardTags.ReadVariableTag.NAME.equals(member);
+    }
+
+    @ExportMessage
+    @SuppressWarnings("static-method")
+    Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
+      return KEYS_READ;
+    }
+
+    @Override
+    @ExportMessage
+    Object readMember(String member, @Cached BranchProfile error)
+        throws UnknownIdentifierException {
+      return super.readMember(member, error);
+    }
+  }
+
+  @ExportLibrary(InteropLibrary.class)
+  static final class WriteDescriptor extends NodeObjectDescriptor {
+
+    private static final TruffleObject KEYS_WRITE =
+        new NodeObjectDescriptorKeys(SLStrings.constant(StandardTags.WriteVariableTag.NAME));
+
+    private final Object nameSymbol;
+
+    WriteDescriptor(TruffleString name, SourceSection sourceSection) {
+      super(name);
+      this.nameSymbol = new NameSymbol(name, sourceSection);
+    }
+
+    @ExportMessage
+    @SuppressWarnings("static-method")
+    boolean hasMembers() {
+      return true;
+    }
+
+    @Override
+    @ExportMessage
+    boolean isMemberReadable(String member) {
+      return StandardTags.WriteVariableTag.NAME.equals(member);
+    }
+
+    @ExportMessage
+    @SuppressWarnings("static-method")
+    Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
+      return KEYS_WRITE;
+    }
+
+    @Override
+    @ExportMessage
+    Object readMember(String member, @Cached BranchProfile error)
+        throws UnknownIdentifierException {
+      super.readMember(member, error); // To verify readability
+      return nameSymbol;
+    }
+  }
+
+  @ExportLibrary(InteropLibrary.class)
+  static final class NameSymbol implements TruffleObject {
+
     private final TruffleString name;
+    private final SourceSection sourceSection;
 
-    private NodeObjectDescriptor(TruffleString name) {
-        assert name != null;
-        this.name = name;
+    NameSymbol(TruffleString name, SourceSection sourceSection) {
+      this.name = name;
+      this.sourceSection = sourceSection;
     }
 
-    public static NodeObjectDescriptor readVariable(TruffleString name) {
-        return new ReadDescriptor(name);
+    @ExportMessage
+    @SuppressWarnings("static-method")
+    boolean isString() {
+      return true;
     }
 
-    public static NodeObjectDescriptor writeVariable(TruffleString name, SourceSection sourceSection) {
-        return new WriteDescriptor(name, sourceSection);
+    @ExportMessage
+    String asString(@Cached TruffleString.ToJavaStringNode toJavaStringNode) {
+      return toJavaStringNode.execute(name);
     }
 
-    Object readMember(String member, @Cached BranchProfile error) throws UnknownIdentifierException {
-        if (isMemberReadable(member)) {
-            return name;
-        } else {
-            error.enter();
-            throw UnknownIdentifierException.create(member);
-        }
+    @ExportMessage
+    TruffleString asTruffleString() {
+      return name;
     }
 
-    abstract boolean isMemberReadable(String member);
-
-    @ExportLibrary(InteropLibrary.class)
-    static final class ReadDescriptor extends NodeObjectDescriptor {
-
-        private static final TruffleObject KEYS_READ = new NodeObjectDescriptorKeys(SLStrings.constant(StandardTags.ReadVariableTag.NAME));
-
-        ReadDescriptor(TruffleString name) {
-            super(name);
-        }
-
-        @ExportMessage
-        @SuppressWarnings("static-method")
-        boolean hasMembers() {
-            return true;
-        }
-
-        @Override
-        @ExportMessage
-        boolean isMemberReadable(String member) {
-            return StandardTags.ReadVariableTag.NAME.equals(member);
-        }
-
-        @ExportMessage
-        @SuppressWarnings("static-method")
-        Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
-            return KEYS_READ;
-        }
-
-        @Override
-        @ExportMessage
-        Object readMember(String member, @Cached BranchProfile error) throws UnknownIdentifierException {
-            return super.readMember(member, error);
-        }
-
+    @ExportMessage
+    boolean hasSourceLocation() {
+      return sourceSection != null;
     }
 
-    @ExportLibrary(InteropLibrary.class)
-    static final class WriteDescriptor extends NodeObjectDescriptor {
-
-        private static final TruffleObject KEYS_WRITE = new NodeObjectDescriptorKeys(SLStrings.constant(StandardTags.WriteVariableTag.NAME));
-
-        private final Object nameSymbol;
-
-        WriteDescriptor(TruffleString name, SourceSection sourceSection) {
-            super(name);
-            this.nameSymbol = new NameSymbol(name, sourceSection);
-        }
-
-        @ExportMessage
-        @SuppressWarnings("static-method")
-        boolean hasMembers() {
-            return true;
-        }
-
-        @Override
-        @ExportMessage
-        boolean isMemberReadable(String member) {
-            return StandardTags.WriteVariableTag.NAME.equals(member);
-        }
-
-        @ExportMessage
-        @SuppressWarnings("static-method")
-        Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
-            return KEYS_WRITE;
-        }
-
-        @Override
-        @ExportMessage
-        Object readMember(String member, @Cached BranchProfile error) throws UnknownIdentifierException {
-            super.readMember(member, error); // To verify readability
-            return nameSymbol;
-        }
+    @ExportMessage
+    SourceSection getSourceLocation() throws UnsupportedMessageException {
+      if (sourceSection != null) {
+        return sourceSection;
+      } else {
+        throw UnsupportedMessageException.create();
+      }
     }
-
-    @ExportLibrary(InteropLibrary.class)
-    static final class NameSymbol implements TruffleObject {
-
-        private final TruffleString name;
-        private final SourceSection sourceSection;
-
-        NameSymbol(TruffleString name, SourceSection sourceSection) {
-            this.name = name;
-            this.sourceSection = sourceSection;
-        }
-
-        @ExportMessage
-        @SuppressWarnings("static-method")
-        boolean isString() {
-            return true;
-        }
-
-        @ExportMessage
-        String asString(@Cached TruffleString.ToJavaStringNode toJavaStringNode) {
-            return toJavaStringNode.execute(name);
-        }
-
-        @ExportMessage
-        TruffleString asTruffleString() {
-            return name;
-        }
-
-        @ExportMessage
-        boolean hasSourceLocation() {
-            return sourceSection != null;
-        }
-
-        @ExportMessage
-        SourceSection getSourceLocation() throws UnsupportedMessageException {
-            if (sourceSection != null) {
-                return sourceSection;
-            } else {
-                throw UnsupportedMessageException.create();
-            }
-        }
-    }
+  }
 }

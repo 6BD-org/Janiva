@@ -52,8 +52,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 @NodeInfo(shortName = "isNull")
 public abstract class SLIsNullBuiltin extends SLBuiltinNode {
 
-    @Specialization(limit = "3")
-    public boolean isExecutable(Object obj, @CachedLibrary("obj") InteropLibrary values) {
-        return values.isNull(obj);
-    }
+  @Specialization(limit = "3")
+  public boolean isExecutable(Object obj, @CachedLibrary("obj") InteropLibrary values) {
+    return values.isNull(obj);
+  }
 }

@@ -49,38 +49,38 @@ import com.oracle.truffle.sl.nodes.SLRootNode;
 
 public final class SLStrings {
 
-    public static final TruffleString EMPTY_STRING = constant("");
-    public static final TruffleString NULL = constant("NULL");
-    public static final TruffleString NULL_LC = constant("null");
-    public static final TruffleString MAIN = constant("main");
-    public static final TruffleString HELLO = constant("hello");
-    public static final TruffleString WORLD = constant("world");
+  public static final TruffleString EMPTY_STRING = constant("");
+  public static final TruffleString NULL = constant("NULL");
+  public static final TruffleString NULL_LC = constant("null");
+  public static final TruffleString MAIN = constant("main");
+  public static final TruffleString HELLO = constant("hello");
+  public static final TruffleString WORLD = constant("world");
 
-    public static TruffleString constant(String s) {
-        return fromJavaString(s);
-    }
+  public static TruffleString constant(String s) {
+    return fromJavaString(s);
+  }
 
-    public static TruffleString fromJavaString(String s) {
-        return TruffleString.fromJavaStringUncached(s, SLLanguage.STRING_ENCODING);
-    }
+  public static TruffleString fromJavaString(String s) {
+    return TruffleString.fromJavaStringUncached(s, SLLanguage.STRING_ENCODING);
+  }
 
-    public static TruffleString fromObject(Object o) {
-        if (o == null) {
-            return NULL_LC;
-        }
-        if (o instanceof TruffleString) {
-            return (TruffleString) o;
-        }
-        return fromJavaString(o.toString());
+  public static TruffleString fromObject(Object o) {
+    if (o == null) {
+      return NULL_LC;
     }
+    if (o instanceof TruffleString) {
+      return (TruffleString) o;
+    }
+    return fromJavaString(o.toString());
+  }
 
-    public static TruffleString getSLRootName(RootNode rootNode) {
-        if (rootNode instanceof SLRootNode) {
-            return ((SLRootNode) rootNode).getTSName();
-        } else if (rootNode instanceof SLEvalRootNode) {
-            return SLEvalRootNode.getTSName();
-        } else {
-            throw CompilerDirectives.shouldNotReachHere();
-        }
+  public static TruffleString getSLRootName(RootNode rootNode) {
+    if (rootNode instanceof SLRootNode) {
+      return ((SLRootNode) rootNode).getTSName();
+    } else if (rootNode instanceof SLEvalRootNode) {
+      return SLEvalRootNode.getTSName();
+    } else {
+      throw CompilerDirectives.shouldNotReachHere();
     }
+  }
 }

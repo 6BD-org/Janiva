@@ -55,20 +55,19 @@ import com.oracle.truffle.sl.runtime.SLBigNumber;
 @NodeInfo(shortName = "<")
 public abstract class SLLessThanNode extends SLBinaryNode {
 
-    @Specialization
-    protected boolean lessThan(long left, long right) {
-        return left < right;
-    }
+  @Specialization
+  protected boolean lessThan(long left, long right) {
+    return left < right;
+  }
 
-    @Specialization
-    @TruffleBoundary
-    protected boolean lessThan(SLBigNumber left, SLBigNumber right) {
-        return left.compareTo(right) < 0;
-    }
+  @Specialization
+  @TruffleBoundary
+  protected boolean lessThan(SLBigNumber left, SLBigNumber right) {
+    return left.compareTo(right) < 0;
+  }
 
-    @Fallback
-    protected Object typeError(Object left, Object right) {
-        throw SLException.typeError(this, left, right);
-    }
-
+  @Fallback
+  protected Object typeError(Object left, Object right) {
+    throw SLException.typeError(this, left, right);
+  }
 }

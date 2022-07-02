@@ -48,25 +48,23 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.sl.SLException;
 import com.oracle.truffle.sl.runtime.SLContext;
 
-/**
- * Builtin that allows to lookup a Java type.
- */
+/** Builtin that allows to lookup a Java type. */
 @NodeInfo(shortName = "java")
 public abstract class SLJavaTypeBuiltin extends SLBuiltinNode {
 
-    @Specialization
-    public Object doLookup(Object symbolName,
-                    @CachedLibrary(limit = "3") InteropLibrary interop) {
-        try {
-            /*
-             * This is the entry point to Java host interoperability. The return value of
-             * lookupHostSymbol implements the interop contracts. So we can use Java for things that
-             * are expressible also in SL. Like function calls on objects.
-             */
-            return SLContext.get(this).getEnv().lookupHostSymbol(interop.asString(symbolName));
-        } catch (UnsupportedMessageException e) {
-            throw new SLException("The java builtin expected a String argument, but a non-string argument was provided.", this);
-        }
+  @Specialization
+  public Object doLookup(Object symbolName, @CachedLibrary(limit = "3") InteropLibrary interop) {
+    try {
+      /*
+       * This is the entry point to Java host interoperability. The return value of
+       * lookupHostSymbol implements the interop contracts. So we can use Java for things that
+       * are expressible also in SL. Like function calls on objects.
+       */
+      return SLContext.get(this).getEnv().lookupHostSymbol(interop.asString(symbolName));
+    } catch (UnsupportedMessageException e) {
+      throw new SLException(
+          "The java builtin expected a String argument, but a non-string argument was provided.",
+          this);
     }
-
+  }
 }

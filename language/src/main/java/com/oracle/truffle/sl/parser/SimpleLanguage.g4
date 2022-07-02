@@ -62,6 +62,7 @@ import com.oracle.truffle.sl.nodes.SLExpressionNode;
 import com.oracle.truffle.sl.nodes.SLRootNode;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
 import com.oracle.truffle.sl.parser.SLParseError;
+import com.oracle.truffle.api.nodes.RootNode;
 
 }
 
@@ -98,7 +99,7 @@ private static void throwParseError(Source source, int line, int charPositionInL
     throw new SLParseError(source, line, col, length, String.format("Error(s) parsing script:%n" + location + message));
 }
 
-public static Map<TruffleString, RootCallTarget> parseSL(SLLanguage language, Source source) {
+public static RootNode parseSL(SLLanguage language, Source source) {
     SimpleLanguageLexer lexer = new SimpleLanguageLexer(CharStreams.fromString(source.getCharacters().toString()));
     SimpleLanguageParser parser = new SimpleLanguageParser(new CommonTokenStream(lexer));
     lexer.removeErrorListeners();
@@ -109,7 +110,7 @@ public static Map<TruffleString, RootCallTarget> parseSL(SLLanguage language, So
     parser.factory = new SLNodeFactory(language, source);
     parser.source = source;
     parser.simplelanguage();
-    return parser.factory.getAllFunctions();
+    return parser.factory.getRootNode();
 }
 }
 
@@ -120,215 +121,33 @@ public static Map<TruffleString, RootCallTarget> parseSL(SLLanguage language, So
 
 simplelanguage
 :
-function function* EOF
+object                                  {factory.registerRootNode($object.result);}
+|
+primitive                               {factory.registerRootNode($primitive.result);}
+EOF
 ;
 
-
-function
+object returns [SLExpressionNode result]
 :
-'function'
-IDENTIFIER
-s='('
-                                                { factory.startFunction($IDENTIFIER, $s); }
-(
-    IDENTIFIER                                  { factory.addFormalParameter($IDENTIFIER); }
-    (
-        ','
-        IDENTIFIER                              { factory.addFormalParameter($IDENTIFIER); }
-    )*
-)?
-')'
-body=block[false]                               { factory.finishFunction($body.result); }
+'{}'
 ;
 
-
-
-block [boolean inLoop] returns [SLStatementNode result]
-:                                               { factory.startBlock();
-                                                  List<SLStatementNode> body = new ArrayList<>(); }
-s='{'
-(
-    statement[inLoop]                           { body.add($statement.result); }
-)*
-e='}'
-                                                { $result = factory.finishBlock(body, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
-;
-
-
-statement [boolean inLoop] returns [SLStatementNode result]
+primitive returns [SLExpressionNode result]
 :
-(
-    while_statement                             { $result = $while_statement.result; }
-|
-    b='break'                                   { if (inLoop) { $result = factory.createBreak($b); } else { SemErr($b, "break used outside of loop"); } }
-    ';'
-|
-    c='continue'                                { if (inLoop) { $result = factory.createContinue($c); } else { SemErr($c, "continue used outside of loop"); } }
-    ';'
-|
-    if_statement[inLoop]                        { $result = $if_statement.result; }
-|
-    return_statement                            { $result = $return_statement.result; }
-|
-    expression ';'                              { $result = $expression.result; }
-|
-    d='debugger'                                { $result = factory.createDebugger($d); }
-    ';'
-)
+number                                  {$result = $number.result;}
 ;
 
-
-while_statement returns [SLStatementNode result]
+number returns [SLExpressionNode result]
 :
-w='while'
-'('
-condition=expression
-')'
-body=block[true]                                { $result = factory.createWhile($w, $condition.result, $body.result); }
+NUMERIC_LITERAL                         {Token whole = $NUMERIC_LITERAL; Token dec = null;}
+(
+'.'NUMERIC_LITERAL                      {dec = $NUMERIC_LITERAL;}
+)?                                      {$result = factory.createDecimal(whole, dec);}
 ;
 
 
-if_statement [boolean inLoop] returns [SLStatementNode result]
-:
-i='if'
-'('
-condition=expression
-')'
-then=block[inLoop]                              { SLStatementNode elsePart = null; }
-(
-    'else'
-    block[inLoop]                               { elsePart = $block.result; }
-)?                                              { $result = factory.createIf($i, $condition.result, $then.result, elsePart); }
-;
 
 
-return_statement returns [SLStatementNode result]
-:
-r='return'                                      { SLExpressionNode value = null; }
-(
-    expression                                  { value = $expression.result; }
-)?                                              { $result = factory.createReturn($r, value); }
-';'
-;
-
-
-expression returns [SLExpressionNode result]
-:
-logic_term                                      { $result = $logic_term.result; }
-(
-    op='||'
-    logic_term                                  { $result = factory.createBinary($op, $result, $logic_term.result); }
-)*
-;
-
-
-logic_term returns [SLExpressionNode result]
-:
-logic_factor                                    { $result = $logic_factor.result; }
-(
-    op='&&'
-    logic_factor                                { $result = factory.createBinary($op, $result, $logic_factor.result); }
-)*
-;
-
-
-logic_factor returns [SLExpressionNode result]
-:
-arithmetic                                      { $result = $arithmetic.result; }
-(
-    op=('<' | '<=' | '>' | '>=' | '==' | '!=' )
-    arithmetic                                  { $result = factory.createBinary($op, $result, $arithmetic.result); }
-)?
-;
-
-
-arithmetic returns [SLExpressionNode result]
-:
-term                                            { $result = $term.result; }
-(
-    op=('+' | '-')
-    term                                        { $result = factory.createBinary($op, $result, $term.result); }
-)*
-;
-
-
-term returns [SLExpressionNode result]
-:
-factor                                          { $result = $factor.result; }
-(
-    op=('*' | '/')
-    factor                                      { $result = factory.createBinary($op, $result, $factor.result); }
-)*
-;
-
-
-factor returns [SLExpressionNode result]
-:
-(
-    IDENTIFIER                                  { SLExpressionNode assignmentName = factory.createStringLiteral($IDENTIFIER, false); }
-    (
-        member_expression[null, null, assignmentName] { $result = $member_expression.result; }
-    |
-                                                { $result = factory.createRead(assignmentName); }
-    )
-|
-    STRING_LITERAL                              { $result = factory.createStringLiteral($STRING_LITERAL, true); }
-|
-    NUMERIC_LITERAL                             { $result = factory.createNumericLiteral($NUMERIC_LITERAL); }
-|
-    s='('
-    expr=expression
-    e=')'                                       { $result = factory.createParenExpression($expr.result, $s.getStartIndex(), $e.getStopIndex() - $s.getStartIndex() + 1); }
-)
-;
-
-
-member_expression [SLExpressionNode r, SLExpressionNode assignmentReceiver, SLExpressionNode assignmentName] returns [SLExpressionNode result]
-:                                               { SLExpressionNode receiver = r;
-                                                  SLExpressionNode nestedAssignmentName = null; }
-(
-    '('                                         { List<SLExpressionNode> parameters = new ArrayList<>();
-                                                  if (receiver == null) {
-                                                      receiver = factory.createRead(assignmentName);
-                                                  } }
-    (
-        expression                              { parameters.add($expression.result); }
-        (
-            ','
-            expression                          { parameters.add($expression.result); }
-        )*
-    )?
-    e=')'
-                                                { $result = factory.createCall(receiver, parameters, $e); }
-|
-    '='
-    expression                                  { if (assignmentName == null) {
-                                                      SemErr($expression.start, "invalid assignment target");
-                                                  } else if (assignmentReceiver == null) {
-                                                      $result = factory.createAssignment(assignmentName, $expression.result);
-                                                  } else {
-                                                      $result = factory.createWriteProperty(assignmentReceiver, assignmentName, $expression.result);
-                                                  } }
-|
-    '.'                                         { if (receiver == null) {
-                                                       receiver = factory.createRead(assignmentName);
-                                                  } }
-    IDENTIFIER
-                                                { nestedAssignmentName = factory.createStringLiteral($IDENTIFIER, false);
-                                                  $result = factory.createReadProperty(receiver, nestedAssignmentName); }
-|
-    '['                                         { if (receiver == null) {
-                                                      receiver = factory.createRead(assignmentName);
-                                                  } }
-    expression
-                                                { nestedAssignmentName = $expression.result;
-                                                  $result = factory.createReadProperty(receiver, nestedAssignmentName); }
-    ']'
-)
-(
-    member_expression[$result, receiver, nestedAssignmentName] { $result = $member_expression.result; }
-)?
-;
 
 // lexer
 
@@ -348,4 +167,4 @@ fragment STRING_CHAR : ~('"' | '\r' | '\n');
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
 STRING_LITERAL : '"' STRING_CHAR* '"';
 NUMERIC_LITERAL : '0' | NON_ZERO_DIGIT DIGIT*;
-
+BOOL_LITERAL : 'true' | 'false';

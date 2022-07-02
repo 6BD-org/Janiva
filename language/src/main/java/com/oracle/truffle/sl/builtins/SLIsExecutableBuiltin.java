@@ -52,8 +52,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 @NodeInfo(shortName = "isExecutable")
 public abstract class SLIsExecutableBuiltin extends SLBuiltinNode {
 
-    @Specialization(limit = "3")
-    public boolean isExecutable(Object obj, @CachedLibrary("obj") InteropLibrary executables) {
-        return executables.isExecutable(obj);
-    }
+  @Specialization(limit = "3")
+  public boolean isExecutable(Object obj, @CachedLibrary("obj") InteropLibrary executables) {
+    return executables.isExecutable(obj);
+  }
 }

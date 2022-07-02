@@ -52,37 +52,37 @@ import com.oracle.truffle.api.strings.TruffleString;
 @ExportLibrary(InteropLibrary.class)
 public final class NodeObjectDescriptorKeys implements TruffleObject {
 
-    private final TruffleString keyName;
+  private final TruffleString keyName;
 
-    NodeObjectDescriptorKeys(TruffleString keyName) {
-        this.keyName = keyName;
+  NodeObjectDescriptorKeys(TruffleString keyName) {
+    this.keyName = keyName;
+  }
+
+  @ExportMessage
+  @SuppressWarnings("static-method")
+  boolean hasArrayElements() {
+    return true;
+  }
+
+  @ExportMessage
+  @SuppressWarnings("static-method")
+  boolean isArrayElementReadable(long index) {
+    return index >= 0 && index < 1;
+  }
+
+  @ExportMessage
+  @SuppressWarnings("static-method")
+  long getArraySize() {
+    return 1;
+  }
+
+  @ExportMessage
+  Object readArrayElement(long index, @Cached BranchProfile exception)
+      throws InvalidArrayIndexException {
+    if (!isArrayElementReadable(index)) {
+      exception.enter();
+      throw InvalidArrayIndexException.create(index);
     }
-
-    @ExportMessage
-    @SuppressWarnings("static-method")
-    boolean hasArrayElements() {
-        return true;
-    }
-
-    @ExportMessage
-    @SuppressWarnings("static-method")
-    boolean isArrayElementReadable(long index) {
-        return index >= 0 && index < 1;
-    }
-
-    @ExportMessage
-    @SuppressWarnings("static-method")
-    long getArraySize() {
-        return 1;
-    }
-
-    @ExportMessage
-    Object readArrayElement(long index, @Cached BranchProfile exception) throws InvalidArrayIndexException {
-        if (!isArrayElementReadable(index)) {
-            exception.enter();
-            throw InvalidArrayIndexException.create(index);
-        }
-        return keyName;
-    }
-
+    return keyName;
+  }
 }

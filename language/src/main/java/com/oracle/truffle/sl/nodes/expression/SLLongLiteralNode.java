@@ -53,19 +53,19 @@ import com.oracle.truffle.sl.nodes.SLExpressionNode;
 @NodeInfo(shortName = "const")
 public final class SLLongLiteralNode extends SLExpressionNode {
 
-    private final long value;
+  private final long value;
 
-    public SLLongLiteralNode(long value) {
-        this.value = value;
-    }
+  public SLLongLiteralNode(long value) {
+    this.value = value;
+  }
 
-    @Override
-    public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
-        return value;
-    }
+  @Override
+  public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
+    return value;
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return value;
-    }
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    return value;
+  }
 }

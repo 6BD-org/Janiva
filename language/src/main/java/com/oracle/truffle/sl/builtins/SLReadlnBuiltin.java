@@ -53,32 +53,32 @@ import com.oracle.truffle.sl.SLLanguage;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLStrings;
 
-/**
- * Builtin function that reads a String from the {@link SLContext#getInput() standard input}.
- */
+/** Builtin function that reads a String from the {@link SLContext#getInput() standard input}. */
 @NodeInfo(shortName = "readln")
 public abstract class SLReadlnBuiltin extends SLBuiltinNode {
 
-    @Specialization
-    public TruffleString readln(@Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
-        TruffleString result = fromJavaStringNode.execute(doRead(SLContext.get(this).getInput()), SLLanguage.STRING_ENCODING);
-        if (result == null) {
-            /*
-             * We do not have a sophisticated end of file handling, so returning an empty string is
-             * a reasonable alternative. Note that the Java null value should never be used, since
-             * it can interfere with the specialization logic in generated source code.
-             */
-            result = SLStrings.EMPTY_STRING;
-        }
-        return result;
+  @Specialization
+  public TruffleString readln(@Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
+    TruffleString result =
+        fromJavaStringNode.execute(
+            doRead(SLContext.get(this).getInput()), SLLanguage.STRING_ENCODING);
+    if (result == null) {
+      /*
+       * We do not have a sophisticated end of file handling, so returning an empty string is
+       * a reasonable alternative. Note that the Java null value should never be used, since
+       * it can interfere with the specialization logic in generated source code.
+       */
+      result = SLStrings.EMPTY_STRING;
     }
+    return result;
+  }
 
-    @TruffleBoundary
-    private String doRead(BufferedReader in) {
-        try {
-            return in.readLine();
-        } catch (IOException ex) {
-            throw new SLException(ex.getMessage(), this);
-        }
+  @TruffleBoundary
+  private String doRead(BufferedReader in) {
+    try {
+      return in.readLine();
+    } catch (IOException ex) {
+      throw new SLException(ex.getMessage(), this);
     }
+  }
 }

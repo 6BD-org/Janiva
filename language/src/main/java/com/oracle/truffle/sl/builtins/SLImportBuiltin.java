@@ -52,23 +52,22 @@ import com.oracle.truffle.sl.SLException;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLNull;
 
-/**
- * Built-in function that goes through to import a symbol from the polyglot bindings.
- */
+/** Built-in function that goes through to import a symbol from the polyglot bindings. */
 @NodeInfo(shortName = "import")
 public abstract class SLImportBuiltin extends SLBuiltinNode {
 
-    @Specialization
-    public Object importSymbol(TruffleString symbol,
-                    @Cached TruffleString.ToJavaStringNode toJavaStringNode,
-                    @CachedLibrary(limit = "3") InteropLibrary arrays) {
-        try {
-            return arrays.readMember(SLContext.get(this).getPolyglotBindings(), toJavaStringNode.execute(symbol));
-        } catch (UnsupportedMessageException | UnknownIdentifierException e) {
-            return SLNull.SINGLETON;
-        } catch (SecurityException e) {
-            throw new SLException("No polyglot access allowed.", this);
-        }
+  @Specialization
+  public Object importSymbol(
+      TruffleString symbol,
+      @Cached TruffleString.ToJavaStringNode toJavaStringNode,
+      @CachedLibrary(limit = "3") InteropLibrary arrays) {
+    try {
+      return arrays.readMember(
+          SLContext.get(this).getPolyglotBindings(), toJavaStringNode.execute(symbol));
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      return SLNull.SINGLETON;
+    } catch (SecurityException e) {
+      throw new SLException("No polyglot access allowed.", this);
     }
-
+  }
 }

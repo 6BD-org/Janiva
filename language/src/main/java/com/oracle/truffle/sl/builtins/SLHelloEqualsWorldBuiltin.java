@@ -50,25 +50,28 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.SLLanguage;
 import com.oracle.truffle.sl.runtime.SLStrings;
 
-/**
- * This builtin sets the variable named "hello" in the caller frame to the string "world".
- */
+/** This builtin sets the variable named "hello" in the caller frame to the string "world". */
 @NodeInfo(shortName = "helloEqualsWorld")
 public abstract class SLHelloEqualsWorldBuiltin extends SLBuiltinNode {
 
-    @Specialization
-    @TruffleBoundary
-    public TruffleString change() {
-        return Truffle.getRuntime().iterateFrames((f) -> {
-            Frame frame = f.getFrame(FrameAccess.READ_WRITE);
-            int count = frame.getFrameDescriptor().getNumberOfSlots();
-            for (int i = 0; i < count; i++) {
-                if (SLStrings.HELLO.equalsUncached((TruffleString) frame.getFrameDescriptor().getSlotName(i), SLLanguage.STRING_ENCODING)) {
-                    frame.setObject(i, SLStrings.WORLD);
-                    break;
+  @Specialization
+  @TruffleBoundary
+  public TruffleString change() {
+    return Truffle.getRuntime()
+        .iterateFrames(
+            (f) -> {
+              Frame frame = f.getFrame(FrameAccess.READ_WRITE);
+              int count = frame.getFrameDescriptor().getNumberOfSlots();
+              for (int i = 0; i < count; i++) {
+                if (SLStrings.HELLO.equalsUncached(
+                    (TruffleString) frame.getFrameDescriptor().getSlotName(i),
+                    SLLanguage.STRING_ENCODING)) {
+                  frame.setObject(i, SLStrings.WORLD);
+                  break;
                 }
-            }
-            return SLStrings.WORLD;
-        }, 1);
-    }
+              }
+              return SLStrings.WORLD;
+            },
+            1);
+  }
 }

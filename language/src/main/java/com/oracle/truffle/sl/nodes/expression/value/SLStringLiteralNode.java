@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * The Universal Permissive License (UPL), Version 1.0
@@ -38,21 +38,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.sl.nodes.controlflow;
+package com.oracle.truffle.sl.nodes.expression.value;
 
-import com.oracle.truffle.api.nodes.ControlFlowException;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.sl.nodes.SLExpressionNode;
 
-/**
- * Exception thrown by the {@link SLContinueNode continue statement} and caught by the {@link
- * SLWhileNode loop statement}. Since the exception is stateless, i.e., has no instance fields, we
- * can use a {@link #SINGLETON} to avoid memory allocation during interpretation.
- */
-public final class SLContinueException extends ControlFlowException {
+/** Constant literal for a String value. */
+@NodeInfo(shortName = "const")
+public final class SLStringLiteralNode extends SLExpressionNode {
 
-  public static final SLContinueException SINGLETON = new SLContinueException();
+  private final TruffleString value;
 
-  private static final long serialVersionUID = 5329687983726237188L;
+  public SLStringLiteralNode(TruffleString value) {
+    this.value = value;
+  }
 
-  /* Prevent instantiation from outside. */
-  private SLContinueException() {}
+  @Override
+  public TruffleString executeGeneric(VirtualFrame frame) {
+    return value;
+  }
 }

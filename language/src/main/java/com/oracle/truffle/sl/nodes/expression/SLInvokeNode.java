@@ -65,48 +65,47 @@ import com.oracle.truffle.sl.runtime.SLUndefinedNameException;
 @NodeInfo(shortName = "invoke")
 public final class SLInvokeNode extends SLExpressionNode {
 
-    @Child private SLExpressionNode functionNode;
-    @Children private final SLExpressionNode[] argumentNodes;
-    @Child private InteropLibrary library;
+  @Child private SLExpressionNode functionNode;
+  @Children private final SLExpressionNode[] argumentNodes;
+  @Child private InteropLibrary library;
 
-    public SLInvokeNode(SLExpressionNode functionNode, SLExpressionNode[] argumentNodes) {
-        this.functionNode = functionNode;
-        this.argumentNodes = argumentNodes;
-        this.library = InteropLibrary.getFactory().createDispatched(3);
+  public SLInvokeNode(SLExpressionNode functionNode, SLExpressionNode[] argumentNodes) {
+    this.functionNode = functionNode;
+    this.argumentNodes = argumentNodes;
+    this.library = InteropLibrary.getFactory().createDispatched(3);
+  }
+
+  @ExplodeLoop
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object function = functionNode.executeGeneric(frame);
+
+    /*
+     * The number of arguments is constant for one invoke node. During compilation, the loop is
+     * unrolled and the execute methods of all arguments are inlined. This is triggered by the
+     * ExplodeLoop annotation on the method. The compiler assertion below illustrates that the
+     * array length is really constant.
+     */
+    CompilerAsserts.compilationConstant(argumentNodes.length);
+
+    Object[] argumentValues = new Object[argumentNodes.length];
+    for (int i = 0; i < argumentNodes.length; i++) {
+      argumentValues[i] = argumentNodes[i].executeGeneric(frame);
     }
 
-    @ExplodeLoop
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        Object function = functionNode.executeGeneric(frame);
-
-        /*
-         * The number of arguments is constant for one invoke node. During compilation, the loop is
-         * unrolled and the execute methods of all arguments are inlined. This is triggered by the
-         * ExplodeLoop annotation on the method. The compiler assertion below illustrates that the
-         * array length is really constant.
-         */
-        CompilerAsserts.compilationConstant(argumentNodes.length);
-
-        Object[] argumentValues = new Object[argumentNodes.length];
-        for (int i = 0; i < argumentNodes.length; i++) {
-            argumentValues[i] = argumentNodes[i].executeGeneric(frame);
-        }
-
-        try {
-            return library.execute(function, argumentValues);
-        } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
-            /* Execute was not successful. */
-            throw SLUndefinedNameException.undefinedFunction(this, function);
-        }
+    try {
+      return library.execute(function, argumentValues);
+    } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
+      /* Execute was not successful. */
+      throw SLUndefinedNameException.undefinedFunction(this, function);
     }
+  }
 
-    @Override
-    public boolean hasTag(Class<? extends Tag> tag) {
-        if (tag == StandardTags.CallTag.class) {
-            return true;
-        }
-        return super.hasTag(tag);
+  @Override
+  public boolean hasTag(Class<? extends Tag> tag) {
+    if (tag == StandardTags.CallTag.class) {
+      return true;
     }
-
+    return super.hasTag(tag);
+  }
 }

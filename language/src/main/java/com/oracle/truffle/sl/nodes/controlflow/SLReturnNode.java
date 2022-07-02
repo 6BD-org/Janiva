@@ -56,23 +56,23 @@ import com.oracle.truffle.sl.runtime.SLNull;
 @NodeInfo(shortName = "return", description = "The node implementing a return statement")
 public final class SLReturnNode extends SLStatementNode {
 
-    @Child private SLExpressionNode valueNode;
+  @Child private SLExpressionNode valueNode;
 
-    public SLReturnNode(SLExpressionNode valueNode) {
-        this.valueNode = valueNode;
-    }
+  public SLReturnNode(SLExpressionNode valueNode) {
+    this.valueNode = valueNode;
+  }
 
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        Object result;
-        if (valueNode != null) {
-            result = valueNode.executeGeneric(frame);
-        } else {
-            /*
-             * Return statement that was not followed by an expression, so return the SL null value.
-             */
-            result = SLNull.SINGLETON;
-        }
-        throw new SLReturnException(result);
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    Object result;
+    if (valueNode != null) {
+      result = valueNode.executeGeneric(frame);
+    } else {
+      /*
+       * Return statement that was not followed by an expression, so return the SL null value.
+       */
+      result = SLNull.SINGLETON;
     }
+    throw new SLReturnException(result);
+  }
 }

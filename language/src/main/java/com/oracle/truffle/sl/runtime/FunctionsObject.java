@@ -60,104 +60,104 @@ import com.oracle.truffle.sl.SLLanguage;
 @SuppressWarnings("static-method")
 final class FunctionsObject implements TruffleObject {
 
-    final Map<TruffleString, SLFunction> functions = new HashMap<>();
+  final Map<TruffleString, SLFunction> functions = new HashMap<>();
 
-    FunctionsObject() {
+  FunctionsObject() {}
+
+  @ExportMessage
+  boolean hasLanguage() {
+    return true;
+  }
+
+  @ExportMessage
+  Class<? extends TruffleLanguage<?>> getLanguage() {
+    return SLLanguage.class;
+  }
+
+  @ExportMessage
+  boolean hasMembers() {
+    return true;
+  }
+
+  @ExportMessage
+  @TruffleBoundary
+  Object readMember(String member) throws UnknownIdentifierException {
+    Object value = functions.get(SLStrings.fromJavaString(member));
+    if (value != null) {
+      return value;
+    }
+    throw UnknownIdentifierException.create(member);
+  }
+
+  @ExportMessage
+  @TruffleBoundary
+  boolean isMemberReadable(String member) {
+    return functions.containsKey(SLStrings.fromJavaString(member));
+  }
+
+  @ExportMessage
+  @TruffleBoundary
+  Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
+    return new FunctionNamesObject(functions.keySet().toArray());
+  }
+
+  @ExportMessage
+  boolean hasMetaObject() {
+    return true;
+  }
+
+  @ExportMessage
+  Object getMetaObject() {
+    return SLType.OBJECT;
+  }
+
+  @ExportMessage
+  boolean isScope() {
+    return true;
+  }
+
+  @ExportMessage
+  @TruffleBoundary
+  Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    return "global";
+  }
+
+  public static boolean isInstance(TruffleObject obj) {
+    return obj instanceof FunctionsObject;
+  }
+
+  @ExportLibrary(InteropLibrary.class)
+  static final class FunctionNamesObject implements TruffleObject {
+
+    private final Object[] names;
+
+    FunctionNamesObject(Object[] names) {
+      this.names = names;
     }
 
     @ExportMessage
-    boolean hasLanguage() {
-        return true;
+    boolean hasArrayElements() {
+      return true;
     }
 
     @ExportMessage
-    Class<? extends TruffleLanguage<?>> getLanguage() {
-        return SLLanguage.class;
+    boolean isArrayElementReadable(long index) {
+      return index >= 0 && index < names.length;
     }
 
     @ExportMessage
-    boolean hasMembers() {
-        return true;
+    long getArraySize() {
+      return names.length;
     }
 
     @ExportMessage
-    @TruffleBoundary
-    Object readMember(String member) throws UnknownIdentifierException {
-        Object value = functions.get(SLStrings.fromJavaString(member));
-        if (value != null) {
-            return value;
-        }
-        throw UnknownIdentifierException.create(member);
+    Object readArrayElement(long index, @Cached BranchProfile error)
+        throws InvalidArrayIndexException {
+      if (!isArrayElementReadable(index)) {
+        error.enter();
+        throw InvalidArrayIndexException.create(index);
+      }
+      return names[(int) index];
     }
-
-    @ExportMessage
-    @TruffleBoundary
-    boolean isMemberReadable(String member) {
-        return functions.containsKey(SLStrings.fromJavaString(member));
-    }
-
-    @ExportMessage
-    @TruffleBoundary
-    Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
-        return new FunctionNamesObject(functions.keySet().toArray());
-    }
-
-    @ExportMessage
-    boolean hasMetaObject() {
-        return true;
-    }
-
-    @ExportMessage
-    Object getMetaObject() {
-        return SLType.OBJECT;
-    }
-
-    @ExportMessage
-    boolean isScope() {
-        return true;
-    }
-
-    @ExportMessage
-    @TruffleBoundary
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
-        return "global";
-    }
-
-    public static boolean isInstance(TruffleObject obj) {
-        return obj instanceof FunctionsObject;
-    }
-
-    @ExportLibrary(InteropLibrary.class)
-    static final class FunctionNamesObject implements TruffleObject {
-
-        private final Object[] names;
-
-        FunctionNamesObject(Object[] names) {
-            this.names = names;
-        }
-
-        @ExportMessage
-        boolean hasArrayElements() {
-            return true;
-        }
-
-        @ExportMessage
-        boolean isArrayElementReadable(long index) {
-            return index >= 0 && index < names.length;
-        }
-
-        @ExportMessage
-        long getArraySize() {
-            return names.length;
-        }
-
-        @ExportMessage
-        Object readArrayElement(long index, @Cached BranchProfile error) throws InvalidArrayIndexException {
-            if (!isArrayElementReadable(index)) {
-                error.enter();
-                throw InvalidArrayIndexException.create(index);
-            }
-            return names[(int) index];
-        }
-    }
+  }
 }

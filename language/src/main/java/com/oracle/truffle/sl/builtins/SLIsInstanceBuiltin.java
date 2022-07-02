@@ -56,14 +56,13 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 @SuppressWarnings("unused")
 public abstract class SLIsInstanceBuiltin extends SLBuiltinNode {
 
-    @Specialization(limit = "3", guards = "metaLib.isMetaObject(metaObject)")
-    public Object doDefault(Object metaObject, Object value,
-                    @CachedLibrary("metaObject") InteropLibrary metaLib) {
-        try {
-            return metaLib.isMetaInstance(metaObject, value);
-        } catch (UnsupportedMessageException e) {
-            throw shouldNotReachHere(e);
-        }
+  @Specialization(limit = "3", guards = "metaLib.isMetaObject(metaObject)")
+  public Object doDefault(
+      Object metaObject, Object value, @CachedLibrary("metaObject") InteropLibrary metaLib) {
+    try {
+      return metaLib.isMetaInstance(metaObject, value);
+    } catch (UnsupportedMessageException e) {
+      throw shouldNotReachHere(e);
     }
-
+  }
 }

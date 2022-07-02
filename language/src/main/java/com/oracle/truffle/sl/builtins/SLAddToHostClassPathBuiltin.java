@@ -50,23 +50,21 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLNull;
 
-/**
- * Builtin function that performs context exit.
- */
+/** Builtin function that performs context exit. */
 @NodeInfo(shortName = "addToHostClassPath")
 public abstract class SLAddToHostClassPathBuiltin extends SLBuiltinNode {
 
-    @Specialization
-    protected Object execute(TruffleString classPath,
-                    @Cached TruffleString.ToJavaStringNode toJavaStringNode) {
-        addToHostClassPath(toJavaStringNode.execute(classPath));
-        return SLNull.SINGLETON;
-    }
+  @Specialization
+  protected Object execute(
+      TruffleString classPath, @Cached TruffleString.ToJavaStringNode toJavaStringNode) {
+    addToHostClassPath(toJavaStringNode.execute(classPath));
+    return SLNull.SINGLETON;
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    private void addToHostClassPath(String classPath) {
-        TruffleLanguage.Env env = SLContext.get(this).getEnv();
-        TruffleFile file = env.getPublicTruffleFile(classPath);
-        env.addToHostClassPath(file);
-    }
+  @CompilerDirectives.TruffleBoundary
+  private void addToHostClassPath(String classPath) {
+    TruffleLanguage.Env env = SLContext.get(this).getEnv();
+    TruffleFile file = env.getPublicTruffleFile(classPath);
+    env.addToHostClassPath(file);
+  }
 }

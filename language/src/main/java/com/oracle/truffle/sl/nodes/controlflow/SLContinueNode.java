@@ -53,8 +53,8 @@ import com.oracle.truffle.sl.nodes.SLStatementNode;
 @NodeInfo(shortName = "continue", description = "The node implementing a continue statement")
 public final class SLContinueNode extends SLStatementNode {
 
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        throw SLContinueException.SINGLETON;
-    }
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    throw SLContinueException.SINGLETON;
+  }
 }

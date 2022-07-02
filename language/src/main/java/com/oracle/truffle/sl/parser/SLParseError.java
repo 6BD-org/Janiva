@@ -55,42 +55,41 @@ import com.oracle.truffle.api.source.SourceSection;
 @SuppressWarnings("serial")
 public class SLParseError extends AbstractTruffleException {
 
-    public static final long serialVersionUID = 1L;
-    private final Source source;
-    private final int line;
-    private final int column;
-    private final int length;
+  public static final long serialVersionUID = 1L;
+  private final Source source;
+  private final int line;
+  private final int column;
+  private final int length;
 
-    public SLParseError(Source source, int line, int column, int length, String message) {
-        super(message);
-        this.source = source;
-        this.line = line;
-        this.column = column;
-        this.length = length;
-    }
+  public SLParseError(Source source, int line, int column, int length, String message) {
+    super(message);
+    this.source = source;
+    this.line = line;
+    this.column = column;
+    this.length = length;
+  }
 
-    /**
-     * Note that any subclass of {@link AbstractTruffleException} must always return
-     * <code>true</code> for {@link InteropLibrary#isException(Object)}. That is why it is correct
-     * to export {@link #getExceptionType()} without implementing
-     * {@link InteropLibrary#isException(Object)}.
-     */
-    @ExportMessage
-    ExceptionType getExceptionType() {
-        return ExceptionType.PARSE_ERROR;
-    }
+  /**
+   * Note that any subclass of {@link AbstractTruffleException} must always return <code>true</code>
+   * for {@link InteropLibrary#isException(Object)}. That is why it is correct to export {@link
+   * #getExceptionType()} without implementing {@link InteropLibrary#isException(Object)}.
+   */
+  @ExportMessage
+  ExceptionType getExceptionType() {
+    return ExceptionType.PARSE_ERROR;
+  }
 
-    @ExportMessage
-    boolean hasSourceLocation() {
-        return source != null;
-    }
+  @ExportMessage
+  boolean hasSourceLocation() {
+    return source != null;
+  }
 
-    @ExportMessage(name = "getSourceLocation")
-    @TruffleBoundary
-    SourceSection getSourceSection() throws UnsupportedMessageException {
-        if (source == null) {
-            throw UnsupportedMessageException.create();
-        }
-        return source.createSection(line, column, length);
+  @ExportMessage(name = "getSourceLocation")
+  @TruffleBoundary
+  SourceSection getSourceSection() throws UnsupportedMessageException {
+    if (source == null) {
+      throw UnsupportedMessageException.create();
     }
+    return source.createSection(line, column, length);
+  }
 }

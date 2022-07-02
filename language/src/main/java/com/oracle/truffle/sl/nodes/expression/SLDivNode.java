@@ -56,26 +56,26 @@ import com.oracle.truffle.sl.runtime.SLBigNumber;
 @NodeInfo(shortName = "/")
 public abstract class SLDivNode extends SLBinaryNode {
 
-    @Specialization(rewriteOn = ArithmeticException.class)
-    protected long div(long left, long right) throws ArithmeticException {
-        long result = left / right;
-        /*
-         * The division overflows if left is Long.MIN_VALUE and right is -1.
-         */
-        if ((left & right & result) < 0) {
-            throw new ArithmeticException("long overflow");
-        }
-        return result;
+  @Specialization(rewriteOn = ArithmeticException.class)
+  protected long div(long left, long right) throws ArithmeticException {
+    long result = left / right;
+    /*
+     * The division overflows if left is Long.MIN_VALUE and right is -1.
+     */
+    if ((left & right & result) < 0) {
+      throw new ArithmeticException("long overflow");
     }
+    return result;
+  }
 
-    @Specialization
-    @TruffleBoundary
-    protected SLBigNumber div(SLBigNumber left, SLBigNumber right) {
-        return new SLBigNumber(left.getValue().divide(right.getValue()));
-    }
+  @Specialization
+  @TruffleBoundary
+  protected SLBigNumber div(SLBigNumber left, SLBigNumber right) {
+    return new SLBigNumber(left.getValue().divide(right.getValue()));
+  }
 
-    @Fallback
-    protected Object typeError(Object left, Object right) {
-        throw SLException.typeError(this, left, right);
-    }
+  @Fallback
+  protected Object typeError(Object left, Object right) {
+    throw SLException.typeError(this, left, right);
+  }
 }

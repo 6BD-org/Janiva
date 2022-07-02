@@ -45,15 +45,13 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLNull;
 
-/**
- * Builtin function that performs context exit.
- */
+/** Builtin function that performs context exit. */
 @NodeInfo(shortName = "exit")
 public abstract class SLExitBuiltin extends SLBuiltinNode {
 
-    @Specialization
-    protected Object execute(long exitCode) {
-        SLContext.get(this).getEnv().getContext().closeExited(this, (int) exitCode);
-        return SLNull.SINGLETON;
-    }
+  @Specialization
+  protected Object execute(long exitCode) {
+    SLContext.get(this).getEnv().getContext().closeExited(this, (int) exitCode);
+    return SLNull.SINGLETON;
+  }
 }
