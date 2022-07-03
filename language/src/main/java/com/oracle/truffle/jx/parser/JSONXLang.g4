@@ -116,20 +116,47 @@ public static RootNode parseSL(JSONXLang language, Source source) {
 
 // parser
 
-
-
-
 simplelanguage
 :
+j_value
+EOF
+;
+
+j_value :
 object                                  {factory.registerRootNode($object.result);}
 |
+list                                    {factory.registerRootNode($list.result);}
+|
 primitive                               {factory.registerRootNode($primitive.result);}
-EOF
 ;
 
 object returns [JXExpressionNode result]
 :
-'{}'
+OBJECT_OPEN                             {factory.startObject();}
+(
+STRING_LITERAL
+':'
+j_value
+(
+','
+STRING_LITERAL
+':'
+j_value
+)*
+)?
+OBJECT_CLOSE                            {factory.endObject();}
+;
+
+list:
+LIST_OPEN
+(
+j_value
+(
+','
+j_value
+)*
+)?
+LIST_CLOSE
 ;
 
 primitive returns [JXExpressionNode result]
@@ -182,3 +209,7 @@ BOOL_LITERAL : TRUE | FALSE;
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
 STRING_LITERAL : '"' STRING_CHAR* '"';
 NUMERIC_LITERAL : '0' | NON_ZERO_DIGIT DIGIT*;
+LIST_OPEN: '[';
+LIST_CLOSE: ']';
+OBJECT_OPEN: '{';
+OBJECT_CLOSE: '}';
