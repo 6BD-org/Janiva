@@ -51,6 +51,7 @@ grammar JSONXLang;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 
 import com.oracle.truffle.api.source.Source;
@@ -73,7 +74,7 @@ import com.oracle.truffle.api.nodes.RootNode;
 
 @parser::members
 {
-private SLNodeFactory factory;
+private JXNodeFactory factory;
 private Source source;
 
 private static final class BailoutErrorListener extends BaseErrorListener {
@@ -96,7 +97,7 @@ private static void throwParseError(Source source, int line, int charPositionInL
     int col = charPositionInLine + 1;
     String location = "-- line " + line + " col " + col + ": ";
     int length = token == null ? 1 : Math.max(token.getStopIndex() - token.getStartIndex(), 0);
-    throw new SLParseError(source, line, col, length, String.format("Error(s) parsing script:%n" + location + message));
+    throw new JXParseError(source, line, col, length, String.format("Error(s) parsing script:%n" + location + message));
 }
 
 public static RootNode parseSL(JSONXLang language, Source source) {
@@ -107,7 +108,7 @@ public static RootNode parseSL(JSONXLang language, Source source) {
     BailoutErrorListener listener = new BailoutErrorListener(source);
     lexer.addErrorListener(listener);
     parser.addErrorListener(listener);
-    parser.factory = new SLNodeFactory(language, source);
+    parser.factory = new JXNodeFactory(language, source);
     parser.source = source;
     parser.simplelanguage();
     return parser.factory.getRootNode();
@@ -122,42 +123,29 @@ j_value
 EOF
 ;
 
-j_value :
+j_value returns [JXExpressionNode result]:
 object                                  {factory.registerRootNode($object.result);}
-|
-list                                    {factory.registerRootNode($list.result);}
 |
 primitive                               {factory.registerRootNode($primitive.result);}
 ;
 
 object returns [JXExpressionNode result]
 :
-OBJECT_OPEN                             {factory.startObject();}
+OBJECT_OPEN                             {factory.startObject(); List<JXStatementNode> body = new LinkedList();}
 (
-STRING_LITERAL
+STRING_LITERAL                          {Token valName = $STRING_LITERAL;}
 ':'
-j_value
+j_value                                 {body.add(factory.bindVal(valName, $j_value.result));}
+)
 (
 ','
-STRING_LITERAL
+STRING_LITERAL                          {Token valName = $STRING_LITERAL;}
 ':'
-j_value
+j_value                                 {body.add(factory.bindVal(valName, $j_value.result));}
 )*
-)?
-OBJECT_CLOSE                            {factory.endObject();}
+OBJECT_CLOSE                            {factory.endObject(body);}
 ;
 
-list:
-LIST_OPEN
-(
-j_value
-(
-','
-j_value
-)*
-)?
-LIST_CLOSE
-;
 
 primitive returns [JXExpressionNode result]
 :

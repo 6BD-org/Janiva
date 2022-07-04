@@ -1,8 +1,9 @@
-package com.oracle.truffle.jx.core;
+package com.oracle.truffle.jx.nodes.core;
 
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.nodes.JXExpressionNode;
+import com.oracle.truffle.jx.nodes.JXStatementNode;
+
+import java.util.List;
 
 /**
  * LangContext is the boundary of one execution context
@@ -21,7 +22,7 @@ public interface LangContext {
      * Get parent context
      * @return
      */
-    LangContext getParent();
+    LangContext getParentContext();
 
     /**
      * Get a value from context
@@ -31,7 +32,7 @@ public interface LangContext {
      * @return
      * @param <T>
      */
-    <T> T getValue(TruffleString name);
+    <T> T getValue(String name);
 
     /**
      * Bind a value to its name
@@ -39,7 +40,7 @@ public interface LangContext {
      * @param value
      * @param <T>
      */
-    <T> void bindValue(TruffleString name, T value);
+    <T> void bindValue(String name, T value);
 
     /**
      * Get attribute within the context
@@ -49,7 +50,7 @@ public interface LangContext {
      * @return
      * @param <T>
      */
-    <T> T getAttribute(TruffleString key);
+    <T> T getAttribute(String key);
 
     /**
      * Set attribute to context
@@ -57,7 +58,9 @@ public interface LangContext {
      * @param val
      * @param <T>
      */
-    <T> void setAttribute(TruffleString key, T val);
+    <T> void setAttribute(String key, T val);
+
+    void setStatements(List<JXStatementNode> statements);
 
     LangContext spawn();
 

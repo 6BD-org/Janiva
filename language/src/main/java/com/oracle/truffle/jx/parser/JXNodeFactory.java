@@ -41,17 +41,17 @@
 package com.oracle.truffle.jx.parser;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.core.DefaultLangContext;
-import com.oracle.truffle.jx.core.LangContext;
+import com.oracle.truffle.jx.nodes.core.DefaultLangContextNode;
+import com.oracle.truffle.jx.nodes.core.JXAttributeBindingNode;
+import com.oracle.truffle.jx.nodes.core.LangContext;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
-import com.oracle.truffle.jx.nodes.controlflow.*;
 import com.oracle.truffle.jx.nodes.expression.*;
 import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
@@ -61,16 +61,11 @@ import com.oracle.truffle.jx.runtime.JXStrings;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
-import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.nodes.controlflow.JXFunctionBodyNode;
-import com.oracle.truffle.jx.nodes.expression.JXFunctionLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
-import com.oracle.truffle.jx.nodes.local.JXReadLocalVariableNode;
 
 /**
  * Helper class used by the SL {@link Parser} to create nodes. The code is factored out of the
@@ -120,11 +115,11 @@ public class JXNodeFactory {
   private int parameterCount;
   private FrameDescriptor.Builder frameDescriptorBuilder;
   private List<JXStatementNode> methodNodes;
-  private final Stack<AbstractPosition<?>> positions;
+
 
   private JXExpressionNode rootNode;
 
-  private LangContext context;
+  private Stack<DefaultLangContextNode> stack;
 
 
   /* State while parsing a block. */
@@ -135,7 +130,8 @@ public class JXNodeFactory {
     this.language = language;
     this.source = source;
     this.sourceString = JXStrings.fromJavaString(source.getCharacters().toString());
-    this.positions = new Stack<>();
+    this.stack = new Stack<>();
+    this.stack.push(new DefaultLangContextNode(null));
   }
 
 
@@ -311,12 +307,17 @@ public class JXNodeFactory {
         fromIndex * 2, length * 2, JSONXLang.STRING_ENCODING, true);
   }
 
-  private void startObject() {
-    this.context = context.spawn();
+  public void startObject() {
+    this.stack.push(stack.peek().spawn());
   }
 
-  private void endObject() {
-    this.context = context.getParent();
+  public DefaultLangContextNode endObject(List<JXStatementNode> nodes) {
+    DefaultLangContextNode top = stack.pop();
+    return top;
+  }
+
+  public JXStatementNode bindVal(Token valName, Object val) {
+    return new JXAttributeBindingNode(valName, val, stack.peek());
   }
 
   /** Creates source description of a single token. */
