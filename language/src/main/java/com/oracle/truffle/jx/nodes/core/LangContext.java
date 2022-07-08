@@ -64,6 +64,4 @@ public interface LangContext {
 
     LangContext spawn();
 
-    DynamicObject materialize();
-
 }

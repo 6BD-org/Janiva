@@ -42,21 +42,24 @@ package com.oracle.truffle.jx.parser;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.nodes.core.DefaultLangContextNode;
-import com.oracle.truffle.jx.nodes.core.JXAttributeBindingNode;
-import com.oracle.truffle.jx.nodes.core.LangContext;
+import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;
+import com.oracle.truffle.jx.nodes.core.*;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.nodes.expression.*;
 import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
+import com.oracle.truffle.jx.nodes.expression.value.JXObjectNode;
 import com.oracle.truffle.jx.nodes.local.*;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
+import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXObject;
 import com.oracle.truffle.jx.runtime.JXStrings;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
@@ -113,13 +116,12 @@ public class JXNodeFactory {
   private TruffleString functionName;
   private int functionBodyStartPos; // includes parameter list
   private int parameterCount;
-  private FrameDescriptor.Builder frameDescriptorBuilder;
+  private final FrameDescriptor.Builder frameDescriptorBuilder = FrameDescriptor.newBuilder();;
   private List<JXStatementNode> methodNodes;
 
 
   private JXExpressionNode rootNode;
 
-  private Stack<DefaultLangContextNode> stack;
 
 
   /* State while parsing a block. */
@@ -130,8 +132,6 @@ public class JXNodeFactory {
     this.language = language;
     this.source = source;
     this.sourceString = JXStrings.fromJavaString(source.getCharacters().toString());
-    this.stack = new Stack<>();
-    this.stack.push(new DefaultLangContextNode(null));
   }
 
 
@@ -151,7 +151,6 @@ public class JXNodeFactory {
 
 
   public void registerRootNode(JXExpressionNode node) {
-    frameDescriptorBuilder = FrameDescriptor.newBuilder();
     this.rootNode = node;
   }
 
@@ -164,9 +163,9 @@ public class JXNodeFactory {
 
   public JXExpressionNode createDecimal(Token whole, Token dec) {
     if (dec == null) {
-      return new JXNumberLiteralNode(new BigDecimal(whole.getText()));
+      return new JXNumberLiteralNode(new BigDecimal(whole.getText()), false);
     }
-    return new JXNumberLiteralNode(new BigDecimal(whole.getText() + "." + dec.getText()));
+    return new JXNumberLiteralNode(new BigDecimal(whole.getText() + "." + dec.getText()), true);
   }
 
   /**
@@ -307,17 +306,46 @@ public class JXNodeFactory {
         fromIndex * 2, length * 2, JSONXLang.STRING_ENCODING, true);
   }
 
-  public void startObject() {
-    this.stack.push(stack.peek().spawn());
+  public JXExpressionNode startObject() {
+    lexicalScope = new LexicalScope(null);
+    return JXNewObjectBuiltinFactory.getInstance().createNode();
   }
 
-  public DefaultLangContextNode endObject(List<JXStatementNode> nodes) {
-    DefaultLangContextNode top = stack.pop();
-    return top;
+  public JXObjectAssemblyNode endObject(List<JXStatementNode> nodes) {
+    JXObjectAssemblyNode res = new JXObjectAssemblyNode(
+            nodes,
+            lexicalScope.locals.entrySet().stream().map(e -> new JXValueAccessNode(e.getValue(), e.getKey())).collect(Collectors.toList()),
+            JXNewObjectBuiltinFactory.getInstance().createNode()
+    );
+    lexicalScope = lexicalScope.outer;
+    return res;
   }
 
-  public JXStatementNode bindVal(Token valName, Object val) {
-    return new JXAttributeBindingNode(valName, val, stack.peek());
+  /**
+   *
+   * @param valName
+   * @param val
+   * @return
+   */
+  public JXStatementNode bindVal(Token valName, JXExpressionNode val) {
+    System.out.println(valName);
+    int frameSlot = frameDescriptorBuilder.addSlot(inferSlotKind(val), valName.getText(), null);
+    // Map value name to slot
+    lexicalScope.locals.put(asTruffleString(valName, true), frameSlot);
+    return new JXAttributeBindingNode(frameSlot, val);
+  }
+
+  public FrameSlotKind inferSlotKind(JXExpressionNode val) {
+    if (val instanceof JXStringLiteralNode || val instanceof JXObjectNode) {
+      return FrameSlotKind.Object;
+    }
+    if (val instanceof JXBoolLiteralNode) {
+      return FrameSlotKind.Boolean;
+    }
+    if (val instanceof JXNumberLiteralNode) {
+      return ((JXNumberLiteralNode)val).hasDecimal() ? FrameSlotKind.Double : FrameSlotKind.Long;
+    }
+    return FrameSlotKind.Object;
   }
 
   /** Creates source description of a single token. */

@@ -153,7 +153,6 @@ public final class JXContext {
     installBuiltin(JXDefineFunctionBuiltinFactory.getInstance());
     installBuiltin(JXStackTraceBuiltinFactory.getInstance());
     installBuiltin(JXHelloEqualsWorldBuiltinFactory.getInstance());
-    installBuiltin(JXNewObjectBuiltinFactory.getInstance());
     installBuiltin(JXEvalBuiltinFactory.getInstance());
     installBuiltin(JXImportBuiltinFactory.getInstance());
     installBuiltin(JXGetSizeBuiltinFactory.getInstance());

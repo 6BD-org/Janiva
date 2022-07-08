@@ -40,9 +40,7 @@
  */
 package com.oracle.truffle.jx.builtins;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.instrumentation.AllocationReporter;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -51,6 +49,7 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXContext;
 import com.oracle.truffle.jx.runtime.JXUndefinedNameException;
@@ -59,26 +58,17 @@ import com.oracle.truffle.jx.runtime.JXUndefinedNameException;
  * Built-in function to create a new object. Objects in SL are simply made up of name/value pairs.
  */
 @NodeInfo(shortName = "new")
+@GenerateNodeFactory
 @ImportStatic(JXContext.class)
-public abstract class JXNewObjectBuiltin extends JXBuiltinNode {
+public abstract class JXNewObjectBuiltin extends JXExpressionNode {
 
   @Specialization
   @SuppressWarnings("unused")
-  public Object newObject(JSNull o, @Cached("lookup()") AllocationReporter reporter) {
+  public Object newObject(@Cached("lookup()") AllocationReporter reporter) {
     return JSONXLang.get(this).createObject(reporter);
   }
 
   final AllocationReporter lookup() {
     return JXContext.get(this).getAllocationReporter();
-  }
-
-  @Specialization(guards = "!values.isNull(obj)", limit = "3")
-  public Object newObject(Object obj, @CachedLibrary("obj") InteropLibrary values) {
-    try {
-      return values.instantiate(obj);
-    } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
-      /* Foreign access was not successful. */
-      throw JXUndefinedNameException.undefinedFunction(this, obj);
-    }
   }
 }

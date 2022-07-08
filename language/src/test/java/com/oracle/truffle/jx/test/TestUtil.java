@@ -9,4 +9,8 @@ public class TestUtil {
             throw e;
         }
     }
+
+    public static String readResourceAsString() {
+        return "";
+    }
 }

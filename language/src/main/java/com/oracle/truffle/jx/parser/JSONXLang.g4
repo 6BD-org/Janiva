@@ -119,19 +119,18 @@ public static RootNode parseSL(JSONXLang language, Source source) {
 
 simplelanguage
 :
-j_value
+j_root_value
 EOF
 ;
 
-j_value returns [JXExpressionNode result]:
-object                                  {factory.registerRootNode($object.result);}
-|
-primitive                               {factory.registerRootNode($primitive.result);}
+j_root_value:
+j_value                                  {factory.registerRootNode($j_value.result);}
 ;
+
 
 object returns [JXExpressionNode result]
 :
-OBJECT_OPEN                             {factory.startObject(); List<JXStatementNode> body = new LinkedList();}
+OBJECT_OPEN                             {JXExpressionNode newObjNode = factory.startObject(); List<JXStatementNode> body = new LinkedList();}
 (
 STRING_LITERAL                          {Token valName = $STRING_LITERAL;}
 ':'
@@ -143,9 +142,15 @@ STRING_LITERAL                          {Token valName = $STRING_LITERAL;}
 ':'
 j_value                                 {body.add(factory.bindVal(valName, $j_value.result));}
 )*
-OBJECT_CLOSE                            {factory.endObject(body);}
+OBJECT_CLOSE                            {$result = factory.endObject(body);}
 ;
 
+
+j_value returns [JXExpressionNode result]:
+primitive                               {$result=$primitive.result;}
+|
+object                                  {$result=$object.result;}
+;
 
 primitive returns [JXExpressionNode result]
 :

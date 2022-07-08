@@ -11,8 +11,14 @@ public class JXNumberLiteralNode extends JXExpressionNode {
 
   private final BigDecimal val;
 
-  public JXNumberLiteralNode(BigDecimal val) {
+  private final boolean hasDecimal;
+  public JXNumberLiteralNode(BigDecimal val, boolean hasDecimal) {
     this.val = val;
+    this.hasDecimal = hasDecimal;
+  }
+
+  public boolean hasDecimal() {
+    return hasDecimal;
   }
 
   @Override
