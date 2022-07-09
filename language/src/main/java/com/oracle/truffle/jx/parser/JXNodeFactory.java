@@ -50,9 +50,7 @@ import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
-import com.oracle.truffle.jx.nodes.core.JXAttributeBindingNode;
-import com.oracle.truffle.jx.nodes.core.JXObjectAssemblyNode;
-import com.oracle.truffle.jx.nodes.core.JXValueAccessNode;
+import com.oracle.truffle.jx.nodes.core.*;
 import com.oracle.truffle.jx.nodes.expression.*;
 import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
@@ -62,12 +60,14 @@ import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNodeGen;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
+import com.oracle.truffle.jx.runtime.JXArray;
 import com.oracle.truffle.jx.runtime.JXStrings;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -90,10 +90,12 @@ public class JXNodeFactory {
   static class LexicalScope {
     protected final LexicalScope outer;
     protected final Map<TruffleString, Integer> locals;
+    protected final List<JXExpressionNode> arrayNodes;
 
     LexicalScope(LexicalScope outer) {
       this.outer = outer;
       this.locals = new HashMap<>();
+      this.arrayNodes = new LinkedList<>();
     }
 
     public Integer find(TruffleString name) {
@@ -112,10 +114,6 @@ public class JXNodeFactory {
   private final Source source;
   private final TruffleString sourceString;
 
-  /* State while parsing a function. */
-  private int functionStartPos;
-  private TruffleString functionName;
-  private int functionBodyStartPos; // includes parameter list
   private int parameterCount;
   private final FrameDescriptor.Builder frameDescriptorBuilder = FrameDescriptor.newBuilder();
   ;
@@ -235,17 +233,6 @@ public class JXNodeFactory {
    *
    * @param nameNode The name of the variable being assigned
    * @param valueNode The value to be assigned
-   * @return An SLExpressionNode for the given parameters. null if nameNode or valueNode is null.
-   */
-  public JXExpressionNode createAssignment(JXExpressionNode nameNode, JXExpressionNode valueNode) {
-    return createAssignment(nameNode, valueNode, null);
-  }
-
-  /**
-   * Returns an {@link JXWriteLocalVariableNode} for the given parameters.
-   *
-   * @param nameNode The name of the variable being assigned
-   * @param valueNode The value to be assigned
    * @param argumentIndex null or index of the argument the assignment is assigning
    * @return An SLExpressionNode for the given parameters. null if nameNode or valueNode is null.
    */
@@ -302,9 +289,8 @@ public class JXNodeFactory {
         fromIndex * 2, length * 2, JSONXLang.STRING_ENCODING, true);
   }
 
-  public JXExpressionNode startObject() {
+  public void startObject() {
     lexicalScope = new LexicalScope(lexicalScope);
-    return JXNewObjectBuiltinFactory.getInstance().createNode();
   }
 
   public JXObjectAssemblyNode endObject(List<JXStatementNode> nodes) {
@@ -317,6 +303,17 @@ public class JXNodeFactory {
             JXNewObjectBuiltinFactory.getInstance().createNode());
     lexicalScope = lexicalScope.outer;
     return res;
+  }
+
+  public void startArray() {
+    // Create one scope, but this time is for list
+    lexicalScope = new LexicalScope(lexicalScope);
+  }
+
+  public JXExpressionNode closeArray() {
+    return new JXArrayAssemblyNode(
+        lexicalScope.arrayNodes,
+        JXArrayAllocationNodeFactory.getInstance().createNode(lexicalScope.arrayNodes.size()));
   }
 
   /**

@@ -364,6 +364,13 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
     return object;
   }
 
+  public JXArray createJXArray(AllocationReporter reporter, int size) {
+    reporter.onEnter(null, 0, AllocationReporter.SIZE_UNKNOWN);
+    JXArray array = new JXArray(rootShape, new Object[size]);
+    reporter.onReturnValue(array, 0, AllocationReporter.SIZE_UNKNOWN);
+    return array;
+  }
+
   private static final LanguageReference<JSONXLang> REFERENCE =
       LanguageReference.create(JSONXLang.class);
 

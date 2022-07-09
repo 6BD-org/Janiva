@@ -127,10 +127,20 @@ j_root_value:
 j_value                                  {factory.registerRootNode($j_value.result);}
 ;
 
+j_list returns [JXExpressionNode result]
+:
+LIST_OPEN                                {factory.startArray();}
+j_value                                  {factory.appendArray(j_value.result);}
+(
+','
+j_value                                  {factory.appendArray(j_value.result);}
+)*
+LIST_CLOSE                               {$result=factory.closeArray();}
+;
 
 object returns [JXExpressionNode result]
 :
-OBJECT_OPEN                             {JXExpressionNode newObjNode = factory.startObject(); List<JXStatementNode> body = new LinkedList();}
+OBJECT_OPEN                             {factory.startObject(); List<JXStatementNode> body = new LinkedList();}
 (
 STRING_LITERAL                          {Token valName = $STRING_LITERAL;}
 ':'
@@ -178,6 +188,7 @@ j_boolean returns [JXExpressionNode result]
 :
 BOOL_LITERAL                            {$result = factory.createBoolean($BOOL_LITERAL);}
 ;
+
 
 
 
