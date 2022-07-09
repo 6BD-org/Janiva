@@ -48,17 +48,17 @@ current context
 ## Basic json
 - [x] Json primitive support
 - [x] Object support
-- [] List support
+- [ ] List support
 
 ## Extension phase 1
 
-- [] Addition
-- [] Subtraction
-- [] Multiplication
-- [] Division
-- [] String concatenation for key and value
+- [ ] Addition
+- [ ] Subtraction
+- [ ] Multiplication
+- [ ] Division
+- [ ] String concatenation for key and value
 
 ## Extension phase 2
-- [] Value reference
-- [] Hierarchical value lookup
-- [] Temporary value declaration
+- [ ] Value reference
+- [ ] Hierarchical value lookup
+- [ ] Temporary value declaration
