@@ -71,9 +71,7 @@ public final class SLEvalRootNode extends RootNode {
   @Child private DirectCallNode mainCallNode;
   private final JSONXLang language;
 
-  public SLEvalRootNode(
-      JSONXLang language,
-      RootCallTarget rootFunction) {
+  public SLEvalRootNode(JSONXLang language, RootCallTarget rootFunction) {
     super(language);
     this.language = language;
     this.mainCallNode = rootFunction != null ? DirectCallNode.create(rootFunction) : null;
@@ -117,5 +115,4 @@ public final class SLEvalRootNode extends RootNode {
       return mainCallNode.call(arguments);
     }
   }
-
 }

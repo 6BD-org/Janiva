@@ -40,8 +40,6 @@
  */
 package com.oracle.truffle.jx.nodes;
 
-import java.math.BigInteger;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
@@ -50,6 +48,8 @@ import com.oracle.truffle.api.dsl.TypeSystem;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
+
+import java.math.BigInteger;
 
 /**
  * The type system of SL, as explained in {@link JSONXLang}. Based on the {@link TypeSystem}

@@ -40,35 +40,37 @@
  */
 package com.oracle.truffle.jx.parser;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;
-import com.oracle.truffle.jx.nodes.core.*;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
+import com.oracle.truffle.jx.nodes.core.JXAttributeBindingNode;
+import com.oracle.truffle.jx.nodes.core.JXObjectAssemblyNode;
+import com.oracle.truffle.jx.nodes.core.JXValueAccessNode;
 import com.oracle.truffle.jx.nodes.expression.*;
 import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXObjectNode;
-import com.oracle.truffle.jx.nodes.local.*;
+import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
+import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
+import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
+import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNodeGen;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
-import com.oracle.truffle.jx.runtime.JSNull;
-import com.oracle.truffle.jx.runtime.JXObject;
 import com.oracle.truffle.jx.runtime.JXStrings;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.FrameSlotKind;
-import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Helper class used by the SL {@link Parser} to create nodes. The code is factored out of the
@@ -79,7 +81,6 @@ public class JXNodeFactory {
   public JXExpressionNode createBoolean(Token bool_literal) {
     return new JXBoolLiteralNode(bool_literal);
   }
-
 
   /**
    * Local variable names that are visible in the current block. Variables are not visible outside
@@ -116,16 +117,13 @@ public class JXNodeFactory {
   private TruffleString functionName;
   private int functionBodyStartPos; // includes parameter list
   private int parameterCount;
-  private final FrameDescriptor.Builder frameDescriptorBuilder = FrameDescriptor.newBuilder();;
+  private final FrameDescriptor.Builder frameDescriptorBuilder = FrameDescriptor.newBuilder();
+  ;
   private List<JXStatementNode> methodNodes;
-
 
   private JXExpressionNode rootNode;
 
-
-
-  /* State while parsing a block. */
-  private LexicalScope lexicalScope;
+  private LexicalScope lexicalScope = null;
   private final JSONXLang language;
 
   public JXNodeFactory(JSONXLang language, Source source) {
@@ -133,7 +131,6 @@ public class JXNodeFactory {
     this.source = source;
     this.sourceString = JXStrings.fromJavaString(source.getCharacters().toString());
   }
-
 
   public void addFormalParameter(Token nameToken) {
     /*
@@ -149,17 +146,14 @@ public class JXNodeFactory {
     parameterCount++;
   }
 
-
   public void registerRootNode(JXExpressionNode node) {
     this.rootNode = node;
   }
 
   public RootNode getRootNode() {
     return new JXRootNode(
-            language, frameDescriptorBuilder.build(), rootNode, JXStrings.fromJavaString("#root")
-    );
+        language, frameDescriptorBuilder.build(), rootNode, JXStrings.fromJavaString("#root"));
   }
-
 
   public JXExpressionNode createDecimal(Token whole, Token dec) {
     if (dec == null) {
@@ -179,7 +173,7 @@ public class JXNodeFactory {
    *     null if either leftNode or rightNode is null.
    */
   public JXExpressionNode createBinary(
-          Token opToken, JXExpressionNode leftNode, JXExpressionNode rightNode) {
+      Token opToken, JXExpressionNode leftNode, JXExpressionNode rightNode) {
     if (leftNode == null || rightNode == null) {
       return null;
     }
@@ -256,7 +250,7 @@ public class JXNodeFactory {
    * @return An SLExpressionNode for the given parameters. null if nameNode or valueNode is null.
    */
   public JXExpressionNode createAssignment(
-          JXExpressionNode nameNode, JXExpressionNode valueNode, Integer argumentIndex) {
+      JXExpressionNode nameNode, JXExpressionNode valueNode, Integer argumentIndex) {
     if (nameNode == null || valueNode == null) {
       return null;
     }
@@ -284,6 +278,7 @@ public class JXNodeFactory {
 
     return result;
   }
+
   public JXExpressionNode createStringLiteral(Token literalToken, boolean removeQuotes) {
     final JXStringLiteralNode result =
         new JXStringLiteralNode(asTruffleString(literalToken, removeQuotes));
@@ -291,6 +286,7 @@ public class JXNodeFactory {
     result.addExpressionTag();
     return result;
   }
+
   private TruffleString asTruffleString(Token literalToken, boolean removeQuotes) {
     int fromIndex = literalToken.getStartIndex();
     int length = literalToken.getStopIndex() - literalToken.getStartIndex() + 1;
@@ -307,22 +303,23 @@ public class JXNodeFactory {
   }
 
   public JXExpressionNode startObject() {
-    lexicalScope = new LexicalScope(null);
+    lexicalScope = new LexicalScope(lexicalScope);
     return JXNewObjectBuiltinFactory.getInstance().createNode();
   }
 
   public JXObjectAssemblyNode endObject(List<JXStatementNode> nodes) {
-    JXObjectAssemblyNode res = new JXObjectAssemblyNode(
+    JXObjectAssemblyNode res =
+        new JXObjectAssemblyNode(
             nodes,
-            lexicalScope.locals.entrySet().stream().map(e -> new JXValueAccessNode(e.getValue(), e.getKey())).collect(Collectors.toList()),
-            JXNewObjectBuiltinFactory.getInstance().createNode()
-    );
+            lexicalScope.locals.entrySet().stream()
+                .map(e -> new JXValueAccessNode(e.getValue(), e.getKey()))
+                .collect(Collectors.toList()),
+            JXNewObjectBuiltinFactory.getInstance().createNode());
     lexicalScope = lexicalScope.outer;
     return res;
   }
 
   /**
-   *
    * @param valName
    * @param val
    * @return
@@ -343,7 +340,7 @@ public class JXNodeFactory {
       return FrameSlotKind.Boolean;
     }
     if (val instanceof JXNumberLiteralNode) {
-      return ((JXNumberLiteralNode)val).hasDecimal() ? FrameSlotKind.Double : FrameSlotKind.Long;
+      return ((JXNumberLiteralNode) val).hasDecimal() ? FrameSlotKind.Double : FrameSlotKind.Long;
     }
     return FrameSlotKind.Object;
   }

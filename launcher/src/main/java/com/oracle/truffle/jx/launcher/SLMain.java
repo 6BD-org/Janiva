@@ -40,18 +40,14 @@
  */
 package com.oracle.truffle.jx.launcher;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class SLMain {
 

@@ -40,8 +40,6 @@
  */
 package com.oracle.truffle.jx.nodes.util;
 
-import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
-
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -56,6 +54,8 @@ import com.oracle.truffle.jx.nodes.SLTypes;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 import com.oracle.truffle.jx.runtime.JXFunction;
+
+import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
 
 /**
  * The node to normalize any value to an SL value. This is useful to reduce the number of values

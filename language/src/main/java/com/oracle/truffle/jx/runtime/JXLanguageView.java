@@ -40,8 +40,6 @@
  */
 package com.oracle.truffle.jx.runtime;
 
-import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -52,6 +50,8 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.jx.JSONXLang;
+
+import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
 
 /**
  * Language views are needed in order to allow tools to have a consistent perspective on primitive

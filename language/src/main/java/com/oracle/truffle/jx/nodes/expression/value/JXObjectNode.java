@@ -6,12 +6,14 @@ import com.oracle.truffle.jx.runtime.JXObject;
 
 public class JXObjectNode extends JXExpressionNode {
 
-    private final JXObject object;
-    public JXObjectNode(JXObject object) {
-        this.object = object;
-    }
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return object;
-    }
+  private final JXObject object;
+
+  public JXObjectNode(JXObject object) {
+    this.object = object;
+  }
+
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    return object;
+  }
 }

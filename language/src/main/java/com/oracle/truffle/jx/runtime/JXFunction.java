@@ -40,14 +40,8 @@
  */
 package com.oracle.truffle.jx.runtime;
 
-import java.util.logging.Level;
-
-import com.oracle.truffle.api.Assumption;
-import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.*;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.TruffleLogger;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.ReportPolymorphism;
@@ -64,6 +58,8 @@ import com.oracle.truffle.api.utilities.CyclicAssumption;
 import com.oracle.truffle.api.utilities.TriState;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.JXUndefinedFunctionRootNode;
+
+import java.util.logging.Level;
 
 /**
  * Represents a SL function. On the Truffle level, a callable element is represented by a {@link
@@ -286,7 +282,7 @@ public final class JXFunction implements TruffleObject {
      */
     @Specialization(replaces = "doDirect")
     protected static Object doIndirect(
-            JXFunction function, Object[] arguments, @Cached IndirectCallNode callNode) {
+        JXFunction function, Object[] arguments, @Cached IndirectCallNode callNode) {
       /*
        * SL has a quite simple call lookup: just ask the function for the current call target,
        * and call it.

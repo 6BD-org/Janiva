@@ -40,8 +40,6 @@
  */
 package com.oracle.truffle.jx;
 
-import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -50,6 +48,8 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.jx.runtime.JXLanguageView;
+
+import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
 
 /**
  * SL does not need a sophisticated error checking and reporting mechanism, so all unexpected

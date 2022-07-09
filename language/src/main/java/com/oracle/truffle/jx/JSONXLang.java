@@ -40,17 +40,7 @@
  */
 package com.oracle.truffle.jx;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.oracle.truffle.api.Assumption;
-import com.oracle.truffle.api.CallTarget;
-import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.*;
 import com.oracle.truffle.api.TruffleLanguage.ContextPolicy;
 import com.oracle.truffle.api.debug.DebuggerTags;
 import com.oracle.truffle.api.dsl.NodeFactory;
@@ -68,13 +58,9 @@ import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.builtins.*;
-import com.oracle.truffle.jx.builtins.JXBuiltinNode;
 import com.oracle.truffle.jx.nodes.*;
-import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.controlflow.*;
-import com.oracle.truffle.jx.nodes.controlflow.JXBreakNode;
 import com.oracle.truffle.jx.nodes.expression.*;
-import com.oracle.truffle.jx.nodes.expression.JXFunctionLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
 import com.oracle.truffle.jx.nodes.local.JXReadLocalVariableNode;
@@ -82,7 +68,12 @@ import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.parser.JSONXLangParser;
 import com.oracle.truffle.jx.parser.JXNodeFactory;
 import com.oracle.truffle.jx.runtime.*;
-import com.oracle.truffle.jx.runtime.JXFunction;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * SL is a simple language to demonstrate and showcase features of Truffle. The implementation is as
@@ -261,12 +252,7 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
     builtinBodyNode.setUnavailableSourceSection();
 
     /* Wrap the builtin in a RootNode. Truffle requires all AST to start with a RootNode. */
-    JXRootNode rootNode =
-        new JXRootNode(
-            this,
-            new FrameDescriptor(),
-            builtinBodyNode,
-            name);
+    JXRootNode rootNode = new JXRootNode(this, new FrameDescriptor(), builtinBodyNode, name);
 
     /*
      * Register the builtin function in the builtin registry. Call targets for builtins may be
@@ -295,13 +281,12 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
   @Override
   protected CallTarget parse(ParsingRequest request) throws Exception {
     Source source = request.getSource();
-   RootNode rootNode;
+    RootNode rootNode;
     /*
      * Parse the provided source. At this point, we do not have a SLContext yet. Registration of
      * the functions with the SLContext happens lazily in SLEvalRootNode.
      */
     rootNode = JSONXLangParser.parseSL(this, source);
-
 
     RootCallTarget main = rootNode.getCallTarget();
     RootNode evalMain;

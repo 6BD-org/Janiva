@@ -107,7 +107,7 @@ public final class JSNull implements TruffleObject {
 
   @ExportMessage
   static TriState isIdenticalOrUndefined(
-          @SuppressWarnings("unused") JSNull receiver, Object other) {
+      @SuppressWarnings("unused") JSNull receiver, Object other) {
     /*
      * SLNull values are identical to other SLNull values.
      */

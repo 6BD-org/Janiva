@@ -40,8 +40,6 @@
  */
 package com.oracle.truffle.jx.nodes.expression;
 
-import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -55,6 +53,8 @@ import com.oracle.truffle.jx.nodes.JXBinaryNode;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 import com.oracle.truffle.jx.runtime.JXFunction;
+
+import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
 
 /**
  * The {@code ==} operator of SL is defined on all types. Therefore, we need a {@link #equal(Object,

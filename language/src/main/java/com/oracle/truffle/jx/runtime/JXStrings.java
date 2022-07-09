@@ -44,8 +44,8 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.nodes.SLEvalRootNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
+import com.oracle.truffle.jx.nodes.SLEvalRootNode;
 
 public final class JXStrings {
 

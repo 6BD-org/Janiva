@@ -40,9 +40,6 @@
  */
 package com.oracle.truffle.jx.runtime;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Cached;
@@ -55,6 +52,9 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")

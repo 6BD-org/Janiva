@@ -40,18 +40,11 @@
  */
 package com.oracle.truffle.jx.nodes;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.InstrumentableNode;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.NodeUtil;
-import com.oracle.truffle.api.nodes.NodeVisitor;
-import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.nodes.*;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.builtins.JXBuiltinNode;
@@ -60,6 +53,9 @@ import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.runtime.JXContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The root of all SL execution trees. It is a Truffle requirement that the tree root extends the
@@ -77,7 +73,6 @@ public class JXRootNode extends RootNode {
 
   private boolean isCloningAllowed;
 
-
   @CompilerDirectives.CompilationFinal(dimensions = 1)
   private volatile JXWriteLocalVariableNode[] argumentNodesCache;
 
@@ -90,7 +85,6 @@ public class JXRootNode extends RootNode {
     this.bodyNode = bodyNode;
     this.name = name;
   }
-
 
   @Override
   public Object execute(VirtualFrame frame) {

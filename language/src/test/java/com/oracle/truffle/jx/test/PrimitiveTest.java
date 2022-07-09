@@ -40,10 +40,6 @@
  */
 package com.oracle.truffle.jx.test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import com.oracle.truffle.jx.JSONXLang;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
@@ -51,6 +47,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class PrimitiveTest {
   Context context;
@@ -79,12 +77,13 @@ public class PrimitiveTest {
 
   @Test
   public void testBoolean() {
-    TestUtil.runWithStackTrace(() -> {
-      Value v = context.eval(JSONXLang.ID, "true");
-      assertTrue(v.asBoolean());
+    TestUtil.runWithStackTrace(
+        () -> {
+          Value v = context.eval(JSONXLang.ID, "true");
+          assertTrue(v.asBoolean());
 
-      v = context.eval(JSONXLang.ID, "false");
-      Assert.assertFalse(v.asBoolean());
-    });
+          v = context.eval(JSONXLang.ID, "false");
+          Assert.assertFalse(v.asBoolean());
+        });
   }
 }

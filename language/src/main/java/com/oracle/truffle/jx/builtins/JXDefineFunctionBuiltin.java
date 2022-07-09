@@ -62,7 +62,7 @@ public abstract class JXDefineFunctionBuiltin extends JXBuiltinNode {
         Source.newBuilder(JSONXLang.ID, code.toJavaStringUncached(), "[defineFunction]").build();
     // @formatter:on
     /* The same parsing code as for parsing the initial source. */
-    //SLContext.get(this).getFunctionRegistry().register(source);
+    // SLContext.get(this).getFunctionRegistry().register(source);
 
     return code;
   }

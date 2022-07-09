@@ -8,29 +8,45 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
-
 public class ObjectTest {
 
-    Context context;
+  Context context;
 
-    @Before
-    public void initialize() {
-        context = Context.create();
-    }
+  @Before
+  public void initialize() {
+    context = Context.create();
+  }
 
-    @After
-    public void dispose() {
-        context.close();
-    }
+  @After
+  public void dispose() {
+    context.close();
+  }
 
-    @Test
-    public void testObject() {
-        TestUtil.runWithStackTrace(() -> {
-            Value v = context.eval(JSONXLang.ID, "{\"a\":1}");
-            System.out.println("Object v has members: " + v.getMemberKeys());
-            System.out.println(v.getMember("a"));
-            System.out.println(v.hasMember("a"));
+  @Test
+  public void testObject() {
+    TestUtil.runWithStackTrace(
+        () -> {
+          Value v = context.eval(JSONXLang.ID, "{\"a\":1}");
+          System.out.println("Object v has members: " + v.getMemberKeys());
+          Assert.assertTrue(v.hasMember("a"));
+          Assert.assertEquals(1, v.getMember("a").asInt());
         });
-    }
+  }
+
+  @Test
+  public void testNestedObject() {
+    TestUtil.runWithStackTrace(
+        () -> {
+          String src = TestUtil.readResourceAsString("ut-nested-object.jsonx");
+          Value v = context.eval(JSONXLang.ID, src);
+          Assert.assertTrue(v.hasMember("a"));
+          Assert.assertTrue(v.hasMember("b"));
+          Assert.assertEquals(1, v.getMember("a").asInt());
+          Value b = v.getMember("b");
+          Assert.assertTrue(b.hasMember("c"));
+          Assert.assertTrue(b.hasMember("d"));
+          Assert.assertEquals("val_c", b.getMember("c").asString());
+          Assert.assertFalse(b.getMember("d").asBoolean());
+        });
+  }
 }

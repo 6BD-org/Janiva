@@ -40,12 +40,12 @@
  */
 package com.oracle.truffle.jx.nodes.expression;
 
-import java.math.BigInteger;
-
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
+
+import java.math.BigInteger;
 
 /**
  * Constant literal for a arbitrary-precision number that exceeds the range of {@link

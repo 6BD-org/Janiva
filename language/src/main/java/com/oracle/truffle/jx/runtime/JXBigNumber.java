@@ -40,8 +40,6 @@
  */
 package com.oracle.truffle.jx.runtime;
 
-import java.math.BigInteger;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -50,6 +48,8 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.jx.JSONXLang;
+
+import java.math.BigInteger;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")

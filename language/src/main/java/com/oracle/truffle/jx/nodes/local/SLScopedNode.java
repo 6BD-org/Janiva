@@ -48,12 +48,7 @@ import com.oracle.truffle.api.dsl.Cached.Shared;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.NodeLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
@@ -64,8 +59,8 @@ import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
-import com.oracle.truffle.jx.runtime.JXContext;
 import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXContext;
 import com.oracle.truffle.jx.runtime.JXStrings;
 
 /**
@@ -704,7 +699,7 @@ public abstract class SLScopedNode extends Node {
           @Cached("member") String cachedMember,
           // We cache the member's write node for fast-path access
           @Cached(value = "receiver.findWriteNode(member)", adopt = false)
-          JXWriteLocalVariableNode writeNode)
+              JXWriteLocalVariableNode writeNode)
           throws UnknownIdentifierException, UnsupportedMessageException {
         doWrite(receiver, cachedMember, writeNode, value);
       }
@@ -719,7 +714,7 @@ public abstract class SLScopedNode extends Node {
       }
 
       private static void doWrite(
-              VariablesObject receiver, String member, JXWriteLocalVariableNode writeNode, Object value)
+          VariablesObject receiver, String member, JXWriteLocalVariableNode writeNode, Object value)
           throws UnknownIdentifierException, UnsupportedMessageException {
         if (writeNode == null) {
           throw UnknownIdentifierException.create(member);

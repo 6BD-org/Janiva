@@ -49,8 +49,8 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JXException;
-import com.oracle.truffle.jx.runtime.JXContext;
 import com.oracle.truffle.jx.runtime.JSNull;
+import com.oracle.truffle.jx.runtime.JXContext;
 
 /** Built-in function that goes through to import a symbol from the polyglot bindings. */
 @NodeInfo(shortName = "import")

@@ -40,18 +40,18 @@
  */
 package com.oracle.truffle.jx.builtins;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.runtime.JXContext;
 import com.oracle.truffle.jx.runtime.JXStrings;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /** Builtin function that reads a String from the {@link JXContext#getInput() standard input}. */
 @NodeInfo(shortName = "readln")

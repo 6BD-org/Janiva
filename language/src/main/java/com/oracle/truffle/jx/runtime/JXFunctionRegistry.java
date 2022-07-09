@@ -40,18 +40,13 @@
  */
 package com.oracle.truffle.jx.runtime;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
+
+import java.util.*;
 
 /** Manages the mapping from function names to {@link JXFunction function objects}. */
 public final class JXFunctionRegistry {
