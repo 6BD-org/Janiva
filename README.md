@@ -43,3 +43,22 @@ current context
   "a": 1
 }
 ```
+# Roadmap
+
+## Basic json
+- [x] Json primitive support
+- [x] Object support
+- [] List support
+
+## Extension phase 1
+
+- [] Addition
+- [] Subtraction
+- [] Multiplication
+- [] Division
+- [] String concatenation for key and value
+
+## Extension phase 2
+- [] Value reference
+- [] Hierarchical value lookup
+- [] Temporary value declaration
