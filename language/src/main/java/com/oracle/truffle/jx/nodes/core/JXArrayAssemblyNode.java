@@ -2,6 +2,7 @@ package com.oracle.truffle.jx.nodes.core;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
+import com.oracle.truffle.jx.runtime.JXArray;
 
 import java.util.List;
 
@@ -17,6 +18,10 @@ public class JXArrayAssemblyNode extends JXExpressionNode {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return null;
+        JXArray array = (JXArray) arrayAllocationNode.executeGeneric(frame);
+        for (int i=0; i<children.size(); i++) {
+            array.writeArrayElement(i, children.get(i).executeGeneric(frame));
+        }
+        return array;
     }
 }

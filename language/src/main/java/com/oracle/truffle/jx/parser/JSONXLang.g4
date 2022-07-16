@@ -130,10 +130,10 @@ j_value                                  {factory.registerRootNode($j_value.resu
 j_list returns [JXExpressionNode result]
 :
 LIST_OPEN                                {factory.startArray();}
-j_value                                  {factory.appendArray(j_value.result);}
+j_value                                  {factory.appendArray($j_value.result);}
 (
 ','
-j_value                                  {factory.appendArray(j_value.result);}
+j_value                                  {factory.appendArray($j_value.result);}
 )*
 LIST_CLOSE                               {$result=factory.closeArray();}
 ;
@@ -160,6 +160,8 @@ j_value returns [JXExpressionNode result]:
 primitive                               {$result=$primitive.result;}
 |
 object                                  {$result=$object.result;}
+|
+j_list                                  {$result=$j_list.result;}
 ;
 
 primitive returns [JXExpressionNode result]

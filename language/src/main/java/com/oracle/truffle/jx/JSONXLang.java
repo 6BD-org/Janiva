@@ -192,10 +192,12 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
   private final Map<TruffleString, RootCallTarget> undefinedFunctions = new ConcurrentHashMap<>();
 
   private final Shape rootShape;
+  private final Shape jxArrayShape;
 
   public JSONXLang() {
     counter++;
     this.rootShape = Shape.newBuilder().layout(JXObject.class).build();
+    this.jxArrayShape = Shape.newBuilder().layout(JXArray.class).build();
   }
 
   @Override
@@ -366,7 +368,7 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
 
   public JXArray createJXArray(AllocationReporter reporter, int size) {
     reporter.onEnter(null, 0, AllocationReporter.SIZE_UNKNOWN);
-    JXArray array = new JXArray(rootShape, new Object[size]);
+    JXArray array = new JXArray(jxArrayShape, new Object[size]);
     reporter.onReturnValue(array, 0, AllocationReporter.SIZE_UNKNOWN);
     return array;
   }

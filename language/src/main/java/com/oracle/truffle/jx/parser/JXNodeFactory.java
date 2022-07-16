@@ -310,6 +310,10 @@ public class JXNodeFactory {
     lexicalScope = new LexicalScope(lexicalScope);
   }
 
+  public void appendArray(JXExpressionNode n) {
+    lexicalScope.arrayNodes.add(n);
+  }
+
   public JXExpressionNode closeArray() {
     return new JXArrayAssemblyNode(
         lexicalScope.arrayNodes,

@@ -33,6 +33,21 @@ public final class JXArray extends DynamicObject implements TruffleObject {
     }
 
     @ExportMessage
+    public void writeArrayElement(long index, Object o) {
+        this.content[(int) index] = o;
+    }
+
+    @ExportMessage
+    public boolean isArrayElementModifiable(long index) {
+        return false;
+    }
+
+    @ExportMessage
+    public boolean isArrayElementInsertable(long index) {
+        return true;
+    }
+
+    @ExportMessage
     public boolean isArrayElementReadable(long index) {
         return true;
     }

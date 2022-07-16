@@ -1,6 +1,7 @@
 package com.oracle.truffle.jx.test;
 
 import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.runtime.JXArray;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 import org.junit.After;
@@ -48,5 +49,17 @@ public class ObjectTest {
           Assert.assertEquals("val_c", b.getMember("c").asString());
           Assert.assertFalse(b.getMember("d").asBoolean());
         });
+  }
+
+  @Test
+  public void testList() {
+    TestUtil.runWithStackTrace(() -> {
+        String src = "[1,2,3]";
+        Value v = context.eval(JSONXLang.ID, src);
+        //JXArray  = v.as(JXArray.class);
+        int[] arr = v.as(int[].class);
+
+        Assert.assertEquals(1, arr[0]);
+    });
   }
 }
