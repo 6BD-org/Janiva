@@ -53,6 +53,7 @@ import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.runtime.JXContext;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,7 @@ import java.util.List;
  * builtin functions, the {@link #bodyNode} is a subclass of {@link JXBuiltinNode}. For user-defined
  * functions, the {@link #bodyNode} is a {@link JXFunctionBodyNode}.
  */
+@Slf4j
 @NodeInfo(language = "SL", description = "The root of all SL execution trees")
 public class JXRootNode extends RootNode {
   /** The function body that is executed, and specialized during execution. */
@@ -88,6 +90,7 @@ public class JXRootNode extends RootNode {
 
   @Override
   public Object execute(VirtualFrame frame) {
+    log.debug("Executing root node");
     assert JXContext.get(this) != null;
     return bodyNode.executeGeneric(frame);
   }

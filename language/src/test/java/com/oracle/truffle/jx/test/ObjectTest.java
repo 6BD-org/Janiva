@@ -1,15 +1,18 @@
 package com.oracle.truffle.jx.test;
 
 import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.runtime.JXArray;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ObjectTest {
+
+  private static final Logger logger = LoggerFactory.getLogger(ObjectTest.class);
 
   Context context;
 
@@ -53,21 +56,26 @@ public class ObjectTest {
 
   @Test
   public void testList() {
-    TestUtil.runWithStackTrace(() -> {
-        String src = "[1,2,3]";
-        Value v = context.eval(JSONXLang.ID, src);
-        //JXArray  = v.as(JXArray.class);
-        int[] arr = v.as(int[].class);
+    TestUtil.runWithStackTrace(
+        () -> {
+          String src = "[1,2,3]";
+          Value v = context.eval(JSONXLang.ID, src);
+          // JXArray  = v.as(JXArray.class);
+          int[] arr = v.as(int[].class);
 
-        Assert.assertEquals(1, arr[0]);
-    });
+          Assert.assertEquals(1, arr[0]);
+          Assert.assertEquals(3, arr.length);
+        });
   }
 
   @Test
   public void testNestedList() {
-      TestUtil.runWithStackTrace(() -> {
+    logger.debug("Start nested list test");
+
+    TestUtil.runWithStackTrace(
+        () -> {
           String src = TestUtil.readResourceAsString("ut-nested-list.jsonx");
           Value v = context.eval(JSONXLang.ID, src);
-      });
+        });
   }
 }

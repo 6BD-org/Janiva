@@ -60,10 +60,11 @@ import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNodeGen;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
-import com.oracle.truffle.jx.runtime.JXArray;
 import com.oracle.truffle.jx.runtime.JXStrings;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -77,25 +78,35 @@ import java.util.stream.Collectors;
  * automatically generated parser to keep the attributed grammar of SL small.
  */
 public class JXNodeFactory {
+  static {
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(JXNodeFactory.class);
 
   public JXExpressionNode createBoolean(Token bool_literal) {
     return new JXBoolLiteralNode(bool_literal);
   }
 
+  static enum ScopeType {
+    OBJECT,
+    ARRAY
+  }
   /**
    * Local variable names that are visible in the current block. Variables are not visible outside
    * of their defining block, to prevent the usage of undefined variables. Because of that, we can
    * decide during parsing if a name references a local variable or is a function name.
    */
   static class LexicalScope {
+    protected final ScopeType type;
     protected final LexicalScope outer;
     protected final Map<TruffleString, Integer> locals;
     protected final List<JXExpressionNode> arrayNodes;
 
-    LexicalScope(LexicalScope outer) {
+    LexicalScope(LexicalScope outer, ScopeType type) {
       this.outer = outer;
       this.locals = new HashMap<>();
       this.arrayNodes = new LinkedList<>();
+      this.type = type;
     }
 
     public Integer find(TruffleString name) {
@@ -290,10 +301,12 @@ public class JXNodeFactory {
   }
 
   public void startObject() {
-    lexicalScope = new LexicalScope(lexicalScope);
+    logger.debug("Start object");
+    lexicalScope = new LexicalScope(lexicalScope, ScopeType.OBJECT);
   }
 
   public JXObjectAssemblyNode endObject(List<JXStatementNode> nodes) {
+    logger.debug("End object");
     JXObjectAssemblyNode res =
         new JXObjectAssemblyNode(
             nodes,
@@ -306,18 +319,25 @@ public class JXNodeFactory {
   }
 
   public void startArray() {
+    logger.debug("Start array");
     // Create one scope, but this time is for list
-    lexicalScope = new LexicalScope(lexicalScope);
+    lexicalScope = new LexicalScope(lexicalScope, ScopeType.ARRAY);
   }
 
   public void appendArray(JXExpressionNode n) {
+    logger.debug("Append to array");
     lexicalScope.arrayNodes.add(n);
   }
 
   public JXExpressionNode closeArray() {
-    return new JXArrayAssemblyNode(
-        lexicalScope.arrayNodes,
-        JXArrayAllocationNodeFactory.getInstance().createNode(lexicalScope.arrayNodes.size()));
+    logger.debug("Close array");
+
+    JXExpressionNode res =
+        new JXArrayAssemblyNode(
+            lexicalScope.arrayNodes,
+            JXArrayAllocationNodeFactory.getInstance().createNode(lexicalScope.arrayNodes.size()));
+    lexicalScope = lexicalScope.outer;
+    return res;
   }
 
   /**
