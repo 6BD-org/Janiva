@@ -62,4 +62,12 @@ public class ObjectTest {
         Assert.assertEquals(1, arr[0]);
     });
   }
+
+  @Test
+  public void testNestedList() {
+      TestUtil.runWithStackTrace(() -> {
+          String src = TestUtil.readResourceAsString("ut-nested-list.jsonx");
+          Value v = context.eval(JSONXLang.ID, src);
+      });
+  }
 }
