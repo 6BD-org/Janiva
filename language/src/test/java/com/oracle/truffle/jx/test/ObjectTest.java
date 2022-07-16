@@ -1,6 +1,7 @@
 package com.oracle.truffle.jx.test;
 
 import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.runtime.JXObject;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 import org.junit.After;
@@ -76,6 +77,12 @@ public class ObjectTest {
         () -> {
           String src = TestUtil.readResourceAsString("ut-nested-list.jsonx");
           Value v = context.eval(JSONXLang.ID, src);
+          Value item1 = v.getArrayElement(0);
+          Value item2 = v.getArrayElement(1);
+          Assert.assertEquals(3, item2.asInt());
+          int[] arr123 = item1.getMember("a").as(int[].class);
+          Assert.assertArrayEquals(new int[] {1,2,3}, arr123);
+
         });
   }
 }
