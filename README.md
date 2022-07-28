@@ -1,7 +1,7 @@
 # JSONX
 
 JSONX is an extension of JSON. It enhances json by providing the capability of 
-defining functions and values.
+doing arithmetics, functional programming, and control flows
 
 # Terminologies
 
