@@ -49,6 +49,7 @@ import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
@@ -91,6 +92,6 @@ public abstract class SLTypes {
   @ImplicitCast
   @TruffleBoundary
   public static JXBigNumber castBigNumber(long value) {
-    return new JXBigNumber(BigInteger.valueOf(value));
+    return new JXBigNumber(BigDecimal.valueOf(value));
   }
 }

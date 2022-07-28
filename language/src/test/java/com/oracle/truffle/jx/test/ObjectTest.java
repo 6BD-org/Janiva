@@ -70,6 +70,17 @@ public class ObjectTest {
   }
 
   @Test
+  public void testArithmeticsAsValue() {
+      TestUtil.runWithStackTrace(
+              () -> {
+                  String src = TestUtil.readResourceAsString("ut-arithmetics-as-value.jsonx");
+                  Value v = context.eval(JSONXLang.ID, src);
+                  Assert.assertEquals(3, v.getMember("a").asInt());
+              }
+      );
+  }
+
+  @Test
   public void testNestedList() {
     logger.debug("Start nested list test");
 
@@ -81,8 +92,7 @@ public class ObjectTest {
           Value item2 = v.getArrayElement(1);
           Assert.assertEquals(3, item2.asInt());
           int[] arr123 = item1.getMember("a").as(int[].class);
-          Assert.assertArrayEquals(new int[] {1,2,3}, arr123);
-
+          Assert.assertArrayEquals(new int[] {1, 2, 3}, arr123);
         });
   }
 }

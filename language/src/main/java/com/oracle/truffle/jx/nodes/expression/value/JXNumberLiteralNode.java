@@ -2,6 +2,7 @@ package com.oracle.truffle.jx.nodes.expression.value;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
+import com.oracle.truffle.jx.runtime.JXBigNumber;
 import org.graalvm.compiler.nodeinfo.NodeInfo;
 
 import java.math.BigDecimal;
@@ -23,7 +24,7 @@ public class JXNumberLiteralNode extends JXExpressionNode {
   }
 
   @Override
-  public Number executeGeneric(VirtualFrame frame) {
-    return val.doubleValue();
+  public JXBigNumber executeGeneric(VirtualFrame frame) {
+    return new JXBigNumber(val);
   }
 }

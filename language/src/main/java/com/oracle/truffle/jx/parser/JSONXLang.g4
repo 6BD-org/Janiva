@@ -119,6 +119,10 @@ public static RootNode parseSL(JSONXLang language, Source source) {
 
 simplelanguage
 :
+(
+  stream=IDENTIFIER
+  STREAM_ACCEPTS                        {factory.setRootStream($stream);}
+)?
 j_root_value
 EOF
 ;
@@ -162,6 +166,8 @@ primitive                               {$result=$primitive.result;}
 object                                  {$result=$object.result;}
 |
 j_list                                  {$result=$j_list.result;}
+|
+arithmatics                             {$result=$arithmatics.result;}
 ;
 
 primitive returns [JXExpressionNode result]
@@ -191,7 +197,33 @@ j_boolean returns [JXExpressionNode result]
 BOOL_LITERAL                            {$result = factory.createBoolean($BOOL_LITERAL);}
 ;
 
+arithmatics returns [JXExpressionNode result]
+:
+term                                    {$result = $term.result;}
+(
+    op=L1_OP
+    term                                {$result = factory.createBinary($op, $result, $term.result);}
+)*
+;
 
+term returns [JXExpressionNode result]
+:
+factor                                  {$result = $factor.result;}
+(
+    op=L2_OP
+    factor                              {$result = factory.createBinary($op, $result, $factor.result);}
+)*
+;
+
+factor returns [JXExpressionNode result]:
+j_string                                {$result = $j_string.result;}
+|
+j_number                                {$result = $j_number.result;}
+|
+BRACKET_OPEN
+arithmatics                             {$result = $arithmatics.result;}
+BRACKET_CLOSE
+;
 
 
 // lexer
@@ -211,6 +243,9 @@ fragment STRING_CHAR : ~('"' | '\r' | '\n');
 fragment TRUE : 'true';
 fragment FALSE : 'false';
 
+L1_OP : ('+'|'-');
+L2_OP : ('*'|'/');
+
 BOOL_LITERAL : TRUE | FALSE;
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
 STRING_LITERAL : '"' STRING_CHAR* '"';
@@ -219,3 +254,6 @@ LIST_OPEN: '[';
 LIST_CLOSE: ']';
 OBJECT_OPEN: '{';
 OBJECT_CLOSE: '}';
+BRACKET_OPEN: '(';
+BRACKET_CLOSE: ')';
+STREAM_ACCEPTS: '<<';

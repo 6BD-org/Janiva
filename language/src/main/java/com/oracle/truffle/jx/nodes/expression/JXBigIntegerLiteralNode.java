@@ -51,13 +51,14 @@ import java.math.BigInteger;
  * Constant literal for a arbitrary-precision number that exceeds the range of {@link
  * JXLongLiteralNode}.
  */
+@Deprecated
 @NodeInfo(shortName = "const")
 public final class JXBigIntegerLiteralNode extends JXExpressionNode {
 
   private final JXBigNumber value;
 
   public JXBigIntegerLiteralNode(BigInteger value) {
-    this.value = new JXBigNumber(value);
+    this.value = null;
   }
 
   @Override

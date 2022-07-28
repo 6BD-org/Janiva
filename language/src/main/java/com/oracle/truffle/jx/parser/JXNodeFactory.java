@@ -42,11 +42,13 @@ package com.oracle.truffle.jx.parser;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;
+import com.oracle.truffle.jx.nodes.JXBinaryNode;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
@@ -57,8 +59,10 @@ import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXObjectNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
+import com.oracle.truffle.jx.nodes.local.JXReadLocalVariableNodeGen;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNodeGen;
+import com.oracle.truffle.jx.nodes.system.IOUtils;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
 import com.oracle.truffle.jx.runtime.JXStrings;
 import org.antlr.v4.runtime.Parser;
@@ -66,6 +70,7 @@ import org.antlr.v4.runtime.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -135,6 +140,8 @@ public class JXNodeFactory {
   private LexicalScope lexicalScope = null;
   private final JSONXLang language;
 
+  private OutputStream rootOutPutStream = null;
+
   public JXNodeFactory(JSONXLang language, Source source) {
     this.language = language;
     this.source = source;
@@ -155,13 +162,34 @@ public class JXNodeFactory {
     parameterCount++;
   }
 
+  public void setRootStream(Token streamName) {
+    if (streamName == null)
+      return;
+    switch (streamName.getText()) {
+      case "stdout":
+        this.rootOutPutStream = System.out;
+      default:
+        throw new RuntimeException("Illegal stream name");
+    }
+  }
+
   public void registerRootNode(JXExpressionNode node) {
     this.rootNode = node;
   }
 
   public RootNode getRootNode() {
     return new JXRootNode(
-        language, frameDescriptorBuilder.build(), rootNode, JXStrings.fromJavaString("#root"));
+        language, frameDescriptorBuilder.build(), rootNode, JXStrings.fromJavaString("#root")) {
+      @Override
+      public Object execute(VirtualFrame frame) {
+
+        Object res = super.execute(frame);
+        if (rootOutPutStream != null) {
+          IOUtils.writeJSONXObjectIntoStream(rootOutPutStream, res);
+        }
+        return res;
+      }
+    };
   }
 
   public JXExpressionNode createDecimal(Token whole, Token dec) {
@@ -190,50 +218,8 @@ public class JXNodeFactory {
     final JXExpressionNode rightUnboxed = JXUnboxNodeGen.create(rightNode);
 
     final JXExpressionNode result;
-    switch (opToken.getText()) {
-      case "+":
-        result = JXAddNodeGen.create(leftUnboxed, rightUnboxed);
-        break;
-      case "*":
-        result = JXMulNodeGen.create(leftUnboxed, rightUnboxed);
-        break;
-      case "/":
-        result = JXDivNodeGen.create(leftUnboxed, rightUnboxed);
-        break;
-      case "-":
-        result = JXSubNodeGen.create(leftUnboxed, rightUnboxed);
-        break;
-      case "<":
-        result = JXLessThanNodeGen.create(leftUnboxed, rightUnboxed);
-        break;
-      case "<=":
-        result = JXLessOrEqualNodeGen.create(leftUnboxed, rightUnboxed);
-        break;
-      case ">":
-        result = JXLogicalNotNodeGen.create(JXLessOrEqualNodeGen.create(leftUnboxed, rightUnboxed));
-        break;
-      case ">=":
-        result = JXLogicalNotNodeGen.create(JXLessThanNodeGen.create(leftUnboxed, rightUnboxed));
-        break;
-      case "==":
-        result = JXEqualNodeGen.create(leftUnboxed, rightUnboxed);
-        break;
-      case "!=":
-        result = JXLogicalNotNodeGen.create(JXEqualNodeGen.create(leftUnboxed, rightUnboxed));
-        break;
-      case "&&":
-        result = new JXLogicalAndNode(leftUnboxed, rightUnboxed);
-        break;
-      case "||":
-        result = new JXLogicalOrNode(leftUnboxed, rightUnboxed);
-        break;
-      default:
-        throw new RuntimeException("unexpected operation: " + opToken.getText());
-    }
 
-    int start = leftNode.getSourceCharIndex();
-    int length = rightNode.getSourceEndIndex() - start;
-    result.setSourceSection(start, length);
+    result = JXBinaryNode.create(opToken, leftUnboxed, rightUnboxed);
     result.addExpressionTag();
 
     return result;

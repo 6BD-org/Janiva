@@ -41,6 +41,11 @@
 package com.oracle.truffle.jx.nodes;
 
 import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.jx.nodes.expression.*;
+import org.antlr.v4.runtime.Token;
+
+import java.util.Map;
 
 /**
  * Utility base class for operations that take two arguments (per convention called "left" and
@@ -49,4 +54,49 @@ import com.oracle.truffle.api.dsl.NodeChild;
  */
 @NodeChild("leftNode")
 @NodeChild("rightNode")
-public abstract class JXBinaryNode extends JXExpressionNode {}
+public abstract class JXBinaryNode extends JXExpressionNode {
+    public static JXExpressionNode create(Token op, JXExpressionNode leftUnboxed, JXExpressionNode rightUnboxed) {
+        JXExpressionNode result;
+        switch (op.getText()) {
+            case "+":
+                result = JXAddNodeGen.create(leftUnboxed, rightUnboxed);
+                break;
+            case "*":
+                result = JXMulNodeGen.create(leftUnboxed, rightUnboxed);
+                break;
+            case "/":
+                result = JXDivNodeGen.create(leftUnboxed, rightUnboxed);
+                break;
+            case "-":
+                result = JXSubNodeGen.create(leftUnboxed, rightUnboxed);
+                break;
+            case "<":
+                result = JXLessThanNodeGen.create(leftUnboxed, rightUnboxed);
+                break;
+            case "<=":
+                result = JXLessOrEqualNodeGen.create(leftUnboxed, rightUnboxed);
+                break;
+            case ">":
+                result = JXLogicalNotNodeGen.create(JXLessOrEqualNodeGen.create(leftUnboxed, rightUnboxed));
+                break;
+            case ">=":
+                result = JXLogicalNotNodeGen.create(JXLessThanNodeGen.create(leftUnboxed, rightUnboxed));
+                break;
+            case "==":
+                result = JXEqualNodeGen.create(leftUnboxed, rightUnboxed);
+                break;
+            case "!=":
+                result = JXLogicalNotNodeGen.create(JXEqualNodeGen.create(leftUnboxed, rightUnboxed));
+                break;
+            case "&&":
+                result = new JXLogicalAndNode(leftUnboxed, rightUnboxed);
+                break;
+            case "||":
+                result = new JXLogicalOrNode(leftUnboxed, rightUnboxed);
+                break;
+            default:
+                throw new RuntimeException("unexpected operation: " + op.getText());
+        }
+        return result;
+    }
+}

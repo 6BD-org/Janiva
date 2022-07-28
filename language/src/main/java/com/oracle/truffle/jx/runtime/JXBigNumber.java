@@ -48,13 +48,17 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.jx.JSONXLang;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
 public final class JXBigNumber implements TruffleObject, Comparable<JXBigNumber> {
 
+  private static final Logger logger = LoggerFactory.getLogger(JXBigNumber.class);
   private static final long LONG_MAX_SAFE_DOUBLE = 9007199254740991L; // 2 ** 53 - 1
   private static final int INT_MAX_SAFE_FLOAT = 16777215; // 2 ** 24 - 1
 
@@ -66,17 +70,17 @@ public final class JXBigNumber implements TruffleObject, Comparable<JXBigNumber>
     return i >= -INT_MAX_SAFE_FLOAT && i <= INT_MAX_SAFE_FLOAT;
   }
 
-  private final BigInteger value;
+  private final BigDecimal value;
 
-  public JXBigNumber(BigInteger value) {
+  public JXBigNumber(BigDecimal value) {
     this.value = value;
   }
 
   public JXBigNumber(long value) {
-    this.value = BigInteger.valueOf(value);
+    this.value = BigDecimal.valueOf(value);
   }
 
-  public BigInteger getValue() {
+  public BigDecimal getValue() {
     return value;
   }
 
@@ -108,43 +112,73 @@ public final class JXBigNumber implements TruffleObject, Comparable<JXBigNumber>
   @SuppressWarnings("static-method")
   @ExportMessage
   boolean isNumber() {
-    return fitsInLong();
+    return true;
   }
 
   @ExportMessage
   @TruffleBoundary
   boolean fitsInByte() {
-    return value.bitLength() < 8;
+    try{
+      value.byteValueExact();
+      return true;
+    }catch (Exception e) {
+      return false;
+    }
   }
 
   @ExportMessage
   @TruffleBoundary
   boolean fitsInShort() {
-    return value.bitLength() < 16;
+    try {
+      value.shortValueExact();
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   @ExportMessage
   @TruffleBoundary
   boolean fitsInFloat() {
-    return fitsInInt() && inSafeFloatRange(value.intValue());
+    try {
+      value.floatValue();
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   @ExportMessage
   @TruffleBoundary
   boolean fitsInLong() {
-    return value.bitLength() < 64;
+    try{
+      value.longValueExact();
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   @ExportMessage
   @TruffleBoundary
   boolean fitsInInt() {
-    return value.bitLength() < 32;
+    try{
+      value.intValueExact();
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   @ExportMessage
   @TruffleBoundary
   boolean fitsInDouble() {
-    return fitsInLong() && inSafeDoubleRange(value.longValue());
+    try{
+      value.doubleValue();
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   @ExportMessage
