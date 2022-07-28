@@ -166,6 +166,7 @@ public class JXNodeFactory {
     switch (streamName.getText()) {
       case "stdout":
         this.rootOutPutStream = System.out;
+        break;
       default:
         throw new RuntimeException("Illegal stream name");
     }
@@ -178,11 +179,14 @@ public class JXNodeFactory {
   public RootNode getRootNode() {
     return new JXRootNode(
         language, frameDescriptorBuilder.build(), rootNode, JXStrings.fromJavaString("#root")) {
+
+
       @Override
       public Object execute(VirtualFrame frame) {
 
         Object res = super.execute(frame);
         if (rootOutPutStream != null) {
+          logger.debug("Writing result to output stream");
           IOUtils.writeJSONXObjectIntoStream(rootOutPutStream, res);
         }
         return res;
@@ -285,12 +289,12 @@ public class JXNodeFactory {
   }
 
   public void startObject() {
-    logger.debug("Start object");
+    //logger.debug("Start object");
     lexicalScope = new LexicalScope(lexicalScope, ScopeType.OBJECT);
   }
 
   public JXObjectAssemblyNode endObject(List<JXStatementNode> nodes) {
-    logger.debug("End object");
+    //logger.debug("End object");
     JXObjectAssemblyNode res =
         new JXObjectAssemblyNode(
             nodes,
@@ -303,18 +307,18 @@ public class JXNodeFactory {
   }
 
   public void startArray() {
-    logger.debug("Start array");
+    //logger.debug("Start array");
     // Create one scope, but this time is for list
     lexicalScope = new LexicalScope(lexicalScope, ScopeType.ARRAY);
   }
 
   public void appendArray(JXExpressionNode n) {
-    logger.debug("Append to array");
+    //logger.debug("Append to array");
     lexicalScope.arrayNodes.add(n);
   }
 
   public JXExpressionNode closeArray() {
-    logger.debug("Close array");
+    //logger.debug("Close array");
 
     JXExpressionNode res =
         new JXArrayAssemblyNode(

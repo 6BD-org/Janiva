@@ -90,7 +90,6 @@ public class JXRootNode extends RootNode {
 
   @Override
   public Object execute(VirtualFrame frame) {
-    log.debug("Executing root node");
     assert JXContext.get(this) != null;
     return bodyNode.executeGeneric(frame);
   }

@@ -70,7 +70,7 @@ public class PrimitiveTest {
   public void testNumber() {
     TestUtil.runWithStackTrace(() -> {
       Value v = context.eval(JSONXLang.ID, "3.5");
-      logger.debug("Value of 3.5 to double is: " + v.asDouble());
+      // logger.debug("Value of 3.5 to double is: " + v.asDouble());
       Assert.assertEquals(3.5, v.asDouble(), 0.001);
     });
   }
