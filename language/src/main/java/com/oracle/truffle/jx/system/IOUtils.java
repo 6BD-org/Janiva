@@ -1,4 +1,4 @@
-package com.oracle.truffle.jx.nodes.system;
+package com.oracle.truffle.jx.system;
 
 import org.graalvm.polyglot.Value;
 
