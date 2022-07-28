@@ -17,7 +17,6 @@ public class IOUtils {
 
   public static void writeJSONXObjectIntoStream(OutputStream os, Object object) {
     try {
-      logger.debug("Object is instance of : " + object.getClass());
       processValue(os, Value.asValue(object));
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -43,7 +42,7 @@ public class IOUtils {
       os.write(numberToString(value).getBytes());
     }
     if (value.isString()) {
-      os.write(value.asString().getBytes());
+      os.write(quote(value.asString()).getBytes());
     }
   }
 
@@ -54,11 +53,10 @@ public class IOUtils {
   }
 
   private static void processObject(OutputStream os, Value object) throws IOException {
-    logger.debug("Processing object");
     os.write("{\n".getBytes());
     int i = 0;
     for (String memberKey : object.getMemberKeys()) {
-      os.write(memberKey.getBytes());
+      os.write(quote(memberKey).getBytes());
       os.write(": ".getBytes());
       Value member = object.getMember(memberKey);
       processValue(os, member);
@@ -67,11 +65,10 @@ public class IOUtils {
       }
       i++;
     }
-    os.write("}".getBytes());
+    os.write("\n}".getBytes());
   }
 
   private static void processArray(OutputStream os, Value array) throws IOException {
-    logger.debug("Processing array");
     os.write("[ ".getBytes());
     for (int i=0; i<array.getArraySize(); i++) {
       processValue(os, array.getArrayElement(i));
@@ -80,5 +77,9 @@ public class IOUtils {
       }
     }
     os.write(" ]".getBytes());
+  }
+
+  private static String quote(String token) {
+    return "\"" + token + "\"";
   }
 }
