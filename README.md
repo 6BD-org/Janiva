@@ -5,6 +5,12 @@ doing arithmetics, functional programming, and control flows
 
 # Terminologies
 
+## Data flow
+Data flow is represented by `<<` operator. Is is used for 
+- transfer output to stdout
+- latent attribute binding
+
+
 ## Primitive
 JSONX primitives are 
 - number
@@ -43,6 +49,61 @@ current context
   "a": 1
 }
 ```
+
+### Latent attribute binding
+Attributes that are excluded from the final json output are called `latent attributes`. To define a latent attribute, simple use `<<` operator
+
+```json
+{
+    "a": 1,
+    // Here we bind b to 2
+    b << 2,
+    "e": {
+      // b is bound in child scope
+      b << 3,
+      "c": 3
+    }
+}
+```
+
+### Attribute reference
+A attribute or latent attribute can be referred to and bound to another attribute. Attribute references are performed by `$` operator, for example 
+
+```json
+{
+    "a": 1,
+    // Here we bind b to 2
+    b << 2,
+
+    // The attribute c is bound by referring to latent attribute b
+    "c": $b,
+    "d": {
+        // looks up b in parent scope
+        "c": $b,
+    },
+    "e": {
+      // b is bound in child scope, thus "c" here is bound to 3
+      b << 3,
+      "c": $b
+    }
+}
+
+```
+
+
+## Std out
+To make JSONX usable, it is able to feed interpreted json to output, simple using `<<` operator
+
+```json
+stdout << {
+  "a": 1,
+  "b": 2.5,
+  "c": {
+    "d": [1+1, "a" + 2]
+  }
+}
+```
+
 # Roadmap
 
 ## Basic json
