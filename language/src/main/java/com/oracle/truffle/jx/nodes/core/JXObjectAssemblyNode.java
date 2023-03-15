@@ -7,7 +7,9 @@ import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.runtime.JXObject;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class JXObjectAssemblyNode extends JXExpressionNode {
   private final List<JXStatementNode> bindings;
@@ -28,6 +30,11 @@ public class JXObjectAssemblyNode extends JXExpressionNode {
     DynamicObjectLibrary dynamicObjectLibrary = DynamicObjectLibrary.getFactory().getUncached();
     JXObject jxObject = (JXObject) newObjectBuiltin.executeGeneric(frame);
     for (JXStatementNode bindingNode : bindings) {
+      if (bindingNode instanceof JXAttributeBindingNode) {
+        if (((JXAttributeBindingNode) bindingNode).isLatent()) {
+          // don't assemble latent nodes
+        }
+      }
       bindingNode.executeVoid(frame);
     }
     for (JXValueAccessNode n : accessors) {

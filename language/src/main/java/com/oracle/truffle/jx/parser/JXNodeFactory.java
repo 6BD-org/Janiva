@@ -60,6 +60,7 @@ import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNodeGen;
+import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
 import com.oracle.truffle.jx.system.IOUtils;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
 import com.oracle.truffle.jx.runtime.JXStrings;
@@ -68,6 +69,7 @@ import org.antlr.v4.runtime.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -112,12 +114,12 @@ public class JXNodeFactory {
       this.type = type;
     }
 
-    public Integer find(TruffleString name) {
+    public Integer find(TruffleString name, boolean includeOuter) {
       Integer result = locals.get(name);
       if (result != null) {
         return result;
-      } else if (outer != null) {
-        return outer.find(name);
+      } else if (outer != null && includeOuter) {
+        return outer.find(name, true);
       } else {
         return null;
       }
@@ -165,6 +167,9 @@ public class JXNodeFactory {
       return;
     switch (streamName.getText()) {
       case "stdout":
+        if (this.rootOutPutStream != null) {
+          throw new RuntimeException("Only one root stream can be assigned");
+        }
         this.rootOutPutStream = System.out;
         break;
       default:
@@ -241,9 +246,9 @@ public class JXNodeFactory {
       return null;
     }
 
-    TruffleString name = ((JXStringLiteralNode) nameNode).executeGeneric(null);
+    TruffleString name = ParserUtils.evalToString(nameNode);
 
-    Integer frameSlot = lexicalScope.find(name);
+    Integer frameSlot = lexicalScope.find(name, true);
     boolean newVariable = false;
     if (frameSlot == null) {
       frameSlot = frameDescriptorBuilder.addSlot(FrameSlotKind.Illegal, name, argumentIndex);
@@ -328,13 +333,37 @@ public class JXNodeFactory {
     return res;
   }
 
+  public JXStatementNode bindLatent(Token valName, JXExpressionNode val) {
+    TruffleString ts = asTruffleString(valName, false);
+    Integer slot = this.lexicalScope.find(ts, false);
+    if (slot == null) {
+      slot = frameDescriptorBuilder.addSlot(inferSlotKind(val), valName.getText(), null);
+      lexicalScope.locals.putIfAbsent(ts, slot);
+    }
+    lexicalScope.locals.put(asTruffleString(valName, false), slot);
+    return new JXAttributeBindingNode(slot, val, true);
+  }
+
+  public JXExpressionNode referAttribute(Token attributeName) {
+    TruffleString ts = asTruffleString(attributeName, false);
+    Integer slot = this.lexicalScope.find(ts, true);
+    if (slot == null) {
+      throw new JXSyntaxError("Can not find attribute");
+    }
+    return new JXValueAccessNode(slot, ts);
+  }
+
   /**
    * @param valName
    * @param val
    * @return
    */
   public JXStatementNode bindVal(Token valName, JXExpressionNode val) {
-    System.out.println(valName);
+    TruffleString ts = asTruffleString(valName, true);
+    Integer existingSlot = this.lexicalScope.find(ts, false);
+    if (existingSlot != null) {
+      throw new JXSyntaxError();
+    }
     int frameSlot = frameDescriptorBuilder.addSlot(inferSlotKind(val), valName.getText(), null);
     // Map value name to slot
     lexicalScope.locals.put(asTruffleString(valName, true), frameSlot);

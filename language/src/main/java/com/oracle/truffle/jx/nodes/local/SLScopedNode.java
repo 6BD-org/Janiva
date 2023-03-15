@@ -120,7 +120,6 @@ public abstract class SLScopedNode extends Node {
    * context lookup via {@link JXContext#getCurrent(Node)}.
    */
   @ExportMessage
-  @TruffleBoundary
   final boolean hasRootInstance(@SuppressWarnings("unused") Frame frame) {
     // The instance of the current RootNode is a function of the same name.
     return JXContext.get(this)
@@ -134,7 +133,6 @@ public abstract class SLScopedNode extends Node {
    * context lookup via {@link JXContext#getCurrent(Node)}.
    */
   @ExportMessage
-  @TruffleBoundary
   final Object getRootInstance(@SuppressWarnings("unused") Frame frame)
       throws UnsupportedMessageException {
     // The instance of the current RootNode is a function of the same name.

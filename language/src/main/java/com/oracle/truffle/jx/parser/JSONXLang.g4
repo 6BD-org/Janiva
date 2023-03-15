@@ -119,12 +119,22 @@ public static RootNode parseSL(JSONXLang language, Source source) {
 
 simplelanguage
 :
+bind_latent?
 (
   stream=IDENTIFIER
   STREAM_ACCEPTS                        {factory.setRootStream($stream);}
 )?
 j_root_value
 EOF
+;
+
+bind_latent returns [JXStatementNode result]
+:
+(
+    IDENTIFIER                   {Token valName = $IDENTIFIER;}
+    STREAM_ACCEPTS
+    j_value                      {$result = factory.bindLatent(valName, $j_value.result);}
+)
 ;
 
 j_root_value:
@@ -146,21 +156,33 @@ object returns [JXExpressionNode result]
 :
 OBJECT_OPEN                             {factory.startObject(); List<JXStatementNode> body = new LinkedList();}
 (
+(
+bind_latent                             {body.add($bind_latent.result);}
+','
+)*
 STRING_LITERAL                          {Token valName = $STRING_LITERAL;}
 ':'
 j_value                                 {body.add(factory.bindVal(valName, $j_value.result));}
+','?
 )
 (
 ','
+(
+bind_latent                             {body.add($bind_latent.result);}
+','
+)*
 STRING_LITERAL                          {Token valName = $STRING_LITERAL;}
 ':'
 j_value                                 {body.add(factory.bindVal(valName, $j_value.result));}
+','?
 )*
 OBJECT_CLOSE                            {$result = factory.endObject(body);}
 ;
 
 
 j_value returns [JXExpressionNode result]:
+ref_attribute                           {$result=$ref_attribute.result;}
+|
 primitive                               {$result=$primitive.result;}
 |
 object                                  {$result=$object.result;}
@@ -168,6 +190,13 @@ object                                  {$result=$object.result;}
 j_list                                  {$result=$j_list.result;}
 |
 arithmatics                             {$result=$arithmatics.result;}
+;
+
+// refer to bounded attribute
+ref_attribute returns [JXExpressionNode result]
+:
+REF_ATTR
+attr=IDENTIFIER                     {$result = factory.referAttribute($attr);}
 ;
 
 primitive returns [JXExpressionNode result]
@@ -232,7 +261,7 @@ WS : [ \t\r\n\u000C]+ -> skip;
 COMMENT : '/*' .*? '*/' -> skip;
 LINE_COMMENT : '//' ~[\r\n]* -> skip;
 
-fragment LETTER : [A-Z] | [a-z] | '_' | '$';
+fragment LETTER : [A-Z] | [a-z] | '_';
 fragment NON_ZERO_DIGIT : [1-9];
 fragment DIGIT : [0-9];
 fragment HEX_DIGIT : [0-9] | [a-f] | [A-F];
@@ -242,6 +271,7 @@ fragment TAB : '\t';
 fragment STRING_CHAR : ~('"' | '\r' | '\n');
 fragment TRUE : 'true';
 fragment FALSE : 'false';
+fragment REF : '$';
 
 L1_OP : ('+'|'-');
 L2_OP : ('*'|'/');
@@ -257,3 +287,4 @@ OBJECT_CLOSE: '}';
 BRACKET_OPEN: '(';
 BRACKET_CLOSE: ')';
 STREAM_ACCEPTS: '<<';
+REF_ATTR : REF;

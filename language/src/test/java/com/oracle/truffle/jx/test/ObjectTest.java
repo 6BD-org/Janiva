@@ -8,9 +8,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(JUnit4.class)
 public class ObjectTest {
 
   private static final Logger logger = LoggerFactory.getLogger(ObjectTest.class);
@@ -94,5 +97,24 @@ public class ObjectTest {
           int[] arr123 = item1.getMember("a").as(int[].class);
           Assert.assertArrayEquals(new int[] {1, 2, 3}, arr123);
         });
+  }
+
+  @Test
+    public void testLatentBinding() {
+      logger.debug("Start latent binding test");
+      TestUtil.runWithStackTrace(
+              () -> {
+                  String src = TestUtil.readResourceAsString("ut-latent-bind-1.jsonx");
+                  Value v = context.eval(JSONXLang.ID, src);
+                  Integer c = v.getMember("c").as(Integer.class);
+                  Assert.assertEquals(Integer.valueOf(2), c);
+
+                  Value d = v.getMember("d");
+                  Value e = v.getMember("e");
+
+                  Assert.assertEquals(2, d.getMember("c").asInt());
+                  Assert.assertEquals(3, e.getMember("c").asInt());
+              }
+      );
   }
 }

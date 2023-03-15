@@ -48,9 +48,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <m2e.apt.activation>jdt_apt</m2e.apt.activation>
     <!-- If you update this number make sure the VERSION value in ./sl matches -->
-    <graalvm.version>22.1.0</graalvm.version>
+    <graalvm.version>22.3.0</graalvm.version>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    <lomobk.version>1.18.24</lomobk.version>
   </properties>
   <packaging>pom</packaging>
   <modules>
