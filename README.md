@@ -105,7 +105,10 @@ stdout << {
 ```
 
 ## lambda
-`lambdas` are defined at the beginning of the script, which are pre functions that can be applied to primitives and objects. Definitions and references of `lambdas` start with `@` notation 
+`lambdas` are pure functions declared at the beginning of the script. Definitions of `lambdas` start with `@` and end with `#`. `@` is also used to refer to a lambda instance.
+
+`lambda` can be applied by feeding data to it using `<<` operator. Note that partial evaluation is not supported, therefore parameter list must match in length. 
+
 
 ```json
 // Define two lambdas
