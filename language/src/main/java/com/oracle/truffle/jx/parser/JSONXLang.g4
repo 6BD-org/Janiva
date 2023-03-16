@@ -119,7 +119,7 @@ public static RootNode parseSL(JSONXLang language, Source source) {
 
 simplelanguage
 :
-bind_latent?
+bind_latent[false]?
 (
   stream=IDENTIFIER
   STREAM_ACCEPTS                        {factory.setRootStream($stream);}
@@ -128,12 +128,12 @@ j_root_value
 EOF
 ;
 
-bind_latent returns [JXStatementNode result]
+bind_latent [boolean isFunc] returns [JXStatementNode result]
 :
 (
     IDENTIFIER                   {Token valName = $IDENTIFIER;}
     STREAM_ACCEPTS
-    j_value                      {$result = factory.bindLatent(valName, $j_value.result);}
+    j_value                      {$result = factory.bindLatent(valName, $j_value.result, $isFunc);}
 )
 ;
 
@@ -157,7 +157,7 @@ object returns [JXExpressionNode result]
 OBJECT_OPEN                             {factory.startObject(); List<JXStatementNode> body = new LinkedList();}
 (
 (
-bind_latent                             {body.add($bind_latent.result);}
+bind_latent[false]                             {body.add($bind_latent.result);}
 ','
 )*
 STRING_LITERAL                          {Token valName = $STRING_LITERAL;}
@@ -168,7 +168,7 @@ j_value                                 {body.add(factory.bindVal(valName, $j_va
 (
 ','
 (
-bind_latent                             {body.add($bind_latent.result);}
+bind_latent[false]                             {body.add($bind_latent.result);}
 ','
 )*
 STRING_LITERAL                          {Token valName = $STRING_LITERAL;}

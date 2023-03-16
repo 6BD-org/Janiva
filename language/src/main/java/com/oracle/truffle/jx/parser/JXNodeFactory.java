@@ -40,7 +40,6 @@
  */
 package com.oracle.truffle.jx.parser;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
@@ -69,13 +68,9 @@ import org.antlr.v4.runtime.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -92,52 +87,17 @@ public class JXNodeFactory {
     return new JXBoolLiteralNode(bool_literal);
   }
 
-  static enum ScopeType {
-    OBJECT,
-    ARRAY
-  }
-  /**
-   * Local variable names that are visible in the current block. Variables are not visible outside
-   * of their defining block, to prevent the usage of undefined variables. Because of that, we can
-   * decide during parsing if a name references a local variable or is a function name.
-   */
-  static class LexicalScope {
-    protected final ScopeType type;
-    protected final LexicalScope outer;
-    protected final Map<TruffleString, Integer> locals;
-    protected final List<JXExpressionNode> arrayNodes;
-
-    LexicalScope(LexicalScope outer, ScopeType type) {
-      this.outer = outer;
-      this.locals = new HashMap<>();
-      this.arrayNodes = new LinkedList<>();
-      this.type = type;
-    }
-
-    public Integer find(TruffleString name, boolean includeOuter) {
-      Integer result = locals.get(name);
-      if (result != null) {
-        return result;
-      } else if (outer != null && includeOuter) {
-        return outer.find(name, true);
-      } else {
-        return null;
-      }
-    }
-  }
 
   /* State while parsing a source unit. */
   private final Source source;
   private final TruffleString sourceString;
 
   private int parameterCount;
-  private final FrameDescriptor.Builder frameDescriptorBuilder = FrameDescriptor.newBuilder();
-  ;
   private List<JXStatementNode> methodNodes;
 
   private JXExpressionNode rootNode;
 
-  private LexicalScope lexicalScope = null;
+  private final MetaStack metaStack = new MetaStack();
   private final JSONXLang language;
 
   private OutputStream rootOutPutStream = null;
@@ -148,19 +108,6 @@ public class JXNodeFactory {
     this.sourceString = JXStrings.fromJavaString(source.getCharacters().toString());
   }
 
-  public void addFormalParameter(Token nameToken) {
-    /*
-     * Method parameters are assigned to local variables at the beginning of the method. This
-     * ensures that accesses to parameters are specialized the same way as local variables are
-     * specialized.
-     */
-    final JXReadArgumentNode readArg = new JXReadArgumentNode(parameterCount);
-    readArg.setSourceSection(nameToken.getStartIndex(), nameToken.getText().length());
-    JXExpressionNode assignment =
-        createAssignment(createStringLiteral(nameToken, false), readArg, parameterCount);
-    methodNodes.add(assignment);
-    parameterCount++;
-  }
 
   public void setRootStream(Token streamName) {
     if (streamName == null)
@@ -183,7 +130,7 @@ public class JXNodeFactory {
 
   public RootNode getRootNode() {
     return new JXRootNode(
-        language, frameDescriptorBuilder.build(), rootNode, JXStrings.fromJavaString("#root")) {
+        language, metaStack.buildRoot(), rootNode, JXStrings.fromJavaString("#root")) {
 
 
       @Override
@@ -232,43 +179,6 @@ public class JXNodeFactory {
     return result;
   }
 
-  /**
-   * Returns an {@link JXWriteLocalVariableNode} for the given parameters.
-   *
-   * @param nameNode The name of the variable being assigned
-   * @param valueNode The value to be assigned
-   * @param argumentIndex null or index of the argument the assignment is assigning
-   * @return An SLExpressionNode for the given parameters. null if nameNode or valueNode is null.
-   */
-  public JXExpressionNode createAssignment(
-      JXExpressionNode nameNode, JXExpressionNode valueNode, Integer argumentIndex) {
-    if (nameNode == null || valueNode == null) {
-      return null;
-    }
-
-    TruffleString name = ParserUtils.evalToString(nameNode);
-
-    Integer frameSlot = lexicalScope.find(name, true);
-    boolean newVariable = false;
-    if (frameSlot == null) {
-      frameSlot = frameDescriptorBuilder.addSlot(FrameSlotKind.Illegal, name, argumentIndex);
-      lexicalScope.locals.put(name, frameSlot);
-      newVariable = true;
-    }
-    final JXExpressionNode result =
-        JXWriteLocalVariableNodeGen.create(valueNode, frameSlot, nameNode, newVariable);
-
-    if (valueNode.hasSource()) {
-      final int start = nameNode.getSourceCharIndex();
-      final int length = valueNode.getSourceEndIndex() - start;
-      result.setSourceSection(start, length);
-    }
-    if (argumentIndex == null) {
-      result.addExpressionTag();
-    }
-
-    return result;
-  }
 
   public JXExpressionNode createStringLiteral(Token literalToken, boolean removeQuotes) {
     final JXStringLiteralNode result =
@@ -295,7 +205,7 @@ public class JXNodeFactory {
 
   public void startObject() {
     //logger.debug("Start object");
-    lexicalScope = new LexicalScope(lexicalScope, ScopeType.OBJECT);
+    metaStack.startObject();
   }
 
   public JXObjectAssemblyNode endObject(List<JXStatementNode> nodes) {
@@ -303,23 +213,23 @@ public class JXNodeFactory {
     JXObjectAssemblyNode res =
         new JXObjectAssemblyNode(
             nodes,
-            lexicalScope.locals.entrySet().stream()
+            metaStack.locals().entrySet().stream()
                 .map(e -> new JXValueAccessNode(e.getValue(), e.getKey()))
                 .collect(Collectors.toList()),
             JXNewObjectBuiltinFactory.getInstance().createNode());
-    lexicalScope = lexicalScope.outer;
+    metaStack.close();
     return res;
   }
 
   public void startArray() {
     //logger.debug("Start array");
     // Create one scope, but this time is for list
-    lexicalScope = new LexicalScope(lexicalScope, ScopeType.ARRAY);
+    metaStack.startArray();
   }
 
   public void appendArray(JXExpressionNode n) {
     //logger.debug("Append to array");
-    lexicalScope.arrayNodes.add(n);
+    metaStack.appendArray(n);
   }
 
   public JXExpressionNode closeArray() {
@@ -327,26 +237,31 @@ public class JXNodeFactory {
 
     JXExpressionNode res =
         new JXArrayAssemblyNode(
-            lexicalScope.arrayNodes,
-            JXArrayAllocationNodeFactory.getInstance().createNode(lexicalScope.arrayNodes.size()));
-    lexicalScope = lexicalScope.outer;
+            metaStack.arrayNodes(),
+            JXArrayAllocationNodeFactory.getInstance().createNode(metaStack.arrayNodes().size()));
+    metaStack.close();
     return res;
   }
 
-  public JXStatementNode bindLatent(Token valName, JXExpressionNode val) {
+  public JXStatementNode bindLatent(Token valName, JXExpressionNode val, boolean isFunction) {
     TruffleString ts = asTruffleString(valName, false);
-    Integer slot = this.lexicalScope.find(ts, false);
-    if (slot == null) {
-      slot = frameDescriptorBuilder.addSlot(inferSlotKind(val), valName.getText(), null);
-      lexicalScope.locals.putIfAbsent(ts, slot);
+
+    if (!isFunction) {
+      Integer slot = this.metaStack.lookupAttribute(ts, false);
+      if (slot == null) {
+        slot = metaStack.requestForSlot(ts, val);
+      }
+      return new JXAttributeBindingNode(slot, val, true);
+    } else {
+        // TODO: impl
+        throw new RuntimeException();
     }
-    lexicalScope.locals.put(asTruffleString(valName, false), slot);
-    return new JXAttributeBindingNode(slot, val, true);
+
   }
 
   public JXExpressionNode referAttribute(Token attributeName) {
     TruffleString ts = asTruffleString(attributeName, false);
-    Integer slot = this.lexicalScope.find(ts, true);
+    Integer slot = this.metaStack.lookupAttribute(ts, true);
     if (slot == null) {
       throw new JXSyntaxError("Can not find attribute");
     }
@@ -360,28 +275,14 @@ public class JXNodeFactory {
    */
   public JXStatementNode bindVal(Token valName, JXExpressionNode val) {
     TruffleString ts = asTruffleString(valName, true);
-    Integer existingSlot = this.lexicalScope.find(ts, false);
+    Integer existingSlot = this.metaStack.lookupAttribute(ts, false);
     if (existingSlot != null) {
       throw new JXSyntaxError();
     }
-    int frameSlot = frameDescriptorBuilder.addSlot(inferSlotKind(val), valName.getText(), null);
-    // Map value name to slot
-    lexicalScope.locals.put(asTruffleString(valName, true), frameSlot);
+    int frameSlot = metaStack.requestForSlot(ts, null);
     return new JXAttributeBindingNode(frameSlot, val);
   }
 
-  public FrameSlotKind inferSlotKind(JXExpressionNode val) {
-    if (val instanceof JXStringLiteralNode || val instanceof JXObjectNode) {
-      return FrameSlotKind.Object;
-    }
-    if (val instanceof JXBoolLiteralNode) {
-      return FrameSlotKind.Boolean;
-    }
-    if (val instanceof JXNumberLiteralNode) {
-      return ((JXNumberLiteralNode) val).hasDecimal() ? FrameSlotKind.Double : FrameSlotKind.Long;
-    }
-    return FrameSlotKind.Object;
-  }
 
   /** Creates source description of a single token. */
   private static void srcFromToken(JXStatementNode node, Token token) {
