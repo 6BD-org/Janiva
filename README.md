@@ -104,6 +104,29 @@ stdout << {
 }
 ```
 
+## lambda
+`lambdas` are defined at the beginning of the script, which are pre functions that can be applied to primitives and objects. Definitions and references of `lambdas` start with `@` notation 
+
+```json
+// Define two lambdas
+
+// adding two numbers
+@add :: (x, y) >> $x + $y #
+
+// converting a tuple to object
+@tuple_to_dict :: (x, y) >> {"first": $x, "second": $y} #
+
+stdout << {
+    // binding sum of two numbers to a
+    "a": @add << 1 << 2,
+    // binding a dict to latent attribute _tuple
+    _tuple << @tuple_to_dict << 1 << 2,
+    // refer to latent attribute
+    "tuple": $_tuple,
+}
+
+```
+
 # Roadmap
 
 ## Basic json
