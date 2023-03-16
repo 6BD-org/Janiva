@@ -36,7 +36,7 @@ public class JXAttributeBindingNode extends JXStatementNode {
   public void executeVoid(VirtualFrame frame) {
     if (!latent) {
       if (frame.getObject(slot) != null) {
-        throw new JXException("Cannot re-bind a non-latent variable", this);
+        throw new JXException("Cannot re-bind a non-latent variable: " + slot, this);
       }
       frame.setObject(slot, expressionNode.executeGeneric(frame));
     } else {

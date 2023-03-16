@@ -114,6 +114,7 @@ public class ObjectTest {
 
                   Assert.assertEquals(2, d.getMember("c").asInt());
                   Assert.assertEquals(3, e.getMember("c").asInt());
+                  Assert.assertEquals(2, e.getMember("d").asInt());
               }
       );
   }

@@ -8,10 +8,14 @@ import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXObjectNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class MetaStack {
+    private static final Logger logger = LoggerFactory.getLogger(MetaStack.class);
 
     enum ScopeType {
         OBJECT,
@@ -28,17 +32,19 @@ public class MetaStack {
         protected final ScopeType type;
         protected final LexicalScope outer;
         protected final Map<TruffleString, Integer> locals;
+        protected final Map<TruffleString, Integer> latents;
         protected final List<JXExpressionNode> arrayNodes;
 
         LexicalScope(LexicalScope outer, ScopeType type) {
             this.outer = outer;
             this.locals = new HashMap<>();
+            this.latents = new HashMap<>();
             this.arrayNodes = new LinkedList<>();
             this.type = type;
         }
 
         public Integer find(TruffleString name, boolean includeOuter) {
-            Integer result = locals.get(name);
+            Integer result = or(() -> latents.get(name), () -> locals.get(name));
             if (result != null) {
                 return result;
             } else if (outer != null && includeOuter) {
@@ -46,6 +52,14 @@ public class MetaStack {
             } else {
                 return null;
             }
+        }
+
+        private <T> T or(Supplier<T> first, Supplier<T> second) {
+            T f = first.get();
+            if (f != null) {
+                return f;
+            }
+            return second.get();
         }
     }
 
@@ -69,13 +83,11 @@ public class MetaStack {
         this.lexicalScope = new LexicalScope(lexicalScope, ScopeType.ARRAY);
     }
 
-    public void endObject() {
-        this.lexicalScope = new LexicalScope(lexicalScope, ScopeType.ARRAY);
-    }
 
     public void startLambda() {
+        logger.info("Opening lambda scope");
         this.lexicalScope = new LexicalScope(lexicalScope, ScopeType.LAMBDA);
-        this.frameStack.push(FrameDescriptor.newBuilder());
+        // this.frameStack.push(FrameDescriptor.newBuilder());
     }
 
     public void appendArray(JXExpressionNode node) {
@@ -83,6 +95,10 @@ public class MetaStack {
     }
 
     public void close() {
+        if (this.lexicalScope.type == ScopeType.LAMBDA) {
+            logger.info("Closing lambda scope");
+            // this.frameStack.pop();
+        }
         this.lexicalScope = lexicalScope.outer;
     }
 
@@ -90,14 +106,27 @@ public class MetaStack {
         return lexicalScope.find(attributeName, includeOuter);
     }
 
+    public Integer requestForLatentSlot(TruffleString attributeName, JXExpressionNode val) {
+        int slot = frameStack.peek().addSlot(inferSlotKind(val), attributeName, null);
+        lexicalScope.latents.putIfAbsent(attributeName, slot);
+        logger.info("requesting latent for slot {} -> {}", attributeName, slot);
+        return slot;
+    }
+
     public Integer requestForSlot(TruffleString attributeName, JXExpressionNode val) {
         int slot = frameStack.peek().addSlot(inferSlotKind(val), attributeName, null);
         lexicalScope.locals.putIfAbsent(attributeName, slot);
+        logger.info("requesting for slot {} -> {}", attributeName, slot);
+
         return slot;
     }
 
     public FrameDescriptor buildRoot() {
         return root.build();
+    }
+
+    public FrameDescriptor buildTop() {
+        return frameStack.peek().build();
     }
 
     public Map<TruffleString, Integer> locals() {

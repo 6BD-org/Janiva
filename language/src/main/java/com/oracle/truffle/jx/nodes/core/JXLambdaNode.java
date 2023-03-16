@@ -1,34 +1,34 @@
 package com.oracle.truffle.jx.nodes.core;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.impl.FrameWithoutBoxing;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 
 import java.util.List;
 
-public class JXLambdaNode extends RootNode {
+public class JXLambdaNode extends JXExpressionNode {
 
-    private List<JXAttributeBindingNode> parameterBindingNodes;
-    private JXExpressionNode evalNode;
 
-    protected JXLambdaNode(
+    private JXLambdaExecutor executor;
+    private FrameDescriptor frameDescriptor;
+
+    public JXLambdaNode(
             TruffleLanguage<?> language,
             FrameDescriptor frameDescriptor,
             List<JXAttributeBindingNode> parameterBindingNodes,
             JXExpressionNode evalNode
     ) {
-        super(language, frameDescriptor);
-        this.parameterBindingNodes = parameterBindingNodes;
-        this.evalNode = evalNode;
+        this.frameDescriptor = frameDescriptor;
+        this.executor = new JXLambdaExecutor(language, frameDescriptor, parameterBindingNodes, evalNode);
     }
 
+
     @Override
-    public Object execute(VirtualFrame frame) {
-        for (JXAttributeBindingNode parameterBindingNode : parameterBindingNodes) {
-            parameterBindingNode.executeVoid(frame);
-        }
-        return evalNode.executeGeneric(frame);
+    public Object executeGeneric(VirtualFrame frame) {
+        return this.executor.execute(new FrameWithoutBoxing(frameDescriptor, new Object[0]));
     }
 }

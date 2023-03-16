@@ -60,6 +60,8 @@ import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNodeGen;
 import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
+import com.oracle.truffle.jx.parser.lambda.LambdaRegistry;
+import com.oracle.truffle.jx.parser.lambda.LambdaTemplate;
 import com.oracle.truffle.jx.system.IOUtils;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
 import com.oracle.truffle.jx.runtime.JXStrings;
@@ -91,16 +93,15 @@ public class JXNodeFactory {
   /* State while parsing a source unit. */
   private final Source source;
   private final TruffleString sourceString;
-
-  private int parameterCount;
-  private List<JXStatementNode> methodNodes;
-
   private JXExpressionNode rootNode;
 
   private final MetaStack metaStack = new MetaStack();
   private final JSONXLang language;
 
   private OutputStream rootOutPutStream = null;
+
+  private LambdaTemplate lambdaTemplate;
+  private LambdaRegistry lambdaRegistry = new LambdaRegistry();
 
   public JXNodeFactory(JSONXLang language, Source source) {
     this.language = language;
@@ -245,27 +246,27 @@ public class JXNodeFactory {
 
   public JXStatementNode bindLatent(Token valName, JXExpressionNode val, boolean isFunction) {
     TruffleString ts = asTruffleString(valName, false);
-
-    if (!isFunction) {
       Integer slot = this.metaStack.lookupAttribute(ts, false);
       if (slot == null) {
-        slot = metaStack.requestForSlot(ts, val);
+        slot = metaStack.requestForLatentSlot(ts, val);
       }
       return new JXAttributeBindingNode(slot, val, true);
-    } else {
-        // TODO: impl
-        throw new RuntimeException();
-    }
-
   }
 
-  public JXExpressionNode referAttribute(Token attributeName) {
+  public JXExpressionNode referAttribute(Token attributeName, boolean isFunc) {
     TruffleString ts = asTruffleString(attributeName, false);
-    Integer slot = this.metaStack.lookupAttribute(ts, true);
-    if (slot == null) {
-      throw new JXSyntaxError("Can not find attribute");
+
+    if (!isFunc) {
+      Integer slot = this.metaStack.lookupAttribute(ts, true);
+      if (slot == null) {
+        throw new JXSyntaxError("Can not find attribute");
+      }
+      return new JXValueAccessNode(slot, ts);
+    } else {
+      assert this.lambdaTemplate != null;
+      return new JXLambdaAttrAccessNode(ts, lambdaTemplate);
     }
-    return new JXValueAccessNode(slot, ts);
+
   }
 
   /**
@@ -281,6 +282,33 @@ public class JXNodeFactory {
     }
     int frameSlot = metaStack.requestForSlot(ts, null);
     return new JXAttributeBindingNode(frameSlot, val);
+  }
+
+  public void defLambda(Token name) {
+    TruffleString lambdaName = asTruffleString(name, false);
+    this.lambdaTemplate = new LambdaTemplate(lambdaName);
+  }
+
+  public void addFormalParameter(Token name) {
+    assert this.lambdaTemplate != null;
+    TruffleString paramName = asTruffleString(name, false);
+    this.lambdaTemplate.addFormalParam(paramName);
+  }
+
+  public void addBody(JXExpressionNode body) {
+    this.lambdaTemplate.addBody(body);
+  }
+
+  public void finishDefLambda() {
+    this.lambdaTemplate.finish(lambdaRegistry);
+    this.lambdaTemplate = null;
+  }
+
+  public JXExpressionNode materialize(Token lambdaName, List<JXExpressionNode> parameters) {
+    JXLambdaNode lambdaNode = lambdaRegistry.lookupLambdaBody(asTruffleString(lambdaName, false))
+            .materialize(parameters, metaStack, language);
+    metaStack.close();
+    return lambdaNode;
   }
 
 

@@ -63,6 +63,7 @@ import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.parser.JXParseError;
+import com.oracle.truffle.jx.nodes.core.JXLambdaNode;
 import com.oracle.truffle.api.nodes.RootNode;
 
 }
@@ -119,6 +120,7 @@ public static RootNode parseSL(JSONXLang language, Source source) {
 
 simplelanguage
 :
+lambda_def*
 bind_latent[false]?
 (
   stream=IDENTIFIER
@@ -133,70 +135,72 @@ bind_latent [boolean isFunc] returns [JXStatementNode result]
 (
     IDENTIFIER                   {Token valName = $IDENTIFIER;}
     STREAM_ACCEPTS
-    j_value                      {$result = factory.bindLatent(valName, $j_value.result, $isFunc);}
+    j_value[false]                      {$result = factory.bindLatent(valName, $j_value.result, $isFunc);}
 )
 ;
 
 j_root_value:
-j_value                                  {factory.registerRootNode($j_value.result);}
+j_value[false]                                  {factory.registerRootNode($j_value.result);}
 ;
 
 j_list returns [JXExpressionNode result]
 :
 LIST_OPEN                                {factory.startArray();}
-j_value                                  {factory.appendArray($j_value.result);}
+j_value[false]                                  {factory.appendArray($j_value.result);}
 (
 ','
-j_value                                  {factory.appendArray($j_value.result);}
+j_value[false]                                  {factory.appendArray($j_value.result);}
 )*
 LIST_CLOSE                               {$result=factory.closeArray();}
 ;
 
-object returns [JXExpressionNode result]
+object [boolean isFunc] returns [JXExpressionNode result]
 :
 OBJECT_OPEN                             {factory.startObject(); List<JXStatementNode> body = new LinkedList();}
 (
 (
-bind_latent[false]                             {body.add($bind_latent.result);}
+bind_latent[isFunc]                             {body.add($bind_latent.result);}
 ','
 )*
 STRING_LITERAL                          {Token valName = $STRING_LITERAL;}
 ':'
-j_value                                 {body.add(factory.bindVal(valName, $j_value.result));}
+j_value[$isFunc]                                 {body.add(factory.bindVal(valName, $j_value.result));}
 ','?
 )
 (
 ','
 (
-bind_latent[false]                             {body.add($bind_latent.result);}
+bind_latent[isFunc]                             {body.add($bind_latent.result);}
 ','
 )*
 STRING_LITERAL                          {Token valName = $STRING_LITERAL;}
 ':'
-j_value                                 {body.add(factory.bindVal(valName, $j_value.result));}
+j_value[$isFunc]                                 {body.add(factory.bindVal(valName, $j_value.result));}
 ','?
 )*
 OBJECT_CLOSE                            {$result = factory.endObject(body);}
 ;
 
 
-j_value returns [JXExpressionNode result]:
-ref_attribute                           {$result=$ref_attribute.result;}
+j_value [boolean isFunc] returns [JXExpressionNode result]:
+ref_attribute[$isFunc]                           {$result=$ref_attribute.result;}
 |
 primitive                               {$result=$primitive.result;}
 |
-object                                  {$result=$object.result;}
+object[$isFunc]                                  {$result=$object.result;}
 |
 j_list                                  {$result=$j_list.result;}
 |
-arithmatics                             {$result=$arithmatics.result;}
+arithmatics[$isFunc]                             {$result=$arithmatics.result;}
+|
+lambda_invocation                       {$result=$lambda_invocation.result;}
 ;
 
 // refer to bounded attribute
-ref_attribute returns [JXExpressionNode result]
+ref_attribute[boolean isFunc] returns [JXExpressionNode result]
 :
 REF_ATTR
-attr=IDENTIFIER                     {$result = factory.referAttribute($attr);}
+attr=IDENTIFIER                     {$result = factory.referAttribute($attr, $isFunc);}
 ;
 
 primitive returns [JXExpressionNode result]
@@ -226,33 +230,76 @@ j_boolean returns [JXExpressionNode result]
 BOOL_LITERAL                            {$result = factory.createBoolean($BOOL_LITERAL);}
 ;
 
-arithmatics returns [JXExpressionNode result]
+arithmatics[boolean isFunc] returns [JXExpressionNode result]
 :
-term                                    {$result = $term.result;}
+term[$isFunc]                                    {$result = $term.result;}
 (
     op=L1_OP
-    term                                {$result = factory.createBinary($op, $result, $term.result);}
+    term[$isFunc]                                {$result = factory.createBinary($op, $result, $term.result);}
 )*
 ;
 
-term returns [JXExpressionNode result]
+term[boolean isFunc] returns [JXExpressionNode result]
 :
-factor                                  {$result = $factor.result;}
+factor[$isFunc]                                  {$result = $factor.result;}
 (
     op=L2_OP
-    factor                              {$result = factory.createBinary($op, $result, $factor.result);}
+    factor[$isFunc]                              {$result = factory.createBinary($op, $result, $factor.result);}
 )*
 ;
 
-factor returns [JXExpressionNode result]:
+factor[boolean isFunc] returns [JXExpressionNode result]:
 j_string                                {$result = $j_string.result;}
 |
 j_number                                {$result = $j_number.result;}
 |
+ref_attribute[isFunc]                           {$result = $ref_attribute.result;}
+|
 BRACKET_OPEN
-arithmatics                             {$result = $arithmatics.result;}
+arithmatics[$isFunc]                             {$result = $arithmatics.result;}
 BRACKET_CLOSE
 ;
+
+
+arg_list
+:
+( // NO ARG
+BRACKET_OPEN
+BRACKET_CLOSE
+)
+|
+(
+BRACKET_OPEN
+arg0=IDENTIFIER                         {factory.addFormalParameter($arg0);}
+    (
+    ','
+    argN=IDENTIFIER                     {factory.addFormalParameter($argN);}
+    )?
+BRACKET_CLOSE
+)
+;
+
+lambda_def
+:
+REF_LAMBDA
+funcName=IDENTIFIER                     {factory.defLambda($funcName);}
+LAMBDA_DEF_INTRO
+arg_list
+STREAM_PRODUCE
+body=j_value[true]                      {factory.addBody($body.result);}
+END                                     {factory.finishDefLambda();}
+;
+
+lambda_invocation returns [JXExpressionNode result]
+:
+REF_LAMBDA                              {List<JXExpressionNode> args = new ArrayList<>();}
+lambdaName=IDENTIFIER
+(
+STREAM_ACCEPTS
+arg=j_value[false]                          {args.add($arg.result);}
+)*                                      {$result = factory.materialize($lambdaName, args);}
+;
+
 
 
 // lexer
@@ -287,4 +334,9 @@ OBJECT_CLOSE: '}';
 BRACKET_OPEN: '(';
 BRACKET_CLOSE: ')';
 STREAM_ACCEPTS: '<<';
+STREAM_PRODUCE: '>>';
 REF_ATTR : REF;
+REF_LAMBDA: '@';
+LAMBDA_DEF_INTRO: '::';
+
+END: '#';
