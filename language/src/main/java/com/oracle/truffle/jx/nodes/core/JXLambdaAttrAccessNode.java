@@ -5,6 +5,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.parser.lambda.LambdaTemplate;
+import com.oracle.truffle.jx.runtime.exceptions.JXRuntimeException;
 
 public class JXLambdaAttrAccessNode extends JXExpressionNode {
 
@@ -19,6 +20,16 @@ public class JXLambdaAttrAccessNode extends JXExpressionNode {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return frame.getObject(lambdaTemplate.lookupParamSlot(name));
+        int slot=-1;
+        for (int i=0; i<lambdaTemplate.parameterCount(); i++) {
+            if (name.equals(lambdaTemplate.getParameterNames().get(i))) {
+                slot = i;
+                break;
+            }
+        }
+        if (slot < 0) {
+            throw new JXRuntimeException("Cannot resolve attribute " + this.name);
+        }
+        return frame.getArguments()[slot];
     }
 }

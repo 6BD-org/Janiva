@@ -40,6 +40,7 @@
  */
 package com.oracle.truffle.jx.parser;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
@@ -72,6 +73,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -287,6 +289,7 @@ public class JXNodeFactory {
   public void defLambda(Token name) {
     TruffleString lambdaName = asTruffleString(name, false);
     this.lambdaTemplate = new LambdaTemplate(lambdaName);
+    this.metaStack.startLambda();
   }
 
   public void addFormalParameter(Token name) {
@@ -300,15 +303,18 @@ public class JXNodeFactory {
   }
 
   public void finishDefLambda() {
-    this.lambdaTemplate.finish(lambdaRegistry);
+    this.lambdaTemplate.finish(lambdaRegistry, metaStack.buildTop());
     this.lambdaTemplate = null;
   }
 
   public JXExpressionNode materialize(Token lambdaName, List<JXExpressionNode> parameters) {
-    JXLambdaNode lambdaNode = lambdaRegistry.lookupLambdaBody(asTruffleString(lambdaName, false))
-            .materialize(parameters, metaStack, language);
-    metaStack.close();
-    return lambdaNode;
+    TruffleString ts = asTruffleString(lambdaName, false);
+    LambdaTemplate lt = lambdaRegistry.lookupLambdaBody(ts);
+    List<JXLambdaArgBindingNode> argBindings = new ArrayList<>();
+    for (int i=0; i<parameters.size(); i++) {
+      argBindings.add(new JXLambdaArgBindingNode(i, parameters.get(i)));
+    }
+    return new JXLambdaNode(this.language, lt, argBindings, lt.getBody());
   }
 
 

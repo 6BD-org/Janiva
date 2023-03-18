@@ -11,12 +11,12 @@ import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import java.util.List;
 
 public class JXLambdaExecutor extends RootNode {
-    private List<JXAttributeBindingNode> parameterBindingNodes;
+    private List<JXLambdaArgBindingNode> parameterBindingNodes;
     private JXExpressionNode evalNode;
     protected JXLambdaExecutor(
             TruffleLanguage<?> language,
             FrameDescriptor frameDescriptor,
-            List<JXAttributeBindingNode> parameterBindingNodes,
+            List<JXLambdaArgBindingNode> parameterBindingNodes,
             JXExpressionNode evalNode) {
         super(language, frameDescriptor);
         this.parameterBindingNodes = parameterBindingNodes;
@@ -25,7 +25,7 @@ public class JXLambdaExecutor extends RootNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        for (JXAttributeBindingNode bindingNode : parameterBindingNodes) {
+        for (JXLambdaArgBindingNode bindingNode : parameterBindingNodes) {
             bindingNode.executeVoid(frame);
         }
         return evalNode.executeGeneric(frame);

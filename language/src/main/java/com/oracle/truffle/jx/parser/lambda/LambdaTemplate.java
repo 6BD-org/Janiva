@@ -1,5 +1,6 @@
 package com.oracle.truffle.jx.parser.lambda;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
@@ -18,7 +19,7 @@ public class LambdaTemplate {
     private List<TruffleString> parameterNames;
     private TruffleString name;
     private JXExpressionNode body;
-    private Map<TruffleString, Integer> paramSlotMapping = new HashMap();
+    private FrameDescriptor descriptor;
 
     public LambdaTemplate(TruffleString name) {
         this.parameterNames = new ArrayList<>();
@@ -30,35 +31,29 @@ public class LambdaTemplate {
         this.parameterNames.add(paramName);
     }
 
-    public void finish(LambdaRegistry registry) {
+    public int parameterCount() {
+        return parameterNames.size();
+    }
+
+    public List<TruffleString> getParameterNames() {
+        return this.parameterNames;
+    }
+
+    public void finish(LambdaRegistry registry, FrameDescriptor descriptor) {
         registry.register(this.name, this);
+        this.descriptor = descriptor;
     }
 
     public void addBody(JXExpressionNode body) {
         this.body = body;
     }
 
-    public JXLambdaNode materialize(
-            List<JXExpressionNode> parameters,
-            MetaStack metaStack,
-            JSONXLang lang
-    ) {
-        metaStack.startLambda();
-        if (parameters.size() != this.parameterNames.size()) {
-            throw new JXSyntaxError("Parameter list does not match. Expected lenght: " + this.parameterNames.size() + " getting: " + parameters.size());
-        }
-        List<JXAttributeBindingNode> parameterBindings = new ArrayList<>();
-        for (int i=0; i<parameters.size(); i++) {
-            JXExpressionNode param = parameters.get(i);
-            int slot = metaStack.requestForSlot(this.parameterNames.get(i), param);
-            parameterBindings.add(new JXAttributeBindingNode(slot, param, true));
-            paramSlotMapping.put(parameterNames.get(i), slot);
-        }
-        // push to stack
-        return new JXLambdaNode(lang, metaStack.buildTop(), parameterBindings, this.body);
+    public JXExpressionNode getBody() {
+        return this.body;
     }
 
-    public int lookupParamSlot(TruffleString parameterName) {
-        return this.paramSlotMapping.get(parameterName);
+    public FrameDescriptor getFrameDescriptor() {
+        return this.descriptor;
     }
+
 }
