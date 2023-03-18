@@ -87,7 +87,7 @@ public class MetaStack {
     public void startLambda() {
         logger.info("Opening lambda scope");
         this.lexicalScope = new LexicalScope(lexicalScope, ScopeType.LAMBDA);
-        // this.frameStack.push(FrameDescriptor.newBuilder());
+        this.frameStack.push(FrameDescriptor.newBuilder());
     }
 
     public void appendArray(JXExpressionNode node) {
@@ -97,7 +97,7 @@ public class MetaStack {
     public void close() {
         if (this.lexicalScope.type == ScopeType.LAMBDA) {
             logger.info("Closing lambda scope");
-            // this.frameStack.pop();
+            this.frameStack.pop();
         }
         this.lexicalScope = lexicalScope.outer;
     }

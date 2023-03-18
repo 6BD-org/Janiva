@@ -304,12 +304,16 @@ public class JXNodeFactory {
 
   public void finishDefLambda() {
     this.lambdaTemplate.finish(lambdaRegistry, metaStack.buildTop());
+    metaStack.close();
     this.lambdaTemplate = null;
   }
 
   public JXExpressionNode materialize(Token lambdaName, List<JXExpressionNode> parameters) {
     TruffleString ts = asTruffleString(lambdaName, false);
     LambdaTemplate lt = lambdaRegistry.lookupLambdaBody(ts);
+    if (lt == null) {
+      throw new JXSyntaxError("Referring to non existing lambda: " + ts);
+    }
     List<JXLambdaArgBindingNode> argBindings = new ArrayList<>();
     for (int i=0; i<parameters.size(); i++) {
       argBindings.add(new JXLambdaArgBindingNode(i, parameters.get(i)));
