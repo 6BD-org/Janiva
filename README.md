@@ -1,5 +1,24 @@
 # JSONX
 
+
+# Build Project
+
+## Generate parser
+
+```sh
+./generate_parser.sh
+```
+
+## Set JAVA_HOME
+Set JAVA_HOME to a graalvm installation path (22.30, jdk17 is preferred)
+
+## Run unit tests
+
+```sh
+mvn clean test
+```
+
+
 JSONX is an extension of JSON. It enhances json by providing the capability of 
 doing arithmetics, functional programming, and control flows
 
@@ -130,26 +149,22 @@ stdout << {
 
 ```
 
-# Roadmap
+## Control flow
+There's no control flow in jsonx, instead, it provides couple of built-in functions that do the similar job.
 
-## Basic json
-- [x] Json primitive support
-- [x] Object support
-- [x] List support
+### If
+If takes three arguments
+- condition that evaluates to a boolean
+- then value when condition is true
+- else value when condition is false
 
-## Extension phase 1
+for example
 
-- [x] Addition
-- [x] Subtraction
-- [x] Multiplication
-- [x] Division
-- [ ] String concatenation for key and value
+```json
 
-## Extension phase 2
-- [ ] Value reference
-- [ ] Hierarchical value lookup
-- [ ] Temporary value declaration
+stdout << {
+    "a": @if << true << 1 << 2,
+    "b": @if << false << 1 << 2,
+}
 
-## Extension phase 3
-- [ ] Control flows
-- [ ] Functional features
+```
