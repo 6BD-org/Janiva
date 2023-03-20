@@ -40,8 +40,6 @@
  */
 package com.oracle.truffle.jx.parser;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
@@ -55,14 +53,11 @@ import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.nodes.core.*;
 import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
-import com.oracle.truffle.jx.nodes.expression.value.JXObjectNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
-import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
-import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
-import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNodeGen;
 import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
-import com.oracle.truffle.jx.parser.lambda.LambdaRegistry;
-import com.oracle.truffle.jx.parser.lambda.LambdaTemplate;
+import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
+import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
+import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 import com.oracle.truffle.jx.system.IOUtils;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
 import com.oracle.truffle.jx.runtime.JXStrings;
@@ -103,7 +98,6 @@ public class JXNodeFactory {
   private OutputStream rootOutPutStream = null;
 
   private LambdaTemplate lambdaTemplate;
-  private LambdaRegistry lambdaRegistry = new LambdaRegistry();
 
   public JXNodeFactory(JSONXLang language, Source source) {
     this.language = language;
@@ -303,14 +297,17 @@ public class JXNodeFactory {
   }
 
   public void finishDefLambda() {
-    this.lambdaTemplate.finish(lambdaRegistry, metaStack.buildTop());
+    this.lambdaTemplate.finish(LambdaRegistry.getInstance(), metaStack.buildTop());
     metaStack.close();
     this.lambdaTemplate = null;
   }
 
   public JXExpressionNode materialize(Token lambdaName, List<JXExpressionNode> parameters) {
     TruffleString ts = asTruffleString(lambdaName, false);
-    LambdaTemplate lt = lambdaRegistry.lookupLambdaBody(ts);
+    if (LambdaRegistry.getInstance().isBuiltIn(ts)) {
+      return BuiltInLambda.valueOf(ts).create(parameters);
+    }
+    LambdaTemplate lt = LambdaRegistry.getInstance().lookupLambdaBody(ts);
     if (lt == null) {
       throw new JXSyntaxError("Referring to non existing lambda: " + ts);
     }

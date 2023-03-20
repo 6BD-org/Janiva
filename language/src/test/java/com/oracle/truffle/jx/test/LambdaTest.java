@@ -4,6 +4,7 @@ import com.oracle.truffle.jx.JSONXLang;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,18 @@ public class LambdaTest {
             String src = TestUtil.readResourceAsString("ut-lambda-def.jsonx");
             Value v = context.eval(JSONXLang.ID, src);
 
+        });
+    }
+
+    @Test
+    public void testBuiltInIf() {
+        TestUtil.runWithStackTrace(() -> {
+            String src = TestUtil.readResourceAsString("ut-built-in-if.jsonx");
+            Value v = context.eval(JSONXLang.ID, src);
+            Integer a = v.getMember("a").as(Integer.class);
+            Assert.assertEquals(Integer.valueOf(1), a);
+            Integer b = v.getMember("b").as(Integer.class);
+            Assert.assertEquals(Integer.valueOf(2), b);
         });
     }
 }

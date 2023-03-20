@@ -1,10 +1,9 @@
 package com.oracle.truffle.jx.nodes.core;
 
-import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.parser.lambda.LambdaTemplate;
+import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 import com.oracle.truffle.jx.runtime.exceptions.JXRuntimeException;
 
 public class JXLambdaAttrAccessNode extends JXExpressionNode {

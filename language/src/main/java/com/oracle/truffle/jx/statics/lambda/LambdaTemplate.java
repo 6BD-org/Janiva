@@ -1,19 +1,11 @@
-package com.oracle.truffle.jx.parser.lambda;
+package com.oracle.truffle.jx.statics.lambda;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.nodes.core.JXAttributeBindingNode;
-import com.oracle.truffle.jx.nodes.core.JXLambdaNode;
-import com.oracle.truffle.jx.parser.MetaStack;
-import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
-import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class LambdaTemplate {
     private List<TruffleString> parameterNames;
@@ -24,6 +16,10 @@ public class LambdaTemplate {
     public LambdaTemplate(TruffleString name) {
         this.parameterNames = new ArrayList<>();
         this.name = name;
+    }
+
+    public TruffleString getName() {
+        return this.name;
     }
 
 

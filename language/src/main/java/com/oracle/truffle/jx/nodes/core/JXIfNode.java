@@ -38,75 +38,66 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.jx.nodes.controlflow;
+package com.oracle.truffle.jx.nodes.core;
 
-import com.oracle.truffle.api.dsl.UnsupportedSpecializationException;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.LoopNode;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.RepeatingNode;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.oracle.truffle.api.profiles.BranchProfile;
+import com.oracle.truffle.api.profiles.ConditionProfile;
+import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
+import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
 
-/**
- * The loop body of a {@link SLWhileNode while loop}. A Truffle framework {@link LoopNode} between
- * the {@link SLWhileNode} and {@link SLWhileRepeatingNode} allows Truffle to perform loop
- * optimizations, for example, compile just the loop body for long running loops.
- */
-public final class SLWhileRepeatingNode extends Node implements RepeatingNode {
+@NodeInfo(shortName = "if", description = "The node implementing a condional statement")
+public final class JXIfNode extends JXExpressionNode {
 
   /**
-   * The condition of the loop. This in a {@link JXExpressionNode} because we require a result
+   * The condition of the {@code if}. This in a {@link JXExpressionNode} because we require a result
    * value. We do not have a node type that can only return a {@code boolean} value, so {@link
    * #evaluateCondition executing the condition} can lead to a type error.
    */
   @Child private JXExpressionNode conditionNode;
 
-  /** Statement (or {@link SLBlockNode block}) executed as long as the condition is true. */
-  @Child private JXStatementNode bodyNode;
+  /** Statement (or {@link SLBlockNode block}) executed when the condition is true. */
+  @Child private JXExpressionNode thenPartNode;
+
+  /** Statement (or {@link SLBlockNode block}) executed when the condition is false. */
+  @Child private JXExpressionNode elsePartNode;
 
   /**
-   * Profiling information, collected by the interpreter, capturing whether a {@code continue}
-   * statement was used in this loop. This allows the compiler to generate better code for loops
-   * without a {@code continue}.
+   * Profiling information, collected by the interpreter, capturing the profiling information of the
+   * condition. This allows the compiler to generate better code for conditions that are always true
+   * or always false. Additionally the {@link CountingConditionProfile} implementation (as opposed
+   * to {@link BinaryConditionProfile} implementation) transmits the probability of the condition to
+   * be true to the compiler.
    */
-  private final BranchProfile continueTaken = BranchProfile.create();
+  private final ConditionProfile condition = ConditionProfile.createCountingProfile();
 
-  private final BranchProfile breakTaken = BranchProfile.create();
-
-  public SLWhileRepeatingNode(JXExpressionNode conditionNode, JXStatementNode bodyNode) {
+  public JXIfNode(
+      JXExpressionNode conditionNode, JXExpressionNode thenPartNode, JXExpressionNode elsePartNode) {
     this.conditionNode = JXUnboxNodeGen.create(conditionNode);
-    this.bodyNode = bodyNode;
+    this.thenPartNode = thenPartNode;
+    this.elsePartNode = elsePartNode;
   }
 
   @Override
-  public boolean executeRepeating(VirtualFrame frame) {
-    if (!evaluateCondition(frame)) {
-      /* Normal exit of the loop when loop condition is false. */
-      return false;
+  public Object executeGeneric(VirtualFrame frame) {
+    /*
+     * In the interpreter, record profiling information that the condition was executed and with
+     * which outcome.
+     */
+    if (condition.profile(evaluateCondition(frame))) {
+      /* Execute the then-branch. */
+      return thenPartNode.executeGeneric(frame);
+    } else {
+      /* Execute the else-branch (which is optional according to the SL syntax). */
+      if (elsePartNode != null) {
+        return elsePartNode.executeGeneric(frame);
+      }
     }
-
-    try {
-      /* Execute the loop body. */
-      bodyNode.executeVoid(frame);
-      /* Continue with next loop iteration. */
-      return true;
-
-    } catch (SLContinueException ex) {
-      /* In the interpreter, record profiling information that the loop uses continue. */
-      continueTaken.enter();
-      /* Continue with next loop iteration. */
-      return true;
-
-    } catch (SLBreakException ex) {
-      /* In the interpreter, record profiling information that the loop uses break. */
-      breakTaken.enter();
-      /* Break out of the loop. */
-      return false;
-    }
+    return null;
   }
 
   private boolean evaluateCondition(VirtualFrame frame) {
@@ -119,16 +110,9 @@ public final class SLWhileRepeatingNode extends Node implements RepeatingNode {
     } catch (UnexpectedResultException ex) {
       /*
        * The condition evaluated to a non-boolean result. This is a type error in the SL
-       * program. We report it with the same exception that Truffle DSL generated nodes use to
-       * report type errors.
+       * program.
        */
-      throw new UnsupportedSpecializationException(
-          this, new Node[] {conditionNode}, ex.getResult());
+      throw JXException.typeError(this, ex.getResult());
     }
-  }
-
-  @Override
-  public String toString() {
-    return JXStatementNode.formatSourceSection(this);
   }
 }

@@ -1,10 +1,8 @@
 package com.oracle.truffle.jx.nodes.core;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
-import com.oracle.truffle.jx.parser.lambda.LambdaTemplate;
 
 public class JXLambdaArgBindingNode extends JXStatementNode {
 

@@ -48,7 +48,6 @@ import com.oracle.truffle.api.nodes.*;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JSONXLang;
 import com.oracle.truffle.jx.builtins.JXBuiltinNode;
-import com.oracle.truffle.jx.nodes.controlflow.JXFunctionBodyNode;
 import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
@@ -61,8 +60,7 @@ import java.util.List;
 /**
  * The root of all SL execution trees. It is a Truffle requirement that the tree root extends the
  * class {@link RootNode}. This class is used for both builtin and user-defined functions. For
- * builtin functions, the {@link #bodyNode} is a subclass of {@link JXBuiltinNode}. For user-defined
- * functions, the {@link #bodyNode} is a {@link JXFunctionBodyNode}.
+ * builtin functions, the {@link #bodyNode} is a subclass of {@link JXBuiltinNode}.
  */
 @Slf4j
 @NodeInfo(language = "SL", description = "The root of all SL execution trees")
@@ -154,7 +152,7 @@ public class JXRootNode extends RootNode {
               return true;
             } else if (wn == null
                 && (node instanceof JXStatementNode
-                    && !(node instanceof SLBlockNode || node instanceof JXFunctionBodyNode))) {
+                    && !(node instanceof SLBlockNode))) {
               // A different SL node - we're done.
               return false;
             } else {
