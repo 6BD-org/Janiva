@@ -48,4 +48,13 @@ public class LambdaTest {
             Assert.assertEquals(Integer.valueOf(2), b);
         });
     }
+
+    @Test
+    public void testBuildInRange() {
+        TestUtil.runWithStackTrace(() -> {
+            String src = TestUtil.readResourceAsString("ut-built-in-range.jsonx");
+            Value v = context.eval(JSONXLang.ID, src);
+
+        });
+    }
 }

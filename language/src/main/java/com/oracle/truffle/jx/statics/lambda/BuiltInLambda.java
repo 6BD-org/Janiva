@@ -3,6 +3,7 @@ package com.oracle.truffle.jx.statics.lambda;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.core.JXIfNode;
+import com.oracle.truffle.jx.nodes.core.JXRangeNodeGen;
 import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
     RANGE {
         @Override
         public JXExpressionNode create(List<JXExpressionNode> arguments) {
-            return null;
+            return JXRangeNodeGen.create(arguments.get(0));
         }
 
         @Override

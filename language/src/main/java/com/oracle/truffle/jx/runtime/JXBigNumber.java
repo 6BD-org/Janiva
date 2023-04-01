@@ -266,4 +266,8 @@ public final class JXBigNumber implements TruffleObject, Comparable<JXBigNumber>
   Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
     return value.toString();
   }
+
+  public Integer intValue() {
+    return this.value.intValue();
+  }
 }
