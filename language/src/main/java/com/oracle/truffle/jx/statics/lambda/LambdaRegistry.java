@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LambdaRegistry {
-    public static final TruffleString IF = asTs("if");
 
     private static final LambdaRegistry instance = new LambdaRegistry();
 

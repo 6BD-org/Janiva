@@ -70,6 +70,7 @@ import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.parser.JSONXLangParser;
 import com.oracle.truffle.jx.parser.JXNodeFactory;
 import com.oracle.truffle.jx.runtime.*;
+import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 
@@ -324,7 +325,7 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
   }
 
   private void installIf() {
-    LambdaTemplate lt = new LambdaTemplate(LambdaRegistry.IF);
+    LambdaTemplate lt = new LambdaTemplate(BuiltInLambda.IF.lambdaName());
     LambdaRegistry.getInstance().registerBuiltIn(lt);
   }
 }

@@ -1,5 +1,6 @@
 package com.oracle.truffle.jx.statics.lambda;
 
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 
 import java.util.List;
@@ -9,4 +10,5 @@ import java.util.List;
  */
 public interface BuiltInLambdaFactory {
     JXExpressionNode create(List<JXExpressionNode> arguments);
+    TruffleString lambdaName();
 }

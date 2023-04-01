@@ -6,6 +6,8 @@ import com.oracle.truffle.jx.nodes.core.JXIfNode;
 import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public enum BuiltInLambda implements BuiltInLambdaFactory {
 
@@ -18,13 +20,22 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
                     arguments.get(2)
             );
         }
+
+        @Override
+        public TruffleString lambdaName() {
+            return TruffleString.fromJavaStringUncached("if", TruffleString.Encoding.UTF_8);
+        }
     };
 
-
+    static final Map<TruffleString, BuiltInLambda> cache = new ConcurrentHashMap<>();
     public static BuiltInLambda valueOf(TruffleString ts) {
-        if (ts.equals(LambdaRegistry.IF)) {
-            return IF;
+        if (!cache.containsKey(ts)) {
+            for (BuiltInLambda bl : BuiltInLambda.values()) {
+                if (bl.lambdaName().equals(ts)) {
+                    cache.put(bl.lambdaName(), bl);
+                }
+            }
         }
-        throw new JXSyntaxError("Illegal built-in");
+        return cache.get(ts);
     }
 }
