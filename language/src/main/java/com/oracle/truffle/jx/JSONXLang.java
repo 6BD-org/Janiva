@@ -52,29 +52,18 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.api.utilities.TruffleWeakReference;
 import com.oracle.truffle.jx.builtins.*;
 import com.oracle.truffle.jx.nodes.*;
-import com.oracle.truffle.jx.nodes.controlflow.*;
-import com.oracle.truffle.jx.nodes.core.JXIfNode;
-import com.oracle.truffle.jx.nodes.expression.*;
-import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
-import com.oracle.truffle.jx.nodes.local.JXReadLocalVariableNode;
-import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.parser.JSONXLangParser;
-import com.oracle.truffle.jx.parser.JXNodeFactory;
 import com.oracle.truffle.jx.runtime.*;
 import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -210,7 +199,7 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
     Source source = request.getSource();
     RootNode rootNode;
 
-    this.installIf();
+    this.installBuiltInLambdas();
 
     /*
      * Parse the provided source. At this point, we do not have a SLContext yet. Registration of
@@ -324,8 +313,11 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
     context.runShutdownHooks();
   }
 
-  private void installIf() {
-    LambdaTemplate lt = new LambdaTemplate(BuiltInLambda.IF.lambdaName());
-    LambdaRegistry.getInstance().registerBuiltIn(lt);
+  private void installBuiltInLambdas() {
+    for (BuiltInLambda builtIn : BuiltInLambda.values()) {
+      LambdaTemplate lt = new LambdaTemplate(builtIn.lambdaName());
+      LambdaRegistry.getInstance().registerBuiltIn(lt);
+    }
+
   }
 }

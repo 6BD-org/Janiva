@@ -25,9 +25,21 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
         public TruffleString lambdaName() {
             return TruffleString.fromJavaStringUncached("if", TruffleString.Encoding.UTF_8);
         }
+    },
+    RANGE {
+        @Override
+        public JXExpressionNode create(List<JXExpressionNode> arguments) {
+            return null;
+        }
+
+        @Override
+        public TruffleString lambdaName() {
+            return TruffleString.fromJavaStringUncached("range", TruffleString.Encoding.UTF_8);
+        }
     };
 
     static final Map<TruffleString, BuiltInLambda> cache = new ConcurrentHashMap<>();
+
     public static BuiltInLambda valueOf(TruffleString ts) {
         if (!cache.containsKey(ts)) {
             for (BuiltInLambda bl : BuiltInLambda.values()) {
