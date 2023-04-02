@@ -1,5 +1,6 @@
 package com.oracle.truffle.jx.nodes.core;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -20,7 +21,13 @@ import org.graalvm.nativebridge.In;
 @NodeChild("o")
 public abstract class JXRangeNode extends JXExpressionNode {
 
+    @Specialization(guards = "isArray(o)")
+    public Object doArray(JXArray o) {
+        // simply return a reference to it
+        return o;
+    }
 
+    @CompilerDirectives.TruffleBoundary
     @Specialization(guards = "isNumber(o)")
     public Object doLong(JXBigNumber o, @Cached("lookup()") AllocationReporter reporter) {
         if (o.getValue().longValue() > Integer.MAX_VALUE) {
@@ -34,6 +41,7 @@ public abstract class JXRangeNode extends JXExpressionNode {
     }
 
     @Specialization(guards = "isString(o)")
+    @CompilerDirectives.TruffleBoundary
     public Object doString(TruffleString o, @Cached("lookup()") AllocationReporter reporter) {
         JXArray res = JSONXLang.get(this).createJXArray(reporter, o.byteLength(TruffleString.Encoding.UTF_8));
         for (int i=0; i<o.byteLength(TruffleString.Encoding.UTF_8); i++) {
@@ -42,11 +50,6 @@ public abstract class JXRangeNode extends JXExpressionNode {
         return res;
     }
 
-    @Specialization(guards = "isArray(o)")
-    public Object doArray(JXArray o) {
-        // simply return a reference to it
-        return o;
-    }
 
     protected boolean isArray(Object o) {
         return o instanceof JXArray;

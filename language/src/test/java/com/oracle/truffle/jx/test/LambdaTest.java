@@ -54,7 +54,11 @@ public class LambdaTest {
         TestUtil.runWithStackTrace(() -> {
             String src = TestUtil.readResourceAsString("ut-built-in-range.jsonx");
             Value v = context.eval(JSONXLang.ID, src);
+            int a0 = v.getMember("a").getArrayElement(0).asInt();
+            Assert.assertEquals(0, a0);
 
+            int a1 = v.getMember("a").getArrayElement(1).asInt();
+            Assert.assertEquals(1, a1);
         });
     }
 }

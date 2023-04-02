@@ -96,7 +96,7 @@ public class MetaStack {
 
     public void close() {
         if (this.lexicalScope.type == ScopeType.LAMBDA) {
-            logger.info("Closing lambda scope");
+            logger.debug("Closing lambda scope");
             this.frameStack.pop();
         }
         this.lexicalScope = lexicalScope.outer;
@@ -109,14 +109,14 @@ public class MetaStack {
     public Integer requestForLatentSlot(TruffleString attributeName, JXExpressionNode val) {
         int slot = frameStack.peek().addSlot(inferSlotKind(val), attributeName, null);
         lexicalScope.latents.putIfAbsent(attributeName, slot);
-        logger.info("requesting latent for slot {} -> {}", attributeName, slot);
+        logger.debug("requesting latent for slot {} -> {}", attributeName, slot);
         return slot;
     }
 
     public Integer requestForSlot(TruffleString attributeName, JXExpressionNode val) {
         int slot = frameStack.peek().addSlot(inferSlotKind(val), attributeName, null);
         lexicalScope.locals.putIfAbsent(attributeName, slot);
-        logger.info("requesting for slot {} -> {}", attributeName, slot);
+        logger.debug("requesting for slot {} -> {}", attributeName, slot);
 
         return slot;
     }
