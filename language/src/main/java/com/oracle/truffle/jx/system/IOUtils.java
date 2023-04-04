@@ -15,12 +15,8 @@ public class IOUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(IOUtils.class);
 
-  public static void writeJSONXObjectIntoStream(OutputStream os, Object object) {
-    try {
+  public static void writeJSONXObjectIntoStream(OutputStream os, Object object) throws IOException {
       processValue(os, Value.asValue(object));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   private static void processValue(OutputStream os, Value value) throws IOException {

@@ -18,7 +18,7 @@ public class TestUtil {
       assert is != null;
       return new String(is.readAllBytes());
     } catch (IOException ioe) {
-      throw new RuntimeException();
+      throw new RuntimeException(ioe);
     }
   }
 }

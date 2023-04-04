@@ -2,8 +2,7 @@ package com.oracle.truffle.jx.statics.lambda;
 
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.nodes.core.JXIfNode;
-import com.oracle.truffle.jx.nodes.core.JXRangeNodeGen;
+import com.oracle.truffle.jx.nodes.core.*;
 import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
 
 import java.util.List;
@@ -37,7 +36,31 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
         public TruffleString lambdaName() {
             return TruffleString.fromJavaStringUncached("range", TruffleString.Encoding.UTF_8);
         }
-    };
+    },
+    EXPORT {
+        @Override
+        public JXExpressionNode create(List<JXExpressionNode> arguments) {
+            return JXExportNodeGen.create(arguments.get(0));
+        }
+
+        @Override
+        public TruffleString lambdaName() {
+            return TruffleString.fromJavaStringUncached("export", TruffleString.Encoding.UTF_8);
+        }
+    },
+
+    STDOUT {
+        @Override
+        public JXExpressionNode create(List<JXExpressionNode> arguments) {
+            return JXStdoutNodeGen.create(arguments.get(0));
+        }
+
+        @Override
+        public TruffleString lambdaName() {
+            return TruffleString.fromJavaStringUncached("stdout", TruffleString.Encoding.UTF_8);
+        }
+    }
+    ;
 
     static final Map<TruffleString, BuiltInLambda> cache = new ConcurrentHashMap<>();
 

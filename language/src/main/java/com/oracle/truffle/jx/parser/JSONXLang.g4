@@ -122,10 +122,6 @@ simplelanguage
 :
 lambda_def*
 bind_latent[false]?
-(
-  stream=IDENTIFIER
-  STREAM_ACCEPTS                        {factory.setRootStream($stream);}
-)?
 j_root_value
 EOF
 ;

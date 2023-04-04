@@ -129,15 +129,9 @@ public class JXNodeFactory {
     return new JXRootNode(
         language, metaStack.buildRoot(), rootNode, JXStrings.fromJavaString("#root")) {
 
-
       @Override
       public Object execute(VirtualFrame frame) {
-
         Object res = super.execute(frame);
-        if (rootOutPutStream != null) {
-          logger.debug("Writing result to output stream");
-          IOUtils.writeJSONXObjectIntoStream(rootOutPutStream, res);
-        }
         return res;
       }
     };
