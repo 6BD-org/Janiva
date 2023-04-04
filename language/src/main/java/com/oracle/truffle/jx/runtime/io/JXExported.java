@@ -9,24 +9,24 @@ import com.oracle.truffle.jx.runtime.JXPartialLambda;
 
 @ExportLibrary(InteropLibrary.class)
 public class JXExported implements TruffleObject {
-    enum Mode {
-        Value, Lambda, Array
+  enum Mode {
+    Value,
+    Lambda,
+    Array
+  }
+
+  private JXObject jxObject;
+  private final Mode mode;
+
+  public JXExported(JXObject jxObject) {
+    this.jxObject = jxObject;
+    this.mode = Mode.Value;
+  }
+
+  public JXObject getValue() {
+    if (mode != Mode.Value) {
+      throw new IllegalStateException("Cannot get value from non-value export");
     }
-
-    private JXObject jxObject;
-    private final Mode mode;
-
-    public JXExported(JXObject jxObject) {
-        this.jxObject = jxObject;
-        this.mode = Mode.Value;
-    }
-
-    public JXObject getValue() {
-        if (mode != Mode.Value) {
-            throw new IllegalStateException("Cannot get value from non-value export");
-        }
-        return this.jxObject;
-    }
-
-
+    return this.jxObject;
+  }
 }

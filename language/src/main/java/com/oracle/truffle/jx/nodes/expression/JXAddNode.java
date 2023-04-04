@@ -47,10 +47,10 @@ import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXBinaryNode;
-import com.oracle.truffle.jx.nodes.SLTypes;
+import com.oracle.truffle.jx.nodes.JanivaTypes;
 import com.oracle.truffle.jx.nodes.util.SLToTruffleStringNode;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 
@@ -94,7 +94,7 @@ public abstract class JXAddNode extends JXBinaryNode {
    * <p>This specialization is automatically selected by the Truffle DSL if both the left and right
    * operand are {@link JXBigNumber} values. Because the type system defines an {@link ImplicitCast
    * implicit conversion} from {@code long} to {@link JXBigNumber} in {@link
-   * SLTypes#castBigNumber(long)}, this specialization is also taken if the left or the right
+   * JanivaTypes#castBigNumber(long)}, this specialization is also taken if the left or the right
    * operand is a {@code long} value. Because the {@link #add(long, long) long} specialization} has
    * the {@code rewriteOn} attribute, this specialization is also taken if both input values are
    * {@code long} values but the primitive addition overflows.
@@ -124,7 +124,7 @@ public abstract class JXAddNode extends JXBinaryNode {
     return concatNode.execute(
         toTruffleStringNodeLeft.execute(left),
         toTruffleStringNodeRight.execute(right),
-        JSONXLang.STRING_ENCODING,
+        JanivaLang.STRING_ENCODING,
         true);
   }
 

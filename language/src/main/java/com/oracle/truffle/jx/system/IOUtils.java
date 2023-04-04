@@ -1,13 +1,10 @@
 package com.oracle.truffle.jx.system;
 
-import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 
-import com.oracle.truffle.jx.runtime.JXBigNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -15,8 +12,9 @@ public class IOUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(IOUtils.class);
 
-  public static void writeJSONXObjectIntoStream(OutputStream os, Object object) throws IOException {
-      processValue(os, Value.asValue(object));
+  public static void writeJanivaObjectIntoStream(OutputStream os, Object object)
+      throws IOException {
+    processValue(os, Value.asValue(object));
   }
 
   private static void processValue(OutputStream os, Value value) throws IOException {
@@ -66,9 +64,9 @@ public class IOUtils {
 
   private static void processArray(OutputStream os, Value array) throws IOException {
     os.write("[ ".getBytes());
-    for (int i=0; i<array.getArraySize(); i++) {
+    for (int i = 0; i < array.getArraySize(); i++) {
       processValue(os, array.getArrayElement(i));
-      if (i<array.getArraySize()-1) {
+      if (i < array.getArraySize() - 1) {
         os.write(", ".getBytes());
       }
     }

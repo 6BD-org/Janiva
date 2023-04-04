@@ -11,7 +11,6 @@ public class JXAttributeBindingNode extends JXStatementNode {
   private final JXExpressionNode expressionNode;
   private final boolean latent;
 
-
   public JXAttributeBindingNode(int slot, JXExpressionNode expressionNode) {
     this.slot = slot;
     this.expressionNode = expressionNode;
@@ -20,17 +19,17 @@ public class JXAttributeBindingNode extends JXStatementNode {
 
   /**
    * Create a Attribute binding node with latent parameter
+   *
    * @param slot
    * @param expressionNode
-   * @param latent if an attribute is latent, it's hidden from final output, but can be referred by other attributes
+   * @param latent if an attribute is latent, it's hidden from final output, but can be referred by
+   *     other attributes
    */
   public JXAttributeBindingNode(int slot, JXExpressionNode expressionNode, boolean latent) {
     this.slot = slot;
     this.expressionNode = expressionNode;
     this.latent = latent;
   }
-
-
 
   @Override
   public void executeVoid(VirtualFrame frame) {

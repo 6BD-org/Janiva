@@ -46,7 +46,7 @@ import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.instrumentation.AllocationReporter;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXContext;
 
@@ -61,7 +61,7 @@ public abstract class JXNewObjectBuiltin extends JXExpressionNode {
   @Specialization
   @SuppressWarnings("unused")
   public Object newObject(@Cached("lookup()") AllocationReporter reporter) {
-    return JSONXLang.get(this).createObject(reporter);
+    return JanivaLang.get(this).createObject(reporter);
   }
 
   final AllocationReporter lookup() {

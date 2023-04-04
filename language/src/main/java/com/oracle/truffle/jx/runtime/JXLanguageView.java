@@ -49,7 +49,7 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 
 import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
 
@@ -84,7 +84,7 @@ public final class JXLanguageView implements TruffleObject {
    */
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return JSONXLang.class;
+    return JanivaLang.class;
   }
 
   @ExportMessage
@@ -173,7 +173,7 @@ public final class JXLanguageView implements TruffleObject {
   private static boolean isPrimitiveOrFromOtherLanguage(Object value) {
     InteropLibrary interop = InteropLibrary.getFactory().getUncached(value);
     try {
-      return !interop.hasLanguage(value) || interop.getLanguage(value) != JSONXLang.class;
+      return !interop.hasLanguage(value) || interop.getLanguage(value) != JanivaLang.class;
     } catch (UnsupportedMessageException e) {
       throw shouldNotReachHere(e);
     }
@@ -191,7 +191,7 @@ public final class JXLanguageView implements TruffleObject {
     }
     InteropLibrary lib = InteropLibrary.getFactory().getUncached(value);
     try {
-      if (lib.hasLanguage(value) && lib.getLanguage(value) == JSONXLang.class) {
+      if (lib.hasLanguage(value) && lib.getLanguage(value) == JanivaLang.class) {
         return value;
       } else {
         return create(value);

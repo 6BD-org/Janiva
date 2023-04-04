@@ -54,7 +54,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.strings.TruffleStringBuilder;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.SLEvalRootNode;
 import com.oracle.truffle.jx.runtime.JXStrings;
@@ -77,7 +77,7 @@ public abstract class JXStackTraceBuiltin extends JXBuiltinNode {
 
   @TruffleBoundary
   private static TruffleString createStackTrace() {
-    final TruffleStringBuilder str = TruffleStringBuilder.create(JSONXLang.STRING_ENCODING);
+    final TruffleStringBuilder str = TruffleStringBuilder.create(JanivaLang.STRING_ENCODING);
 
     Truffle.getRuntime()
         .iterateFrames(

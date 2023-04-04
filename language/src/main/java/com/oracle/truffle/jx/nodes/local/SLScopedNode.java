@@ -55,7 +55,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
@@ -239,7 +239,7 @@ public abstract class SLScopedNode extends Node {
     @ExportMessage
     @SuppressWarnings("static-method")
     Class<? extends TruffleLanguage<?>> getLanguage() {
-      return JSONXLang.class;
+      return JanivaLang.class;
     }
 
     /** Provide the function name as the scope's display string. */
@@ -439,7 +439,7 @@ public abstract class SLScopedNode extends Node {
       JXWriteLocalVariableNode[] writeNodes = root.getDeclaredArguments();
       for (int i = 0; i < writeNodes.length; i++) {
         JXWriteLocalVariableNode writeNode = writeNodes[i];
-        if (memberTS.equalsUncached(writeNode.getSlotName(), JSONXLang.STRING_ENCODING)) {
+        if (memberTS.equalsUncached(writeNode.getSlotName(), JanivaLang.STRING_ENCODING)) {
           return i;
         }
       }
@@ -493,7 +493,7 @@ public abstract class SLScopedNode extends Node {
     @ExportMessage
     @SuppressWarnings("static-method")
     Class<? extends TruffleLanguage<?>> getLanguage() {
-      return JSONXLang.class;
+      return JanivaLang.class;
     }
 
     /** Provide either "block", or the function name as the scope's display string. */
@@ -777,13 +777,13 @@ public abstract class SLScopedNode extends Node {
       int index = getVisibleVariablesIndex();
       for (int i = 0; i < index; i++) {
         JXWriteLocalVariableNode writeNode = writeNodes[i];
-        if (memberTS.equalsUncached(writeNode.getSlotName(), JSONXLang.STRING_ENCODING)) {
+        if (memberTS.equalsUncached(writeNode.getSlotName(), JanivaLang.STRING_ENCODING)) {
           return writeNode;
         }
       }
       for (int i = parentBlockIndex; i < writeNodes.length; i++) {
         JXWriteLocalVariableNode writeNode = writeNodes[i];
-        if (memberTS.equalsUncached(writeNode.getSlotName(), JSONXLang.STRING_ENCODING)) {
+        if (memberTS.equalsUncached(writeNode.getSlotName(), JanivaLang.STRING_ENCODING)) {
           return writeNode;
         }
       }

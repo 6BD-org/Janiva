@@ -40,7 +40,7 @@
  */
 package com.oracle.truffle.jx.test;
 
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 import org.junit.After;
@@ -68,44 +68,46 @@ public class PrimitiveTest {
 
   @Test
   public void testNumber() {
-    TestUtil.runWithStackTrace(() -> {
-      Value v = context.eval(JSONXLang.ID, "3.5");
-      // logger.debug("Value of 3.5 to double is: " + v.asDouble());
-      Assert.assertEquals(3.5, v.asDouble(), 0.001);
-    });
+    TestUtil.runWithStackTrace(
+        () -> {
+          Value v = context.eval(JanivaLang.ID, "3.5");
+          // logger.debug("Value of 3.5 to double is: " + v.asDouble());
+          Assert.assertEquals(3.5, v.asDouble(), 0.001);
+        });
   }
 
   @Test
   public void testString() {
-    Value v = context.eval(JSONXLang.ID, "\"asd\"");
+    Value v = context.eval(JanivaLang.ID, "\"asd\"");
     Assert.assertEquals("asd", v.asString());
   }
 
   @Test
   public void testArithmetic() {
-    TestUtil.runWithStackTrace(() -> {
-      Value v = context.eval(JSONXLang.ID, "1 + 2");
-      Assert.assertEquals(3, v.asInt());
+    TestUtil.runWithStackTrace(
+        () -> {
+          Value v = context.eval(JanivaLang.ID, "1 + 2");
+          Assert.assertEquals(3, v.asInt());
 
-      v = context.eval(JSONXLang.ID, "1 + \"a\"");
-      Assert.assertEquals("1a", v.asString());
+          v = context.eval(JanivaLang.ID, "1 + \"a\"");
+          Assert.assertEquals("1a", v.asString());
 
-      v = context.eval(JSONXLang.ID, "1 + 2 * 3");
-      Assert.assertEquals(7, v.asInt());
+          v = context.eval(JanivaLang.ID, "1 + 2 * 3");
+          Assert.assertEquals(7, v.asInt());
 
-      v = context.eval(JSONXLang.ID, "1 + (1 + 2 * 3)");
-      Assert.assertEquals(8, v.asInt());
-    });
+          v = context.eval(JanivaLang.ID, "1 + (1 + 2 * 3)");
+          Assert.assertEquals(8, v.asInt());
+        });
   }
 
   @Test
   public void testBoolean() {
     TestUtil.runWithStackTrace(
         () -> {
-          Value v = context.eval(JSONXLang.ID, "true");
+          Value v = context.eval(JanivaLang.ID, "true");
           assertTrue(v.asBoolean());
 
-          v = context.eval(JSONXLang.ID, "false");
+          v = context.eval(JanivaLang.ID, "false");
           Assert.assertFalse(v.asBoolean());
         });
   }

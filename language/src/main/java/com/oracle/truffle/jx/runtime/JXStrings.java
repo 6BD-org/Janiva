@@ -43,7 +43,7 @@ package com.oracle.truffle.jx.runtime;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.SLEvalRootNode;
 
@@ -61,7 +61,7 @@ public final class JXStrings {
   }
 
   public static TruffleString fromJavaString(String s) {
-    return TruffleString.fromJavaStringUncached(s, JSONXLang.STRING_ENCODING);
+    return TruffleString.fromJavaStringUncached(s, JanivaLang.STRING_ENCODING);
   }
 
   public static TruffleString fromObject(Object o) {

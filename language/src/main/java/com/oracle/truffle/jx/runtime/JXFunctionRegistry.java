@@ -44,19 +44,19 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 
 import java.util.*;
 
 /** Manages the mapping from function names to {@link JXFunction function objects}. */
 public final class JXFunctionRegistry {
 
-  private final JSONXLang language;
+  private final JanivaLang language;
   private final FunctionsObject functionsObject = new FunctionsObject();
   private final Map<Map<TruffleString, RootCallTarget>, Void> registeredFunctions =
       new IdentityHashMap<>();
 
-  public JXFunctionRegistry(JSONXLang language) {
+  public JXFunctionRegistry(JanivaLang language) {
     this.language = language;
   }
 
@@ -117,7 +117,7 @@ public final class JXFunctionRegistry {
         result,
         new Comparator<JXFunction>() {
           public int compare(JXFunction f1, JXFunction f2) {
-            assert JSONXLang.STRING_ENCODING == TruffleString.Encoding.UTF_16
+            assert JanivaLang.STRING_ENCODING == TruffleString.Encoding.UTF_16
                 : "SLLanguage.ENCODING changed, string comparison method must be adjusted accordingly!";
             return f1.getName().compareCharsUTF16Uncached(f2.getName());
           }

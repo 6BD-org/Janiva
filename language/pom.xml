@@ -43,10 +43,10 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.oracle</groupId>
-    <artifactId>simplelanguage-parent</artifactId>
+    <artifactId>janiva-parent</artifactId>
     <version>${graalvm.version}</version>
   </parent>
-  <artifactId>simplelanguage</artifactId>
+  <artifactId>janiva</artifactId>
     <properties>
       <jar.dir>${project.build.directory}/jars</jar.dir>
       <test.argLine>--upgrade-module-path='${jar.dir}/truffle-api.jar' --add-opens org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED --add-exports java.base/jdk.internal.module=ALL-UNNAMED</test.argLine>
@@ -111,7 +111,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <finalName>simplelanguage</finalName>
+              <finalName>janiva</finalName>
               <artifactSet>
                 <excludes>
                   <exclude>junit:junit</exclude>

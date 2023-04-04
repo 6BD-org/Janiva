@@ -76,7 +76,9 @@ public final class JXIfNode extends JXExpressionNode {
   private final ConditionProfile condition = ConditionProfile.createCountingProfile();
 
   public JXIfNode(
-      JXExpressionNode conditionNode, JXExpressionNode thenPartNode, JXExpressionNode elsePartNode) {
+      JXExpressionNode conditionNode,
+      JXExpressionNode thenPartNode,
+      JXExpressionNode elsePartNode) {
     this.conditionNode = JXUnboxNodeGen.create(conditionNode);
     this.thenPartNode = thenPartNode;
     this.elsePartNode = elsePartNode;

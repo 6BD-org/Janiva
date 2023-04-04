@@ -46,7 +46,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.InstrumentableNode;
 import com.oracle.truffle.api.nodes.*;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.builtins.JXBuiltinNode;
 import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
@@ -77,7 +77,7 @@ public class JXRootNode extends RootNode {
   private volatile JXWriteLocalVariableNode[] argumentNodesCache;
 
   public JXRootNode(
-      JSONXLang language,
+      JanivaLang language,
       FrameDescriptor frameDescriptor,
       JXExpressionNode bodyNode,
       TruffleString name) {
@@ -151,8 +151,7 @@ public class JXRootNode extends RootNode {
               writeArgNodes.add(wn);
               return true;
             } else if (wn == null
-                && (node instanceof JXStatementNode
-                    && !(node instanceof SLBlockNode))) {
+                && (node instanceof JXStatementNode && !(node instanceof SLBlockNode))) {
               // A different SL node - we're done.
               return false;
             } else {

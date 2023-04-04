@@ -47,12 +47,11 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
@@ -118,10 +117,10 @@ public final class JXBigNumber implements TruffleObject, Comparable<JXBigNumber>
   @ExportMessage
   @TruffleBoundary
   boolean fitsInByte() {
-    try{
+    try {
       value.byteValueExact();
       return true;
-    }catch (Exception e) {
+    } catch (Exception e) {
       return false;
     }
   }
@@ -151,7 +150,7 @@ public final class JXBigNumber implements TruffleObject, Comparable<JXBigNumber>
   @ExportMessage
   @TruffleBoundary
   boolean fitsInLong() {
-    try{
+    try {
       value.longValueExact();
       return true;
     } catch (Exception e) {
@@ -162,7 +161,7 @@ public final class JXBigNumber implements TruffleObject, Comparable<JXBigNumber>
   @ExportMessage
   @TruffleBoundary
   boolean fitsInInt() {
-    try{
+    try {
       value.intValueExact();
       return true;
     } catch (Exception e) {
@@ -173,7 +172,7 @@ public final class JXBigNumber implements TruffleObject, Comparable<JXBigNumber>
   @ExportMessage
   @TruffleBoundary
   boolean fitsInDouble() {
-    try{
+    try {
       value.doubleValue();
       return true;
     } catch (Exception e) {
@@ -248,7 +247,7 @@ public final class JXBigNumber implements TruffleObject, Comparable<JXBigNumber>
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return JSONXLang.class;
+    return JanivaLang.class;
   }
 
   @ExportMessage

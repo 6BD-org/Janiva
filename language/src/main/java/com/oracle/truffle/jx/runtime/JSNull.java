@@ -46,7 +46,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.utilities.TriState;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 
 /**
  * The SL type for a {@code null} (i.e., undefined) value. In Truffle, it is generally discouraged
@@ -86,7 +86,7 @@ public final class JSNull implements TruffleObject {
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return JSONXLang.class;
+    return JanivaLang.class;
   }
 
   /** {@link JSNull} values are interpreted as null values by other languages. */

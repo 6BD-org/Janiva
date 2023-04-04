@@ -45,21 +45,20 @@ import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
 import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
- * The type system of SL, as explained in {@link JSONXLang}. Based on the {@link TypeSystem}
- * annotation, the Truffle DSL generates the subclass {@link SLTypesGen} with type test and type
+ * The type system of SL, as explained in {@link JanivaLang}. Based on the {@link TypeSystem}
+ * annotation, the Truffle DSL generates the subclass {@link JanivaTypesGen} with type test and type
  * conversion methods for some types. In this class, we only cover types where the automatically
  * generated ones would not be sufficient.
  */
 @TypeSystem({long.class, boolean.class})
-public abstract class SLTypes {
+public abstract class JanivaTypes {
 
   /**
    * Example of a manually specified type check that replaces the automatically generated type check
@@ -67,7 +66,7 @@ public abstract class SLTypes {
    * check, because we know that there is only a {@link JSNull#SINGLETON singleton} instance.
    */
   @TypeCheck(JSNull.class)
-  public static boolean isSLNull(Object value) {
+  public static boolean isJanivaNull(Object value) {
     return value == JSNull.SINGLETON;
   }
 
@@ -78,7 +77,7 @@ public abstract class SLTypes {
    */
   @TypeCast(JSNull.class)
   public static JSNull asSLNull(Object value) {
-    assert isSLNull(value);
+    assert isJanivaNull(value);
     return JSNull.SINGLETON;
   }
 

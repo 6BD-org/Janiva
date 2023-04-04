@@ -43,11 +43,11 @@
  * The parser and lexer need to be generated using "mx create-sl-parser".
  */
 
-grammar JSONXLang;
+grammar JanivaLang;
 
 @parser::header
 {
-// DO NOT MODIFY - generated from SimpleLanguage.g4 using "mx create-sl-parser"
+// DO NOT MODIFY - generated from JanivaLanguage.g4 using "mx create-sl-parser"
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,7 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.strings.TruffleString;
 
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
@@ -70,7 +70,7 @@ import com.oracle.truffle.api.nodes.RootNode;
 
 @lexer::header
 {
-// DO NOT MODIFY - generated from SimpleLanguage.g4 using "mx create-sl-parser"
+// DO NOT MODIFY - generated from JanivaLanguage.g4 using "mx create-sl-parser"
 }
 
 @parser::members
@@ -101,9 +101,9 @@ private static void throwParseError(Source source, int line, int charPositionInL
     throw new JXParseError(source, line, col, length, String.format("Error(s) parsing script:%n" + location + message));
 }
 
-public static RootNode parseSL(JSONXLang language, Source source) {
-    JSONXLangLexer lexer = new JSONXLangLexer(CharStreams.fromString(source.getCharacters().toString()));
-    JSONXLangParser parser = new JSONXLangParser(new CommonTokenStream(lexer));
+public static RootNode parseSL(JanivaLang language, Source source) {
+    JanivaLangLexer lexer = new JanivaLangLexer(CharStreams.fromString(source.getCharacters().toString()));
+    JanivaLangParser parser = new JanivaLangParser(new CommonTokenStream(lexer));
     lexer.removeErrorListeners();
     parser.removeErrorListeners();
     BailoutErrorListener listener = new BailoutErrorListener(source);
@@ -111,14 +111,14 @@ public static RootNode parseSL(JSONXLang language, Source source) {
     parser.addErrorListener(listener);
     parser.factory = new JXNodeFactory(language, source);
     parser.source = source;
-    parser.simplelanguage();
+    parser.janiva();
     return parser.factory.getRootNode();
 }
 }
 
 // parser
 
-simplelanguage
+janiva
 :
 lambda_def*
 bind_latent[false]?

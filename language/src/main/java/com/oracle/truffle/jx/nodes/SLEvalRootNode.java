@@ -46,7 +46,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXContext;
 import com.oracle.truffle.jx.runtime.JXStrings;
@@ -69,9 +69,9 @@ public final class SLEvalRootNode extends RootNode {
   @CompilationFinal private boolean registered;
 
   @Child private DirectCallNode mainCallNode;
-  private final JSONXLang language;
+  private final JanivaLang language;
 
-  public SLEvalRootNode(JSONXLang language, RootCallTarget rootFunction) {
+  public SLEvalRootNode(JanivaLang language, RootCallTarget rootFunction) {
     super(language);
     this.language = language;
     this.mainCallNode = rootFunction != null ? DirectCallNode.create(rootFunction) : null;

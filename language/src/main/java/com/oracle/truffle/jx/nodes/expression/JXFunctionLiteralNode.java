@@ -47,7 +47,7 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXContext;
 import com.oracle.truffle.jx.runtime.JXFunction;
@@ -79,7 +79,7 @@ public final class JXFunctionLiteralNode extends JXExpressionNode {
 
   @Override
   public JXFunction executeGeneric(VirtualFrame frame) {
-    JSONXLang l = JSONXLang.get(this);
+    JanivaLang l = JanivaLang.get(this);
     CompilerAsserts.partialEvaluationConstant(l);
 
     JXFunction function;

@@ -1,4 +1,4 @@
-stdout << {
+@stdout << {
     "a": @if << true << 1 << 2,
     "b": @if << false << 1 << 2,
 }

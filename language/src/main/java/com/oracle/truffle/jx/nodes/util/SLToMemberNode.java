@@ -51,7 +51,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.nodes.SLTypes;
+import com.oracle.truffle.jx.nodes.JanivaTypes;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 
 import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
@@ -60,7 +60,7 @@ import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
  * The node to normalize any value to an SL value. This is useful to reduce the number of values
  * expression nodes need to expect.
  */
-@TypeSystemReference(SLTypes.class)
+@TypeSystemReference(JanivaTypes.class)
 @GenerateUncached
 public abstract class SLToMemberNode extends Node {
 

@@ -51,7 +51,7 @@ final class JXEvaluateLocalNode extends RootNode {
   private final TruffleString variable;
   private final MaterializedFrame inspectFrame;
 
-  JXEvaluateLocalNode(JSONXLang language, TruffleString variableName, MaterializedFrame frame) {
+  JXEvaluateLocalNode(JanivaLang language, TruffleString variableName, MaterializedFrame frame) {
     super(language);
     this.variable = variableName;
     this.inspectFrame = frame;

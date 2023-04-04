@@ -9,9 +9,8 @@ import com.oracle.truffle.jx.runtime.io.JXExported;
 @NodeChild("child")
 public abstract class JXExportNode extends JXExpressionNode {
 
-    @Specialization
-    public Object exportObject(JXObject child) {
-        return new JXExported(child);
-    }
-
+  @Specialization
+  public Object exportObject(JXObject child) {
+    return new JXExported(child);
+  }
 }

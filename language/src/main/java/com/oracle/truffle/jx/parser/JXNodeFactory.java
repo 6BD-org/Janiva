@@ -44,7 +44,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;
 import com.oracle.truffle.jx.nodes.JXBinaryNode;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
@@ -58,7 +58,6 @@ import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
 import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
-import com.oracle.truffle.jx.system.IOUtils;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
 import com.oracle.truffle.jx.runtime.JXStrings;
 import org.antlr.v4.runtime.Parser;
@@ -86,29 +85,26 @@ public class JXNodeFactory {
     return new JXBoolLiteralNode(bool_literal);
   }
 
-
   /* State while parsing a source unit. */
   private final Source source;
   private final TruffleString sourceString;
   private JXExpressionNode rootNode;
 
   private final MetaStack metaStack = new MetaStack();
-  private final JSONXLang language;
+  private final JanivaLang language;
 
   private OutputStream rootOutPutStream = null;
 
   private LambdaTemplate lambdaTemplate;
 
-  public JXNodeFactory(JSONXLang language, Source source) {
+  public JXNodeFactory(JanivaLang language, Source source) {
     this.language = language;
     this.source = source;
     this.sourceString = JXStrings.fromJavaString(source.getCharacters().toString());
   }
 
-
   public void setRootStream(Token streamName) {
-    if (streamName == null)
-      return;
+    if (streamName == null) return;
     switch (streamName.getText()) {
       case "stdout":
         if (this.rootOutPutStream != null) {
@@ -170,7 +166,6 @@ public class JXNodeFactory {
     return result;
   }
 
-
   public JXExpressionNode createStringLiteral(Token literalToken, boolean removeQuotes) {
     final JXStringLiteralNode result =
         new JXStringLiteralNode(asTruffleString(literalToken, removeQuotes));
@@ -191,16 +186,16 @@ public class JXNodeFactory {
       length -= 2;
     }
     return sourceString.substringByteIndexUncached(
-        fromIndex * 2, length * 2, JSONXLang.STRING_ENCODING, true);
+        fromIndex * 2, length * 2, JanivaLang.STRING_ENCODING, true);
   }
 
   public void startObject() {
-    //logger.debug("Start object");
+    // logger.debug("Start object");
     metaStack.startObject();
   }
 
   public JXObjectAssemblyNode endObject(List<JXStatementNode> nodes) {
-    //logger.debug("End object");
+    // logger.debug("End object");
     JXObjectAssemblyNode res =
         new JXObjectAssemblyNode(
             nodes,
@@ -213,18 +208,18 @@ public class JXNodeFactory {
   }
 
   public void startArray() {
-    //logger.debug("Start array");
+    // logger.debug("Start array");
     // Create one scope, but this time is for list
     metaStack.startArray();
   }
 
   public void appendArray(JXExpressionNode n) {
-    //logger.debug("Append to array");
+    // logger.debug("Append to array");
     metaStack.appendArray(n);
   }
 
   public JXExpressionNode closeArray() {
-    //logger.debug("Close array");
+    // logger.debug("Close array");
 
     JXExpressionNode res =
         new JXArrayAssemblyNode(
@@ -236,11 +231,11 @@ public class JXNodeFactory {
 
   public JXStatementNode bindLatent(Token valName, JXExpressionNode val, boolean isFunction) {
     TruffleString ts = asTruffleString(valName, false);
-      Integer slot = this.metaStack.lookupAttribute(ts, false);
-      if (slot == null) {
-        slot = metaStack.requestForLatentSlot(ts, val);
-      }
-      return new JXAttributeBindingNode(slot, val, true);
+    Integer slot = this.metaStack.lookupAttribute(ts, false);
+    if (slot == null) {
+      slot = metaStack.requestForLatentSlot(ts, val);
+    }
+    return new JXAttributeBindingNode(slot, val, true);
   }
 
   public JXExpressionNode referAttribute(Token attributeName, boolean isFunc) {
@@ -256,7 +251,6 @@ public class JXNodeFactory {
       assert this.lambdaTemplate != null;
       return new JXLambdaAttrAccessNode(ts, lambdaTemplate);
     }
-
   }
 
   /**
@@ -306,12 +300,11 @@ public class JXNodeFactory {
       throw new JXSyntaxError("Referring to non existing lambda: " + ts);
     }
     List<JXLambdaArgBindingNode> argBindings = new ArrayList<>();
-    for (int i=0; i<parameters.size(); i++) {
+    for (int i = 0; i < parameters.size(); i++) {
       argBindings.add(new JXLambdaArgBindingNode(i, parameters.get(i)));
     }
     return new JXLambdaNode(this.language, lt, argBindings, lt.getBody());
   }
-
 
   /** Creates source description of a single token. */
   private static void srcFromToken(JXStatementNode node, Token token) {

@@ -50,8 +50,8 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.nodes.SLTypes;
+import com.oracle.truffle.jx.JanivaLang;
+import com.oracle.truffle.jx.nodes.JanivaTypes;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 import com.oracle.truffle.jx.runtime.JXFunction;
@@ -63,7 +63,7 @@ import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
  * The node to normalize any value to an SL value. This is useful to reduce the number of values
  * expression nodes need to expect.
  */
-@TypeSystemReference(SLTypes.class)
+@TypeSystemReference(JanivaTypes.class)
 @GenerateUncached
 public abstract class SLToTruffleStringNode extends Node {
 
@@ -83,7 +83,7 @@ public abstract class SLToTruffleStringNode extends Node {
   @Specialization
   protected static TruffleString fromString(
       String value, @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
-    return fromJavaStringNode.execute(value, JSONXLang.STRING_ENCODING);
+    return fromJavaStringNode.execute(value, JanivaLang.STRING_ENCODING);
   }
 
   @Specialization
@@ -100,14 +100,14 @@ public abstract class SLToTruffleStringNode extends Node {
   @TruffleBoundary
   protected static TruffleString fromLong(
       long value, @Cached TruffleString.FromLongNode fromLongNode) {
-    return fromLongNode.execute(value, JSONXLang.STRING_ENCODING, true);
+    return fromLongNode.execute(value, JanivaLang.STRING_ENCODING, true);
   }
 
   @Specialization
   @TruffleBoundary
   protected static TruffleString fromBigNumber(
       JXBigNumber value, @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
-    return fromJavaStringNode.execute(value.toString(), JSONXLang.STRING_ENCODING);
+    return fromJavaStringNode.execute(value.toString(), JanivaLang.STRING_ENCODING);
   }
 
   @Specialization
@@ -123,12 +123,12 @@ public abstract class SLToTruffleStringNode extends Node {
       @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
     try {
       if (interop.fitsInLong(value)) {
-        return fromLongNode.execute(interop.asLong(value), JSONXLang.STRING_ENCODING, true);
+        return fromLongNode.execute(interop.asLong(value), JanivaLang.STRING_ENCODING, true);
       } else if (interop.isString(value)) {
-        return fromJavaStringNode.execute(interop.asString(value), JSONXLang.STRING_ENCODING);
+        return fromJavaStringNode.execute(interop.asString(value), JanivaLang.STRING_ENCODING);
       } else if (interop.isNumber(value) && value instanceof JXBigNumber) {
         return fromJavaStringNode.execute(
-            bigNumberToString((JXBigNumber) value), JSONXLang.STRING_ENCODING);
+            bigNumberToString((JXBigNumber) value), JanivaLang.STRING_ENCODING);
       } else if (interop.isNull(value)) {
         return JXStrings.NULL_LC;
       } else {

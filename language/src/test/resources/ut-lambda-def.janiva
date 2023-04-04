@@ -1,6 +1,6 @@
 @add :: (x, y) >> $x + $y #
 @tuple_to_dict :: (x, y) >> {"first": $x, "second": $y} #
-stdout << {
+@stdout << {
     "a": @add << 1 << 2,
     _tuple << @tuple_to_dict << 1 << 2,
     "tuple": $_tuple,

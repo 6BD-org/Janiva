@@ -90,7 +90,7 @@ public class JXException extends AbstractTruffleException {
 
     result.append(": operation");
     if (operation != null) {
-      NodeInfo nodeInfo = JSONXLang.lookupNodeInfo(operation.getClass());
+      NodeInfo nodeInfo = JanivaLang.lookupNodeInfo(operation.getClass());
       if (nodeInfo != null) {
         result.append(" \"").append(nodeInfo.shortName()).append("\"");
       }

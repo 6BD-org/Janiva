@@ -53,7 +53,7 @@ import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.builtins.*;
 import org.graalvm.polyglot.Context;
 
@@ -66,8 +66,8 @@ import java.util.List;
 import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
 
 /**
- * The run-time state of SL during execution. The context is created by the {@link JSONXLang}. It is
- * used, for example, by {@link JXBuiltinNode#getContext() builtin functions}.
+ * The run-time state of SL during execution. The context is created by the {@link JanivaLang}. It
+ * is used, for example, by {@link JXBuiltinNode#getContext() builtin functions}.
  *
  * <p>It would be an error to have two different context instances during the execution of one
  * script. However, if two separate scripts run in one Java VM at the same time, they have a
@@ -75,7 +75,7 @@ import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
  */
 public final class JXContext {
 
-  private final JSONXLang language;
+  private final JanivaLang language;
   @CompilationFinal private Env env;
   private final BufferedReader input;
   private final PrintWriter output;
@@ -84,7 +84,7 @@ public final class JXContext {
   private final List<JXFunction> shutdownHooks = new ArrayList<>();
 
   public JXContext(
-      JSONXLang language,
+      JanivaLang language,
       TruffleLanguage.Env env,
       List<NodeFactory<? extends JXBuiltinNode>> externalBuiltins) {
     this.env = env;
@@ -220,7 +220,7 @@ public final class JXContext {
   }
 
   private static final ContextReference<JXContext> REFERENCE =
-      ContextReference.create(JSONXLang.class);
+      ContextReference.create(JanivaLang.class);
 
   public static JXContext get(Node node) {
     return REFERENCE.get(node);

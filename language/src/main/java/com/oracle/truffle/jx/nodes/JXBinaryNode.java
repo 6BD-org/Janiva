@@ -55,48 +55,49 @@ import java.util.Map;
 @NodeChild("leftNode")
 @NodeChild("rightNode")
 public abstract class JXBinaryNode extends JXExpressionNode {
-    public static JXExpressionNode create(Token op, JXExpressionNode leftUnboxed, JXExpressionNode rightUnboxed) {
-        JXExpressionNode result;
-        switch (op.getText()) {
-            case "+":
-                result = JXAddNodeGen.create(leftUnboxed, rightUnboxed);
-                break;
-            case "*":
-                result = JXMulNodeGen.create(leftUnboxed, rightUnboxed);
-                break;
-            case "/":
-                result = JXDivNodeGen.create(leftUnboxed, rightUnboxed);
-                break;
-            case "-":
-                result = JXSubNodeGen.create(leftUnboxed, rightUnboxed);
-                break;
-            case "<":
-                result = JXLessThanNodeGen.create(leftUnboxed, rightUnboxed);
-                break;
-            case "<=":
-                result = JXLessOrEqualNodeGen.create(leftUnboxed, rightUnboxed);
-                break;
-            case ">":
-                result = JXLogicalNotNodeGen.create(JXLessOrEqualNodeGen.create(leftUnboxed, rightUnboxed));
-                break;
-            case ">=":
-                result = JXLogicalNotNodeGen.create(JXLessThanNodeGen.create(leftUnboxed, rightUnboxed));
-                break;
-            case "==":
-                result = JXEqualNodeGen.create(leftUnboxed, rightUnboxed);
-                break;
-            case "!=":
-                result = JXLogicalNotNodeGen.create(JXEqualNodeGen.create(leftUnboxed, rightUnboxed));
-                break;
-            case "&&":
-                result = new JXLogicalAndNode(leftUnboxed, rightUnboxed);
-                break;
-            case "||":
-                result = new JXLogicalOrNode(leftUnboxed, rightUnboxed);
-                break;
-            default:
-                throw new RuntimeException("unexpected operation: " + op.getText());
-        }
-        return result;
+  public static JXExpressionNode create(
+      Token op, JXExpressionNode leftUnboxed, JXExpressionNode rightUnboxed) {
+    JXExpressionNode result;
+    switch (op.getText()) {
+      case "+":
+        result = JXAddNodeGen.create(leftUnboxed, rightUnboxed);
+        break;
+      case "*":
+        result = JXMulNodeGen.create(leftUnboxed, rightUnboxed);
+        break;
+      case "/":
+        result = JXDivNodeGen.create(leftUnboxed, rightUnboxed);
+        break;
+      case "-":
+        result = JXSubNodeGen.create(leftUnboxed, rightUnboxed);
+        break;
+      case "<":
+        result = JXLessThanNodeGen.create(leftUnboxed, rightUnboxed);
+        break;
+      case "<=":
+        result = JXLessOrEqualNodeGen.create(leftUnboxed, rightUnboxed);
+        break;
+      case ">":
+        result = JXLogicalNotNodeGen.create(JXLessOrEqualNodeGen.create(leftUnboxed, rightUnboxed));
+        break;
+      case ">=":
+        result = JXLogicalNotNodeGen.create(JXLessThanNodeGen.create(leftUnboxed, rightUnboxed));
+        break;
+      case "==":
+        result = JXEqualNodeGen.create(leftUnboxed, rightUnboxed);
+        break;
+      case "!=":
+        result = JXLogicalNotNodeGen.create(JXEqualNodeGen.create(leftUnboxed, rightUnboxed));
+        break;
+      case "&&":
+        result = new JXLogicalAndNode(leftUnboxed, rightUnboxed);
+        break;
+      case "||":
+        result = new JXLogicalOrNode(leftUnboxed, rightUnboxed);
+        break;
+      default:
+        throw new RuntimeException("unexpected operation: " + op.getText());
     }
+    return result;
+  }
 }

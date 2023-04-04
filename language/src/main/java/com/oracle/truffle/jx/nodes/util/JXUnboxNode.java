@@ -48,9 +48,9 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.nodes.SLTypes;
+import com.oracle.truffle.jx.nodes.JanivaTypes;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 import com.oracle.truffle.jx.runtime.JXFunction;
@@ -61,7 +61,7 @@ import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
  * The node to normalize any value to an SL value. This is useful to reduce the number of values
  * expression nodes need to expect.
  */
-@TypeSystemReference(SLTypes.class)
+@TypeSystemReference(JanivaTypes.class)
 @NodeChild
 public abstract class JXUnboxNode extends JXExpressionNode {
 
@@ -70,7 +70,7 @@ public abstract class JXUnboxNode extends JXExpressionNode {
   @Specialization
   protected static TruffleString fromString(
       String value, @Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
-    return fromJavaStringNode.execute(value, JSONXLang.STRING_ENCODING);
+    return fromJavaStringNode.execute(value, JanivaLang.STRING_ENCODING);
   }
 
   @Specialization

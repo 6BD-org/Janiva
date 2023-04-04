@@ -48,7 +48,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.runtime.JXContext;
 
 /**
@@ -96,6 +96,6 @@ public abstract class JXEvalBuiltin extends JXBuiltinNode {
   /* Work around findbugs warning in generate code. */
   protected static boolean stringsEqual(
       TruffleString.EqualNode node, TruffleString a, TruffleString b) {
-    return node.execute(a, b, JSONXLang.STRING_ENCODING);
+    return node.execute(a, b, JanivaLang.STRING_ENCODING);
   }
 }

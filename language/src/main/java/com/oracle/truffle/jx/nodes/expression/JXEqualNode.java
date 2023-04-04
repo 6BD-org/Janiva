@@ -48,7 +48,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXBinaryNode;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
@@ -90,7 +90,7 @@ public abstract class JXEqualNode extends JXBinaryNode {
   @Specialization
   protected boolean doTruffleString(
       TruffleString left, TruffleString right, @Cached TruffleString.EqualNode equalNode) {
-    return equalNode.execute(left, right, JSONXLang.STRING_ENCODING);
+    return equalNode.execute(left, right, JanivaLang.STRING_ENCODING);
   }
 
   @Specialization

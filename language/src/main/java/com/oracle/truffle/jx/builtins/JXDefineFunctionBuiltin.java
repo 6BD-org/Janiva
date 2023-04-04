@@ -45,7 +45,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 
 /**
  * Builtin function to define (or redefine) functions. The provided source code is parsed the same
@@ -59,7 +59,7 @@ public abstract class JXDefineFunctionBuiltin extends JXBuiltinNode {
   public TruffleString defineFunction(TruffleString code) {
     // @formatter:off
     Source source =
-        Source.newBuilder(JSONXLang.ID, code.toJavaStringUncached(), "[defineFunction]").build();
+        Source.newBuilder(JanivaLang.ID, code.toJavaStringUncached(), "[defineFunction]").build();
     // @formatter:on
     /* The same parsing code as for parsing the initial source. */
     // SLContext.get(this).getFunctionRegistry().register(source);

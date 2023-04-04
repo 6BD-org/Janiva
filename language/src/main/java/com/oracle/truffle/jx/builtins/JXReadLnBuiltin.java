@@ -45,7 +45,7 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.runtime.JXContext;
 import com.oracle.truffle.jx.runtime.JXStrings;
@@ -61,7 +61,7 @@ public abstract class JXReadLnBuiltin extends JXBuiltinNode {
   public TruffleString readln(@Cached TruffleString.FromJavaStringNode fromJavaStringNode) {
     TruffleString result =
         fromJavaStringNode.execute(
-            doRead(JXContext.get(this).getInput()), JSONXLang.STRING_ENCODING);
+            doRead(JXContext.get(this).getInput()), JanivaLang.STRING_ENCODING);
     if (result == null) {
       /*
        * We do not have a sophisticated end of file handling, so returning an empty string is

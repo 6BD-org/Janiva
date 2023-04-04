@@ -1,4 +1,4 @@
-stdout << {
+@stdout << {
     _ << false,
     "a": @range << 3,
     "b": @range << "asd",

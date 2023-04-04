@@ -51,7 +51,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.profiles.BranchProfile;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +71,7 @@ final class FunctionsObject implements TruffleObject {
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return JSONXLang.class;
+    return JanivaLang.class;
   }
 
   @ExportMessage

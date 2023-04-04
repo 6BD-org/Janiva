@@ -43,7 +43,7 @@ package com.oracle.truffle.jx.nodes;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.runtime.JXFunction;
 import com.oracle.truffle.jx.runtime.JXUndefinedNameException;
 
@@ -53,7 +53,7 @@ import com.oracle.truffle.jx.runtime.JXUndefinedNameException;
  * JXUndefinedNameException#undefinedFunction exception}.
  */
 public class JXUndefinedFunctionRootNode extends JXRootNode {
-  public JXUndefinedFunctionRootNode(JSONXLang language, TruffleString name) {
+  public JXUndefinedFunctionRootNode(JanivaLang language, TruffleString name) {
     super(language, null, null, name);
   }
 

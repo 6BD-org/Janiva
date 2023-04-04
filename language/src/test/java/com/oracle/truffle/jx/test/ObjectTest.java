@@ -1,7 +1,6 @@
 package com.oracle.truffle.jx.test;
 
-import com.oracle.truffle.jx.JSONXLang;
-import com.oracle.truffle.jx.runtime.JXObject;
+import com.oracle.truffle.jx.JanivaLang;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 import org.junit.After;
@@ -34,7 +33,7 @@ public class ObjectTest {
   public void testObject() {
     TestUtil.runWithStackTrace(
         () -> {
-          Value v = context.eval(JSONXLang.ID, "{\"a\":1}");
+          Value v = context.eval(JanivaLang.ID, "{\"a\":1}");
           System.out.println("Object v has members: " + v.getMemberKeys());
           Assert.assertTrue(v.hasMember("a"));
           Assert.assertEquals(1, v.getMember("a").asInt());
@@ -45,8 +44,8 @@ public class ObjectTest {
   public void testNestedObject() {
     TestUtil.runWithStackTrace(
         () -> {
-          String src = TestUtil.readResourceAsString("ut-nested-object.jsonx");
-          Value v = context.eval(JSONXLang.ID, src);
+          String src = TestUtil.readResourceAsString("ut-nested-object.janiva");
+          Value v = context.eval(JanivaLang.ID, src);
           Assert.assertTrue(v.hasMember("a"));
           Assert.assertTrue(v.hasMember("b"));
           Assert.assertEquals(1, v.getMember("a").asInt());
@@ -63,7 +62,7 @@ public class ObjectTest {
     TestUtil.runWithStackTrace(
         () -> {
           String src = "[1,2,3]";
-          Value v = context.eval(JSONXLang.ID, src);
+          Value v = context.eval(JanivaLang.ID, src);
           // JXArray  = v.as(JXArray.class);
           int[] arr = v.as(int[].class);
 
@@ -74,13 +73,12 @@ public class ObjectTest {
 
   @Test
   public void testArithmeticsAsValue() {
-      TestUtil.runWithStackTrace(
-              () -> {
-                  String src = TestUtil.readResourceAsString("ut-arithmetics-as-value.jsonx");
-                  Value v = context.eval(JSONXLang.ID, src);
-                  Assert.assertEquals(3, v.getMember("a").asInt());
-              }
-      );
+    TestUtil.runWithStackTrace(
+        () -> {
+          String src = TestUtil.readResourceAsString("ut-arithmetics-as-value.janiva");
+          Value v = context.eval(JanivaLang.ID, src);
+          Assert.assertEquals(3, v.getMember("a").asInt());
+        });
   }
 
   @Test
@@ -89,8 +87,8 @@ public class ObjectTest {
 
     TestUtil.runWithStackTrace(
         () -> {
-          String src = TestUtil.readResourceAsString("ut-nested-list.jsonx");
-          Value v = context.eval(JSONXLang.ID, src);
+          String src = TestUtil.readResourceAsString("ut-nested-list.janiva");
+          Value v = context.eval(JanivaLang.ID, src);
           Value item1 = v.getArrayElement(0);
           Value item2 = v.getArrayElement(1);
           Assert.assertEquals(3, item2.asInt());
@@ -100,22 +98,21 @@ public class ObjectTest {
   }
 
   @Test
-    public void testLatentBinding() {
-      logger.debug("Start latent binding test");
-      TestUtil.runWithStackTrace(
-              () -> {
-                  String src = TestUtil.readResourceAsString("ut-latent-bind-1.jsonx");
-                  Value v = context.eval(JSONXLang.ID, src);
-                  Integer c = v.getMember("c").as(Integer.class);
-                  Assert.assertEquals(Integer.valueOf(2), c);
+  public void testLatentBinding() {
+    logger.debug("Start latent binding test");
+    TestUtil.runWithStackTrace(
+        () -> {
+          String src = TestUtil.readResourceAsString("ut-latent-bind-1.janiva");
+          Value v = context.eval(JanivaLang.ID, src);
+          Integer c = v.getMember("c").as(Integer.class);
+          Assert.assertEquals(Integer.valueOf(2), c);
 
-                  Value d = v.getMember("d");
-                  Value e = v.getMember("e");
+          Value d = v.getMember("d");
+          Value e = v.getMember("e");
 
-                  Assert.assertEquals(2, d.getMember("c").asInt());
-                  Assert.assertEquals(3, e.getMember("c").asInt());
-                  Assert.assertEquals(2, e.getMember("d").asInt());
-              }
-      );
+          Assert.assertEquals(2, d.getMember("c").asInt());
+          Assert.assertEquals(3, e.getMember("c").asInt());
+          Assert.assertEquals(2, e.getMember("d").asInt());
+        });
   }
 }

@@ -1,4 +1,4 @@
-# JSONX
+# Janiva
 
 
 # Build Project
@@ -19,7 +19,7 @@ mvn clean test
 ```
 
 
-JSONX is an extension of JSON. It enhances json by providing the capability of 
+Janiva is an extension of JSON. It enhances json by providing the capability of 
 doing arithmetics, functional programming, and control flows
 
 # Terminologies
@@ -31,12 +31,12 @@ Data flow is represented by `<<` operator. Is is used for
 
 
 ## Primitive
-JSONX primitives are 
+Janiva primitives are 
 - number
 - string
 - boolean
 
-a primitive itself is a JSONX program
+a primitive itself is a Janiva program
 
 ## Object
 Object composes of attributes where keys are strings and values are
@@ -111,7 +111,7 @@ A attribute or latent attribute can be referred to and bound to another attribut
 
 
 ## Std out
-To make JSONX usable, it is able to feed interpreted json to output, simple using `<<` operator
+To make Janiva usable, it is able to feed interpreted json to output, simple using `<<` operator
 
 ```json
 @stdout << {
@@ -152,7 +152,7 @@ stdout << {
 ```
 
 ## Control flow
-There's no control flow in jsonx, instead, it provides couple of built-in functions that do the similar job.
+There's no control flow in Janiva, instead, it provides couple of built-in functions that do the similar job.
 
 ### If
 If takes three arguments

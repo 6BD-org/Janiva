@@ -50,8 +50,8 @@ public final class JXFileDetector implements TruffleFile.FileTypeDetector {
   @Override
   public String findMimeType(TruffleFile file) throws IOException {
     String name = file.getName();
-    if (name != null && name.endsWith(".jsonx")) {
-      return JSONXLang.MIME_TYPE;
+    if (name != null && name.endsWith(".janiva")) {
+      return JanivaLang.MIME_TYPE;
     }
     return null;
   }

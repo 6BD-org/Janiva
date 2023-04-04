@@ -6,16 +6,16 @@ import com.oracle.truffle.jx.nodes.JXStatementNode;
 
 public class JXLambdaArgBindingNode extends JXStatementNode {
 
-    private int offset;
-    private JXExpressionNode val;
+  private int offset;
+  private JXExpressionNode val;
 
-    public JXLambdaArgBindingNode(int offset, JXExpressionNode val) {
-        this.offset = offset;
-        this.val = val;
-    }
+  public JXLambdaArgBindingNode(int offset, JXExpressionNode val) {
+    this.offset = offset;
+    this.val = val;
+  }
 
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        frame.getArguments()[offset] = val.executeGeneric(frame);
-    }
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    frame.getArguments()[offset] = val.executeGeneric(frame);
+  }
 }

@@ -56,7 +56,7 @@ import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.api.utilities.CyclicAssumption;
 import com.oracle.truffle.api.utilities.TriState;
-import com.oracle.truffle.jx.JSONXLang;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXUndefinedFunctionRootNode;
 
 import java.util.logging.Level;
@@ -84,7 +84,7 @@ public final class JXFunction implements TruffleObject {
 
   public static final int INLINE_CACHE_SIZE = 2;
 
-  private static final TruffleLogger LOG = TruffleLogger.getLogger(JSONXLang.ID, JXFunction.class);
+  private static final TruffleLogger LOG = TruffleLogger.getLogger(JanivaLang.ID, JXFunction.class);
 
   /** The name of the function. */
   private final TruffleString name;
@@ -99,7 +99,7 @@ public final class JXFunction implements TruffleObject {
    */
   private final CyclicAssumption callTargetStable;
 
-  protected JXFunction(JSONXLang language, TruffleString name) {
+  protected JXFunction(JanivaLang language, TruffleString name) {
     this(name, language.getOrCreateUndefinedFunction(name));
   }
 
@@ -150,7 +150,7 @@ public final class JXFunction implements TruffleObject {
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
-    return JSONXLang.class;
+    return JanivaLang.class;
   }
 
   /** {@link JXFunction} instances are always visible as executable to other languages. */

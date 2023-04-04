@@ -54,7 +54,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
  * The annotation {@link TypeSystemReference} specifies the SL types. Specifying it here defines the
  * type system for all subclasses.
  */
-@TypeSystemReference(SLTypes.class)
+@TypeSystemReference(JanivaTypes.class)
 @NodeInfo(description = "The abstract base node for all expressions")
 @GenerateWrapper
 public abstract class JXExpressionNode extends JXStatementNode {
@@ -101,10 +101,10 @@ public abstract class JXExpressionNode extends JXStatementNode {
    */
 
   public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
-    return SLTypesGen.expectLong(executeGeneric(frame));
+    return JanivaTypesGen.expectLong(executeGeneric(frame));
   }
 
   public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
-    return SLTypesGen.expectBoolean(executeGeneric(frame));
+    return JanivaTypesGen.expectBoolean(executeGeneric(frame));
   }
 }

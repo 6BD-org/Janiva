@@ -58,7 +58,7 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.builtins.*;
 import com.oracle.truffle.jx.nodes.*;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
-import com.oracle.truffle.jx.parser.JSONXLangParser;
+import com.oracle.truffle.jx.parser.JanivaLangParser;
 import com.oracle.truffle.jx.runtime.*;
 import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
@@ -70,13 +70,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- */
+/** */
 @TruffleLanguage.Registration(
-    id = JSONXLang.ID,
-    name = "JSONX",
-    defaultMimeType = JSONXLang.MIME_TYPE,
-    characterMimeTypes = JSONXLang.MIME_TYPE,
+    id = JanivaLang.ID,
+    name = "Janiva",
+    defaultMimeType = JanivaLang.MIME_TYPE,
+    characterMimeTypes = JanivaLang.MIME_TYPE,
     contextPolicy = ContextPolicy.SHARED,
     fileTypeDetectors = JXFileDetector.class, //
     website = "https://www.graalvm.org/graalvm-as-a-platform/implement-language/")
@@ -90,12 +89,10 @@ import java.util.concurrent.ConcurrentHashMap;
   StandardTags.ReadVariableTag.class,
   StandardTags.WriteVariableTag.class
 })
-public final class JSONXLang extends TruffleLanguage<JXContext> {
+public final class JanivaLang extends TruffleLanguage<JXContext> {
 
-  public static final String ID = "jsonx";
-  public static final String MIME_TYPE = "application/jsonx";
-  private static final Source BUILTIN_SOURCE =
-      Source.newBuilder(JSONXLang.ID, "", "SL builtin").build();
+  public static final String ID = "janiva";
+  public static final String MIME_TYPE = "application/janiva";
 
   public static final TruffleString.Encoding STRING_ENCODING = TruffleString.Encoding.UTF_16;
 
@@ -109,7 +106,7 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
   private final Shape rootShape;
   private final Shape jxArrayShape;
 
-  public JSONXLang() {
+  public JanivaLang() {
     this.rootShape = Shape.newBuilder().layout(JXObject.class).build();
     this.jxArrayShape = Shape.newBuilder().layout(JXArray.class).build();
   }
@@ -205,7 +202,7 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
      * Parse the provided source. At this point, we do not have a SLContext yet. Registration of
      * the functions with the SLContext happens lazily in SLEvalRootNode.
      */
-    rootNode = JSONXLangParser.parseSL(this, source);
+    rootNode = JanivaLangParser.parseSL(this, source);
 
     RootCallTarget main = rootNode.getCallTarget();
     RootNode evalMain;
@@ -290,10 +287,10 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
     return array;
   }
 
-  private static final LanguageReference<JSONXLang> REFERENCE =
-      LanguageReference.create(JSONXLang.class);
+  private static final LanguageReference<JanivaLang> REFERENCE =
+      LanguageReference.create(JanivaLang.class);
 
-  public static JSONXLang get(Node node) {
+  public static JanivaLang get(Node node) {
     return REFERENCE.get(node);
   }
 
@@ -318,6 +315,5 @@ public final class JSONXLang extends TruffleLanguage<JXContext> {
       LambdaTemplate lt = new LambdaTemplate(builtIn.lambdaName());
       LambdaRegistry.getInstance().registerBuiltIn(lt);
     }
-
   }
 }
