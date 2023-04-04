@@ -51,12 +51,38 @@
     <graalvm.version>22.3.0</graalvm.version>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-    <lomobk.version>1.18.24</lomobk.version>
+    <lomobk.version>1.18.26</lomobk.version>
   </properties>
   <packaging>pom</packaging>
   <modules>
     <module>language</module>
     <module>launcher</module>
     <module>native</module>
+    <module>janiva-io</module>
   </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.graalvm.truffle</groupId>
+        <artifactId>truffle-api</artifactId>
+        <version>${graalvm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.graalvm.sdk</groupId>
+        <artifactId>graal-sdk</artifactId>
+        <version>${graalvm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.graalvm.truffle</groupId>
+        <artifactId>truffle-tck</artifactId>
+        <version>${graalvm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.graalvm.truffle</groupId>
+        <artifactId>truffle-dsl-processor</artifactId>
+        <version>${graalvm.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
