@@ -114,7 +114,7 @@ A attribute or latent attribute can be referred to and bound to another attribut
 To make JSONX usable, it is able to feed interpreted json to output, simple using `<<` operator
 
 ```json
-stdout << {
+@stdout << {
   "a": 1,
   "b": 2.5,
   "c": {
@@ -122,6 +122,8 @@ stdout << {
   }
 }
 ```
+
+Internally, stdout performs like a built-in lambda that flush the object to std out and return a reference to original object.
 
 ## lambda
 `lambdas` are pure functions declared at the beginning of the script. Definitions of `lambdas` start with `@` and end with `#`. `@` is also used to refer to a lambda instance.
@@ -168,3 +170,15 @@ stdout << {
 }
 
 ```
+
+### Range
+Range can take three types of arguments
+- If a integer `N` is given, it returns a integer array [0, ... N-1]
+- If a string is given, it simply split the string into chars, for example "hello" >> ["h", "e", "l", "l", "o"]
+- If an array is given, it returns a reference to that array. Note that arrays are immutable, thus no copy is required
+
+
+## Import and Export
+To make a program useful, it must be able to interact with external system, same rule applies here. We provide mechanism to export/import some value or lambdas in a script.
+
+TODO
