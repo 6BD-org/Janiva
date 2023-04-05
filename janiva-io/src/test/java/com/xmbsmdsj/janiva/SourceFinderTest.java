@@ -8,6 +8,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.io.File;
 import java.io.IOException;
 
 @RunWith(JUnit4.class)
@@ -21,10 +23,10 @@ public class SourceFinderTest {
       Source newS =
               SourceFinder.findImported(
                       new MockNode(),
-                      s,
+                      s.getPath(),
                       TruffleString.fromJavaStringUncached("a.b.c", TruffleString.Encoding.UTF_8));
       System.out.println(newS.getPath());
-      Assert.assertTrue(newS.getPath().endsWith("a/b/c.janiva"));
+      Assert.assertTrue(newS.getPath().endsWith("a" + File.separator + "b"  + File.separator + "c.janiva"));
     } catch (Exception e) {
       e.printStackTrace();
     }

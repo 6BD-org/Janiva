@@ -1,0 +1,3 @@
+@stdout << {
+    "value": @import << "ex.ut-export"
+}

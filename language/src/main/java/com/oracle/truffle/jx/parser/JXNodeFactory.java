@@ -293,7 +293,7 @@ public class JXNodeFactory {
   public JXExpressionNode materialize(Token lambdaName, List<JXExpressionNode> parameters) {
     TruffleString ts = asTruffleString(lambdaName, false);
     if (LambdaRegistry.getInstance().isBuiltIn(ts)) {
-      return BuiltInLambda.valueOf(ts).create(parameters);
+      return BuiltInLambda.valueOf(ts).create(parameters, source);
     }
     LambdaTemplate lt = LambdaRegistry.getInstance().lookupLambdaBody(ts);
     if (lt == null) {

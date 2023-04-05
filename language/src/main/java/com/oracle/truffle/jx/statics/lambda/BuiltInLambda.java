@@ -1,5 +1,6 @@
 package com.oracle.truffle.jx.statics.lambda;
 
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.core.*;
@@ -12,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public enum BuiltInLambda implements BuiltInLambdaFactory {
   IF {
     @Override
-    public JXExpressionNode create(List<JXExpressionNode> arguments) {
+    public JXExpressionNode create(List<JXExpressionNode> arguments, Source source) {
       return new JXIfNode(arguments.get(0), arguments.get(1), arguments.get(2));
     }
 
@@ -23,7 +24,7 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
   },
   RANGE {
     @Override
-    public JXExpressionNode create(List<JXExpressionNode> arguments) {
+    public JXExpressionNode create(List<JXExpressionNode> arguments, Source source) {
       return JXRangeNodeGen.create(arguments.get(0));
     }
 
@@ -34,7 +35,7 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
   },
   EXPORT {
     @Override
-    public JXExpressionNode create(List<JXExpressionNode> arguments) {
+    public JXExpressionNode create(List<JXExpressionNode> arguments, Source source) {
       return JXExportNodeGen.create(arguments.get(0));
     }
 
@@ -44,9 +45,21 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
     }
   },
 
+  IMPORT {
+    @Override
+    public JXExpressionNode create(List<JXExpressionNode> arguments, Source source) {
+      return new JXImportNode(arguments.get(0), source);
+    }
+
+    @Override
+    public TruffleString lambdaName() {
+      return TruffleString.fromJavaStringUncached("import", TruffleString.Encoding.UTF_8);
+    }
+  },
+
   STDOUT {
     @Override
-    public JXExpressionNode create(List<JXExpressionNode> arguments) {
+    public JXExpressionNode create(List<JXExpressionNode> arguments, Source source) {
       return JXStdoutNodeGen.create(arguments.get(0));
     }
 

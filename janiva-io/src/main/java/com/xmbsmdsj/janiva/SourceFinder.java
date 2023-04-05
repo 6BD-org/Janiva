@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 public class SourceFinder {
   private static final Pattern DOT_SPLITTER = Pattern.compile("\\.");
-
+  private static final String SYS_ROOT = System.getProperty("os.name").toLowerCase().equals("win") ? "C:\\" : "/";
   /**
    * Find a source file imported by src.
    *
@@ -25,15 +25,15 @@ public class SourceFinder {
    *     path/sub/sub2/obj.janiva // the relative path should be evaluated in under src's path }
    * @return
    */
-  public static Source findImported(Node node, Source src, TruffleString importPath) {
+  public static Source findImported(Node node, String src, TruffleString importPath) {
     String s = importPath.toJavaStringUncached();
-    String basePath = new File(src.getPath()).getParent();
-    if (basePath == null) basePath = "/";
+    String basePath = new File(src).getParent();
+    if (basePath == null) basePath = File.separator;
     String targetSourcePath;
-    if (basePath.endsWith("/")) {
+    if (basePath.endsWith(File.separator)) {
       targetSourcePath = basePath + translate(node, s);
     } else {
-      targetSourcePath = basePath + "/" + translate(node, s);
+      targetSourcePath = basePath + File.separator + translate(node, s);
     }
     try {
       return Source.newBuilder(LanguageConstants.LANG, new File(targetSourcePath)).build();
@@ -58,7 +58,7 @@ public class SourceFinder {
     String fileName = splitted[splitted.length - 1] + LanguageConstants.FILE_EXT;
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < splitted.length - 1; i++) {
-      sb.append(splitted[i]).append("/");
+      sb.append(splitted[i]).append(File.separator);
     }
     return sb.append(fileName).toString();
   }
