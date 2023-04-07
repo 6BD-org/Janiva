@@ -179,6 +179,33 @@ Range can take three types of arguments
 
 
 ## Import and Export
-To make a program useful, it must be able to interact with external system, same rule applies here. We provide mechanism to export/import some value or lambdas in a script.
 
-TODO
+Imports and exports looks exactly like `lambda`s, which are denoted by `@import` and `@export`, however, not like `@export`, `@import` is a primitive instead of lambda. The reason why `@import` can't be a lambda is that it needs to eccess another code file and evaluate it. This cannot be done using `lambda`, because `lambda` is a run-time role, which only participates with guest language objects, and it is difficult to insert new nodes to ast during run-time. Therefore, `@import` is designed to take effect during static analysis.
+
+### Export
+`@export` is a `lambda` that takes an object as argument, just like `@stdout`
+
+```json
+@export << {
+    "a": 1
+}
+```
+
+It marks an object as exported.
+
+
+### Import
+
+Import is not l lambda but it follows the same syntax. Imports are treated like pre-processors, which are executed at the very beginning of the program.
+
+```json
+_value << @import << "ex.ut-export" #
+
+@stdout << {
+    "k": {"c": "d"},
+    // Refer to imported value
+    "value": $_value
+}
+```
+
+Note that a value **must be** exported to be imported by other codes.

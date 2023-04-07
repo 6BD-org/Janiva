@@ -70,6 +70,7 @@ public class MetaStack {
     this.frameStack = new Stack<>();
     frameStack.push(FrameDescriptor.newBuilder());
     root = frameStack.peek();
+    
     // init global
     this.globalScope = this.lexicalScope;
     this.globalFrameDescBuilder = frameStack.peek();
@@ -126,6 +127,11 @@ public class MetaStack {
     return slot;
   }
 
+  /**
+   * Request for a global slot, which is located in the outer most scope
+   * @param attributeName
+   * @return
+   */
   public Integer requestForGlobal(TruffleString attributeName) {
     int slot = globalFrameDescBuilder.addSlot(FrameSlotKind.Object, attributeName, null);
     globalScope.locals.putIfAbsent(attributeName, slot);

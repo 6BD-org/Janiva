@@ -234,10 +234,29 @@ public class JXNodeFactory {
     return res;
   }
 
+  /**
+   * Import code from a given path, and parse it to an AST
+   * @param importedName is a dot-separated identifier of code to import
+   * for example, you have directory tree like this
+   * |
+   * |-a.janiva
+   * |-b/
+   * |--c.janiva
+   * |--d.janiva
+   * by using "b.c", you can refer to b/c.janiva from a.janiva.
+   * 
+   */
   public RootNode importFile(Token importedName) {
     TruffleString ts = asTruffleString(importedName, true);
     return JanivaLangParser.parseSL(language, SourceFinder.findImported(source.getPath(), ts));
   }
+
+  /**
+   * Bind imported ast to a global attribute
+   * @param valName global attribute name
+   * @param imported imported ast
+   * @return a statement node that will be executed at the beginning of root node
+   */
   public JXStatementNode bindImport(Token valName, RootNode imported) {
     TruffleString ts = asTruffleString(valName, false);
     int slot = metaStack.requestForGlobal(ts);
