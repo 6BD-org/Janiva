@@ -1,3 +1,6 @@
+_value << @import << "ex.ut-export" #
+
 @stdout << {
-    "value": @import << "ex.ut-export"
+    "k": {"c": "d"},
+    "value": $_value
 }

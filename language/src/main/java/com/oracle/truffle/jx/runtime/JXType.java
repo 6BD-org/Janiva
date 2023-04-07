@@ -48,7 +48,7 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;import com.oracle.truffle.api.interop.UnsupportedMessageException;import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.jx.JanivaLang;
@@ -74,6 +74,9 @@ import com.oracle.truffle.jx.JanivaLang;
 @SuppressWarnings("static-method")
 public final class JXType implements TruffleObject {
 
+  public static String MAGIC_MEMBER_EXPORTED = "__EXPORTED__";
+  public static String MAGIC_MEMBER_EXP_VAL = "__EXPORTED_V__";
+
   /*
    * These are the sets of builtin types in simple languages. In case of simple language the types
    * nicely match those of the types in InteropLibrary. This might not be the case and more
@@ -86,6 +89,14 @@ public final class JXType implements TruffleObject {
   public static final JXType BOOLEAN = new JXType("Boolean", (l, v) -> l.isBoolean(v));
   public static final JXType OBJECT = new JXType("Object", (l, v) -> l.hasMembers(v));
   public static final JXType FUNCTION = new JXType("Function", (l, v) -> l.isExecutable(v));
+
+  public static final JXType EXPORTED = new JXType("Exported", (l, v) -> {
+    try {
+      return Boolean.TRUE == l.readMember(v, MAGIC_MEMBER_EXPORTED);
+    } catch (UnknownIdentifierException | UnsupportedMessageException e) {
+      return false;
+    }
+  });
 
   /*
    * This array is used when all types need to be checked in a certain order. While most interop

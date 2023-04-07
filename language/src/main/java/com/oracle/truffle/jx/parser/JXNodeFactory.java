@@ -41,6 +41,8 @@
 package com.oracle.truffle.jx.parser;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExecutableNode;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
@@ -60,7 +62,7 @@ import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
 import com.oracle.truffle.jx.runtime.JXStrings;
-import org.antlr.v4.runtime.Parser;
+import com.xmbsmdsj.janiva.SourceFinder;import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,6 +99,8 @@ public class JXNodeFactory {
 
   private LambdaTemplate lambdaTemplate;
 
+  private List<JXStatementNode> imports = new ArrayList<>();
+
   public JXNodeFactory(JanivaLang language, Source source) {
     this.language = language;
     this.source = source;
@@ -127,6 +131,7 @@ public class JXNodeFactory {
 
       @Override
       public Object execute(VirtualFrame frame) {
+        imports.forEach(i -> i.executeVoid(frame));
         Object res = super.execute(frame);
         return res;
       }
@@ -229,6 +234,18 @@ public class JXNodeFactory {
     return res;
   }
 
+  public RootNode importFile(Token importedName) {
+    TruffleString ts = asTruffleString(importedName, true);
+    return JanivaLangParser.parseSL(language, SourceFinder.findImported(source.getPath(), ts));
+  }
+  public JXStatementNode bindImport(Token valName, RootNode imported) {
+    TruffleString ts = asTruffleString(valName, false);
+    int slot = metaStack.requestForGlobal(ts);
+    JXStatementNode newImport = new JXImportBindingNode(slot, imported);
+    this.imports.add(newImport);
+    return newImport;
+  }
+
   public JXStatementNode bindLatent(Token valName, JXExpressionNode val, boolean isFunction) {
     TruffleString ts = asTruffleString(valName, false);
     Integer slot = this.metaStack.lookupAttribute(ts, false);
@@ -244,7 +261,7 @@ public class JXNodeFactory {
     if (!isFunc) {
       Integer slot = this.metaStack.lookupAttribute(ts, true);
       if (slot == null) {
-        throw new JXSyntaxError("Can not find attribute");
+        throw new JXSyntaxError("Can not find attribute: " + attributeName);
       }
       return new JXValueAccessNode(slot, ts);
     } else {

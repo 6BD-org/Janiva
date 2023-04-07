@@ -1,14 +1,14 @@
 package com.xmbsmdsj.janiva;
-
+import org.graalvm.polyglot.io.FileSystem;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.xmbsmdsj.janiva.constants.LanguageConstants;
 import com.xmbsmdsj.janiva.exceptions.JanivaIOException;
-import org.graalvm.polyglot.Source;
 import java.io.File;
-import java.io.FileInputStream;
+import com.oracle.truffle.api.source.Source;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
@@ -18,29 +18,28 @@ public class SourceFinder {
   /**
    * Find a source file imported by src.
    *
-   * @param node is where the logic executes. Used for exception
    * @param src the the import is performed
    * @param importPath path of imported source. In Janiva, importing is performed by {@code
    *     imported_val << @import << "path.sub.sub2.obj" // this corresponds to
    *     path/sub/sub2/obj.janiva // the relative path should be evaluated in under src's path }
    * @return
    */
-  public static Source findImported(Node node, String src, TruffleString importPath) {
+  public static Source findImported(String src, TruffleString importPath) {
     String s = importPath.toJavaStringUncached();
     String basePath = new File(src).getParent();
     if (basePath == null) basePath = File.separator;
     String targetSourcePath;
     if (basePath.endsWith(File.separator)) {
-      targetSourcePath = basePath + translate(node, s);
+      targetSourcePath = basePath + translate(s);
     } else {
-      targetSourcePath = basePath + File.separator + translate(node, s);
+      targetSourcePath = basePath + File.separator + translate(s);
     }
     try {
-      return Source.newBuilder(LanguageConstants.LANG, new File(targetSourcePath)).build();
+      return Source.newBuilder(LanguageConstants.LANG, new URL("file://" + targetSourcePath)).build();
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     } catch (IOException ioe) {
-      throw new JanivaIOException("Cannot read file", node);
+      throw new JanivaIOException("Cannot read file: " + targetSourcePath, ioe);
     }
   }
 
@@ -50,10 +49,10 @@ public class SourceFinder {
    * @param dotPath
    * @return
    */
-  private static String translate(Node node, String dotPath) {
+  private static String translate(String dotPath) {
     String[] splitted = DOT_SPLITTER.split(dotPath);
     if (splitted.length == 0) {
-      throw new JanivaIOException("Empty imported path", node);
+      throw new JanivaIOException("Empty imported path");
     }
     String fileName = splitted[splitted.length - 1] + LanguageConstants.FILE_EXT;
     StringBuilder sb = new StringBuilder();

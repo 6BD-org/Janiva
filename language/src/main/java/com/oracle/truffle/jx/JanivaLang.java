@@ -192,7 +192,7 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
   }
 
   @Override
-  protected CallTarget parse(ParsingRequest request) throws Exception {
+  public CallTarget parse(ParsingRequest request) throws Exception {
     Source source = request.getSource();
     RootNode rootNode;
 

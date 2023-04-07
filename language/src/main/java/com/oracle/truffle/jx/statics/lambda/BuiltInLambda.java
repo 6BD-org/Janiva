@@ -2,7 +2,7 @@ package com.oracle.truffle.jx.statics.lambda;
 
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.nodes.JXExpressionNode;
+import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.core.*;
 import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
 
@@ -42,18 +42,6 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
     @Override
     public TruffleString lambdaName() {
       return TruffleString.fromJavaStringUncached("export", TruffleString.Encoding.UTF_8);
-    }
-  },
-
-  IMPORT {
-    @Override
-    public JXExpressionNode create(List<JXExpressionNode> arguments, Source source) {
-      return new JXImportNode(arguments.get(0), source);
-    }
-
-    @Override
-    public TruffleString lambdaName() {
-      return TruffleString.fromJavaStringUncached("import", TruffleString.Encoding.UTF_8);
     }
   },
 

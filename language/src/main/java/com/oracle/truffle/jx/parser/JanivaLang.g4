@@ -120,8 +120,8 @@ public static RootNode parseSL(JanivaLang language, Source source) {
 
 janiva
 :
+bind_import*
 lambda_def*
-bind_latent[false]?
 j_root_value
 EOF
 ;
@@ -131,8 +131,23 @@ bind_latent [boolean isFunc] returns [JXStatementNode result]
 (
     IDENTIFIER                   {Token valName = $IDENTIFIER;}
     STREAM_ACCEPTS
-    j_value[false]                      {$result = factory.bindLatent(valName, $j_value.result, $isFunc);}
+    j_value[false]              {$result = factory.bindLatent(valName, $j_value.result, $isFunc);}
 )
+;
+
+
+bind_import returns [JXStatementNode result]
+:
+    IDENTIFIER                   {Token valName = $IDENTIFIER;}
+    STREAM_ACCEPTS
+    import_
+    END                         {$result = factory.bindImport(valName, $import_.result);}
+;
+
+import_ returns [RootNode result]:
+IMPORT
+STREAM_ACCEPTS
+imported=STRING_LITERAL                      {$result=factory.importFile($imported);}
 ;
 
 j_root_value:
@@ -179,6 +194,10 @@ OBJECT_CLOSE                            {$result = factory.endObject(body);}
 
 
 j_value [boolean isFunc] returns [JXExpressionNode result]:
+BRACKET_OPEN
+j_value[$isFunc]                                  {$result=$j_value.result;}
+BRACKET_CLOSE
+|
 ref_attribute[$isFunc]                           {$result=$ref_attribute.result;}
 |
 primitive                               {$result=$primitive.result;}
@@ -191,6 +210,8 @@ arithmatics[$isFunc]                             {$result=$arithmatics.result;}
 |
 lambda_invocation                       {$result=$lambda_invocation.result;}
 ;
+
+
 
 // refer to bounded attribute
 ref_attribute[boolean isFunc] returns [JXExpressionNode result]
@@ -334,5 +355,7 @@ STREAM_PRODUCE: '>>';
 REF_ATTR : REF;
 REF_LAMBDA: '@';
 LAMBDA_DEF_INTRO: '::';
+
+IMPORT : '@import';
 
 END: '#';

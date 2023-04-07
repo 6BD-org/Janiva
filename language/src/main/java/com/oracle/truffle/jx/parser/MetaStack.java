@@ -70,11 +70,16 @@ public class MetaStack {
     this.frameStack = new Stack<>();
     frameStack.push(FrameDescriptor.newBuilder());
     root = frameStack.peek();
+    // init global
+    this.globalScope = this.lexicalScope;
+    this.globalFrameDescBuilder = frameStack.peek();
   }
 
   private Stack<FrameDescriptor.Builder> frameStack;
   private FrameDescriptor.Builder root;
   private LexicalScope lexicalScope;
+  private final LexicalScope globalScope;
+  private final FrameDescriptor.Builder globalFrameDescBuilder;
 
   public void startObject() {
     this.lexicalScope = new LexicalScope(lexicalScope, ScopeType.OBJECT);
@@ -118,6 +123,13 @@ public class MetaStack {
     lexicalScope.locals.putIfAbsent(attributeName, slot);
     logger.debug("requesting for slot {} -> {}", attributeName, slot);
 
+    return slot;
+  }
+
+  public Integer requestForGlobal(TruffleString attributeName) {
+    int slot = globalFrameDescBuilder.addSlot(FrameSlotKind.Object, attributeName, null);
+    globalScope.locals.putIfAbsent(attributeName, slot);
+    logger.debug("requesting for slot {} -> {}", attributeName, slot);
     return slot;
   }
 

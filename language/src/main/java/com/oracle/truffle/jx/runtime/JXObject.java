@@ -177,38 +177,7 @@ public final class JXObject extends DynamicObject implements TruffleObject {
     return !receivers.isMemberExisting(this, member);
   }
 
-  @ExportLibrary(InteropLibrary.class)
-  static final class Keys implements TruffleObject {
 
-    private final Object[] keys;
-
-    Keys(Object[] keys) {
-      this.keys = keys;
-    }
-
-    @ExportMessage
-    Object readArrayElement(long index) throws InvalidArrayIndexException {
-      if (!isArrayElementReadable(index)) {
-        throw InvalidArrayIndexException.create(index);
-      }
-      return keys[(int) index];
-    }
-
-    @ExportMessage
-    boolean hasArrayElements() {
-      return true;
-    }
-
-    @ExportMessage
-    long getArraySize() {
-      return keys.length;
-    }
-
-    @ExportMessage
-    boolean isArrayElementReadable(long index) {
-      return index >= 0 && index < keys.length;
-    }
-  }
 
   /** {@link DynamicObjectLibrary} provides the polymorphic inline cache for reading properties. */
   @ExportMessage

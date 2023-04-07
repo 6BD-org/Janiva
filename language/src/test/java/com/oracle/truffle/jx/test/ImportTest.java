@@ -21,7 +21,7 @@ public class ImportTest {
 
     @Before
     public void initialize() {
-        context = Context.create();
+        context = Context.newBuilder().allowAllAccess(true).build();
     }
 
     @After
