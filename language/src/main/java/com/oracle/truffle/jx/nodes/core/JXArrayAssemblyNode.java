@@ -3,7 +3,6 @@ package com.oracle.truffle.jx.nodes.core;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXArray;
-
 import java.util.List;
 
 public class JXArrayAssemblyNode extends JXExpressionNode {

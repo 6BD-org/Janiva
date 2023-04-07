@@ -2,7 +2,6 @@ package com.oracle.truffle.jx.statics.lambda;
 
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
-
 import java.util.HashMap;
 import java.util.Map;
 

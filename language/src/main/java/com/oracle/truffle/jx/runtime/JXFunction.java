@@ -58,7 +58,6 @@ import com.oracle.truffle.api.utilities.CyclicAssumption;
 import com.oracle.truffle.api.utilities.TriState;
 import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXUndefinedFunctionRootNode;
-
 import java.util.logging.Level;
 
 /**

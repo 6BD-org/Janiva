@@ -1,7 +1,6 @@
 package com.oracle.truffle.jx.nodes.core;
 
 import com.oracle.truffle.jx.nodes.JXStatementNode;
-
 import java.util.List;
 
 /**

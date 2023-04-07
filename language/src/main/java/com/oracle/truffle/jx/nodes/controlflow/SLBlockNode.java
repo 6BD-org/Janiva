@@ -48,7 +48,6 @@ import com.oracle.truffle.api.nodes.BlockNode.ElementExecutor;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.nodes.local.SLScopedNode;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

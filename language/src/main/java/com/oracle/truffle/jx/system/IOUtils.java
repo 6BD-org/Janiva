@@ -1,18 +1,15 @@
 package com.oracle.truffle.jx.system;
 
-import com.oracle.truffle.api.interop.TruffleObject;import com.oracle.truffle.api.object.DynamicObjectLibrary;
-import com.oracle.truffle.jx.runtime.JXObject;
-import org.graalvm.polyglot.Value;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.OutputStream;
+import org.graalvm.polyglot.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IOUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(IOUtils.class);
+
   public static void writeJanivaObjectIntoStream(OutputStream os, Object object)
       throws IOException {
     processValue(os, Value.asValue(object));

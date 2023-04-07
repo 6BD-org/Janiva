@@ -48,7 +48,6 @@ import com.oracle.truffle.api.dsl.TypeSystem;
 import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.runtime.JSNull;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
-
 import java.math.BigDecimal;
 
 /**

@@ -1,20 +1,19 @@
 package com.xmbsmdsj.janiva;
-import org.graalvm.polyglot.io.FileSystem;
-import com.oracle.truffle.api.nodes.Node;
+
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.xmbsmdsj.janiva.constants.LanguageConstants;
 import com.xmbsmdsj.janiva.exceptions.JanivaIOException;
 import java.io.File;
-import com.oracle.truffle.api.source.Source;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 public class SourceFinder {
   private static final Pattern DOT_SPLITTER = Pattern.compile("\\.");
-  private static final String SYS_ROOT = System.getProperty("os.name").toLowerCase().equals("win") ? "C:\\" : "/";
+  private static final String SYS_ROOT =
+      System.getProperty("os.name").toLowerCase().equals("win") ? "C:\\" : "/";
   /**
    * Find a source file imported by src.
    *
@@ -35,7 +34,8 @@ public class SourceFinder {
       targetSourcePath = basePath + File.separator + translate(s);
     }
     try {
-      return Source.newBuilder(LanguageConstants.LANG, new URL("file://" + targetSourcePath)).build();
+      return Source.newBuilder(LanguageConstants.LANG, new URL("file://" + targetSourcePath))
+          .build();
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     } catch (IOException ioe) {

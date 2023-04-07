@@ -8,11 +8,10 @@ import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXObjectNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MetaStack {
   private static final Logger logger = LoggerFactory.getLogger(MetaStack.class);
@@ -70,7 +69,7 @@ public class MetaStack {
     this.frameStack = new Stack<>();
     frameStack.push(FrameDescriptor.newBuilder());
     root = frameStack.peek();
-    
+
     // init global
     this.globalScope = this.lexicalScope;
     this.globalFrameDescBuilder = frameStack.peek();
@@ -129,6 +128,7 @@ public class MetaStack {
 
   /**
    * Request for a global slot, which is located in the outer most scope
+   *
    * @param attributeName
    * @return
    */

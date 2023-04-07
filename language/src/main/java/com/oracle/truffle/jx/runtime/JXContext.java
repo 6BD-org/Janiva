@@ -40,6 +40,8 @@
  */
 package com.oracle.truffle.jx.runtime;
 
+import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
+
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -55,15 +57,12 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.builtins.*;
-import org.graalvm.polyglot.Context;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.oracle.truffle.api.CompilerDirectives.shouldNotReachHere;
+import org.graalvm.polyglot.Context;
 
 /**
  * The run-time state of SL during execution. The context is created by the {@link JanivaLang}. It

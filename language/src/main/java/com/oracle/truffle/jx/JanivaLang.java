@@ -63,7 +63,6 @@ import com.oracle.truffle.jx.runtime.*;
 import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

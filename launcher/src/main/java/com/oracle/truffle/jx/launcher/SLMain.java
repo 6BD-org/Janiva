@@ -40,14 +40,13 @@
  */
 package com.oracle.truffle.jx.launcher;
 
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
-
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 
 public final class SLMain {
 
@@ -84,7 +83,8 @@ public final class SLMain {
     Context context;
     PrintStream err = System.err;
     try {
-      context = Context.newBuilder(SL).in(in).out(out).options(options).allowAllAccess(true).build();
+      context =
+          Context.newBuilder(SL).in(in).out(out).options(options).allowAllAccess(true).build();
     } catch (IllegalArgumentException e) {
       err.println(e.getMessage());
       return 1;

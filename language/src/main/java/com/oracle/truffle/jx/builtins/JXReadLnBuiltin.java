@@ -45,11 +45,10 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.JXException;
+import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.runtime.JXContext;
 import com.oracle.truffle.jx.runtime.JXStrings;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 

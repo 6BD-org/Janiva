@@ -6,10 +6,7 @@ import com.oracle.truffle.jx.builtins.JXNewObjectBuiltin;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.runtime.JXObject;
-
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class JXObjectAssemblyNode extends JXExpressionNode {
   private final List<JXStatementNode> bindings;

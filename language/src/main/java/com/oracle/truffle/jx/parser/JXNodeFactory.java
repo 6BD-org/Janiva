@@ -41,8 +41,6 @@
 package com.oracle.truffle.jx.parser;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.ExecutableNode;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
@@ -56,22 +54,22 @@ import com.oracle.truffle.jx.nodes.core.*;
 import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
+import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
 import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
+import com.oracle.truffle.jx.runtime.JXStrings;
 import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
-import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
-import com.oracle.truffle.jx.runtime.JXStrings;
-import com.xmbsmdsj.janiva.SourceFinder;import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.Token;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.xmbsmdsj.janiva.SourceFinder;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class used by the SL {@link Parser} to create nodes. The code is factored out of the
@@ -236,15 +234,10 @@ public class JXNodeFactory {
 
   /**
    * Import code from a given path, and parse it to an AST
-   * @param importedName is a dot-separated identifier of code to import
-   * for example, you have directory tree like this
-   * |
-   * |-a.janiva
-   * |-b/
-   * |--c.janiva
-   * |--d.janiva
-   * by using "b.c", you can refer to b/c.janiva from a.janiva.
-   * 
+   *
+   * @param importedName is a dot-separated identifier of code to import for example, you have
+   *     directory tree like this | |-a.janiva |-b/ |--c.janiva |--d.janiva by using "b.c", you can
+   *     refer to b/c.janiva from a.janiva.
    */
   public RootNode importFile(Token importedName) {
     TruffleString ts = asTruffleString(importedName, true);
@@ -253,6 +246,7 @@ public class JXNodeFactory {
 
   /**
    * Bind imported ast to a global attribute
+   *
    * @param valName global attribute name
    * @param imported imported ast
    * @return a statement node that will be executed at the beginning of root node

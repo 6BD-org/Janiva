@@ -48,7 +48,9 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;import com.oracle.truffle.api.interop.UnsupportedMessageException;import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.jx.JanivaLang;
@@ -90,13 +92,16 @@ public final class JXType implements TruffleObject {
   public static final JXType OBJECT = new JXType("Object", (l, v) -> l.hasMembers(v));
   public static final JXType FUNCTION = new JXType("Function", (l, v) -> l.isExecutable(v));
 
-  public static final JXType EXPORTED = new JXType("Exported", (l, v) -> {
-    try {
-      return Boolean.TRUE == l.readMember(v, MAGIC_MEMBER_EXPORTED);
-    } catch (UnknownIdentifierException | UnsupportedMessageException e) {
-      return false;
-    }
-  });
+  public static final JXType EXPORTED =
+      new JXType(
+          "Exported",
+          (l, v) -> {
+            try {
+              return Boolean.TRUE == l.readMember(v, MAGIC_MEMBER_EXPORTED);
+            } catch (UnknownIdentifierException | UnsupportedMessageException e) {
+              return false;
+            }
+          });
 
   /*
    * This array is used when all types need to be checked in a certain order. While most interop

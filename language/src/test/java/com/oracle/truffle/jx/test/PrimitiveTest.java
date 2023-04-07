@@ -40,6 +40,8 @@
  */
 package com.oracle.truffle.jx.test;
 
+import static org.junit.Assert.assertTrue;
+
 import com.oracle.truffle.jx.JanivaLang;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
@@ -49,8 +51,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertTrue;
 
 public class PrimitiveTest {
   private static final Logger logger = LoggerFactory.getLogger(PrimitiveTest.class);

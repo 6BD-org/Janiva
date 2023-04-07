@@ -3,9 +3,8 @@ package com.oracle.truffle.jx.nodes.core;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 import com.oracle.truffle.jx.runtime.JXPartialLambda;
-
+import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 import java.util.List;
 
 public class JXLambdaNode extends JXExpressionNode {

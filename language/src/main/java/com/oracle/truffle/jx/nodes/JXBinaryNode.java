@@ -41,11 +41,8 @@
 package com.oracle.truffle.jx.nodes;
 
 import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.expression.*;
 import org.antlr.v4.runtime.Token;
-
-import java.util.Map;
 
 /**
  * Utility base class for operations that take two arguments (per convention called "left" and

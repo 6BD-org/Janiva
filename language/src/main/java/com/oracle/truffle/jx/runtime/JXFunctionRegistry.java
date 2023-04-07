@@ -45,7 +45,6 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JanivaLang;
-
 import java.util.*;
 
 /** Manages the mapping from function names to {@link JXFunction function objects}. */

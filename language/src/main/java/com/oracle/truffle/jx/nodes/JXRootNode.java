@@ -52,10 +52,9 @@ import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
 import com.oracle.truffle.jx.nodes.local.JXWriteLocalVariableNode;
 import com.oracle.truffle.jx.runtime.JXContext;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The root of all SL execution trees. It is a Truffle requirement that the tree root extends the

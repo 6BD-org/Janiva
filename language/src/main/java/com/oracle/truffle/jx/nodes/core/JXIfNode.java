@@ -46,7 +46,6 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
 

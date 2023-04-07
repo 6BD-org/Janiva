@@ -47,7 +47,6 @@ import com.oracle.truffle.api.dsl.Cached.Shared;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.CachedLibrary;
@@ -176,8 +175,6 @@ public final class JXObject extends DynamicObject implements TruffleObject {
   boolean isMemberInsertable(String member, @CachedLibrary("this") InteropLibrary receivers) {
     return !receivers.isMemberExisting(this, member);
   }
-
-
 
   /** {@link DynamicObjectLibrary} provides the polymorphic inline cache for reading properties. */
   @ExportMessage

@@ -1,13 +1,10 @@
 package com.oracle.truffle.jx.nodes.core;
 
-import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-
 import java.util.List;
 
 public class JXLambdaExecutor extends RootNode {

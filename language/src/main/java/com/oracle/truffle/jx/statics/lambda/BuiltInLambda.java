@@ -2,10 +2,8 @@ package com.oracle.truffle.jx.statics.lambda;
 
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;import com.oracle.truffle.jx.nodes.JXExpressionNode;
+import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.core.*;
-import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
