@@ -2,7 +2,7 @@ package com.oracle.truffle.jx.statics.lambda;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.nodes.JXExpressionNode;
+import com.oracle.truffle.jx.JXException;import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,5 +48,9 @@ public class LambdaTemplate {
 
   public FrameDescriptor getFrameDescriptor() {
     return this.descriptor;
+  }
+
+  public void throwParameterLenNotMatch(int actual) {
+    throw new JXException("Parameter length does not match, expecting: " + this.parameterCount() + ", getting: " + actual);
   }
 }

@@ -26,8 +26,7 @@ public class JXLambdaNode extends JXExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-
-    return new JXPartialLambda(this.executor.getCallTarget())
+    return new JXPartialLambda(this.executor.getCallTarget(), lambdaTemplate)
         .execute(new Object[lambdaTemplate.parameterCount()]);
   }
 }

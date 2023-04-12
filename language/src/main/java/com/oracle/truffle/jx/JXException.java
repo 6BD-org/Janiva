@@ -66,6 +66,11 @@ public class JXException extends AbstractTruffleException {
     super(message, location);
   }
 
+  @TruffleBoundary
+  public JXException(String message) {
+    super(message);
+  }
+
   /**
    * Provides a user-readable message for run-time type errors. SL is strongly typed, i.e., there
    * are no automatic type conversions of values.

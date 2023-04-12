@@ -38,7 +38,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.oracle.truffle.jx.nodes.core;
+package com.oracle.truffle.jx.nodes.controlflow;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -65,13 +65,6 @@ public final class JXIfNode extends JXExpressionNode {
   /** Statement (or {@link SLBlockNode block}) executed when the condition is false. */
   @Child private JXExpressionNode elsePartNode;
 
-  /**
-   * Profiling information, collected by the interpreter, capturing the profiling information of the
-   * condition. This allows the compiler to generate better code for conditions that are always true
-   * or always false. Additionally the {@link CountingConditionProfile} implementation (as opposed
-   * to {@link BinaryConditionProfile} implementation) transmits the probability of the condition to
-   * be true to the compiler.
-   */
   private final ConditionProfile condition = ConditionProfile.createCountingProfile();
 
   public JXIfNode(
