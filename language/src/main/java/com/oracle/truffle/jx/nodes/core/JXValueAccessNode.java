@@ -23,6 +23,11 @@ public class JXValueAccessNode extends JXExpressionNode {
     return slot;
   }
 
+  /**
+   * Used when assembling objects
+   *
+   * @return
+   */
   public TruffleString getName() {
     return name;
   }

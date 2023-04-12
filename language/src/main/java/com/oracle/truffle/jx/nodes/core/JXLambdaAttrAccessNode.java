@@ -2,7 +2,8 @@ package com.oracle.truffle.jx.nodes.core;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JXException;import com.oracle.truffle.jx.nodes.JXExpressionNode;
+import com.oracle.truffle.jx.JXException;
+import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.exceptions.JXRuntimeException;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 

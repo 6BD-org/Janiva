@@ -78,6 +78,7 @@ public class ObjectTest {
           String src = TestUtil.readResourceAsString("ut-arithmetics-as-value.janiva");
           Value v = context.eval(JanivaLang.ID, src);
           Assert.assertEquals(3, v.getMember("a").asInt());
+          Assert.assertEquals(6, v.getMember("b").asInt());
         });
   }
 

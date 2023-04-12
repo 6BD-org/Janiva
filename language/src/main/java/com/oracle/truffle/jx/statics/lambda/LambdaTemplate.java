@@ -2,7 +2,8 @@ package com.oracle.truffle.jx.statics.lambda;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JXException;import com.oracle.truffle.jx.nodes.JXExpressionNode;
+import com.oracle.truffle.jx.JXException;
+import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,14 @@ public class LambdaTemplate {
   public LambdaTemplate(TruffleString name) {
     this.parameterNames = new ArrayList<>();
     this.name = name;
+  }
+
+  public LambdaTemplate(TruffleString name, String... parameters) {
+    this(name);
+    for (String parameter : parameters) {
+      parameterNames.add(
+          TruffleString.fromJavaStringUncached(parameter, TruffleString.Encoding.UTF_8));
+    }
   }
 
   public TruffleString getName() {
@@ -51,6 +60,10 @@ public class LambdaTemplate {
   }
 
   public void throwParameterLenNotMatch(int actual) {
-    throw new JXException("Parameter length does not match, expecting: " + this.parameterCount() + ", getting: " + actual);
+    throw new JXException(
+        "Parameter length does not match, expecting: "
+            + this.parameterCount()
+            + ", getting: "
+            + actual);
   }
 }

@@ -11,7 +11,8 @@ import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXArray;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
-import com.oracle.truffle.jx.runtime.JXContext;import com.oracle.truffle.jx.runtime.JXStringImage;
+import com.oracle.truffle.jx.runtime.JXContext;
+import com.oracle.truffle.jx.runtime.JXStringImage;
 
 @NodeChild("o")
 public abstract class JXRangeNode extends JXExpressionNode {

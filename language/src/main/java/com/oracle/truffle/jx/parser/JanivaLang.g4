@@ -291,7 +291,7 @@ arg0=IDENTIFIER                         {factory.addFormalParameter($arg0);}
     (
     ','
     argN=IDENTIFIER                     {factory.addFormalParameter($argN);}
-    )?
+    )*
 BRACKET_CLOSE
 )
 ;
