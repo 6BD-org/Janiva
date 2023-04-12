@@ -151,6 +151,24 @@ stdout << {
 
 ```
 
+### Partial application
+Janiva supports partial application of lambdas, which mean you don't have to provide all arguments once, instead, you can feed a part of arguments, and provide the rest later. For example
+
+```
+// Here we defined a lambda which takes 5 numbers as argument
+@add5 :: (x1, x2, x3, x4, x5) >> $x1 + $x2 + $x3 + $x4 + $x5 #
+
+@stdout << {
+    // partial apply with two of them
+    _x12 << @add5 << 1 << 1,
+    // note that _x12 is a lambda that takes 3 numbers and add then to (1 + 1)
+    "sum1": @_x12 << 1 << 1 << 1,
+    // Everytime a partially applied lambda is called, a light copy was made to ensure immutability
+    "sum2": @_x12 << 2 << 2 << 2,
+}
+
+```
+
 ## Control flow
 There's no control flow in Janiva, instead, it provides couple of built-in functions that do the similar job.
 

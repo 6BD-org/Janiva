@@ -1,4 +1,4 @@
-package com.oracle.truffle.jx.nodes.core;
+package com.oracle.truffle.jx.nodes.controlflow;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
@@ -12,6 +12,7 @@ import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXArray;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 import com.oracle.truffle.jx.runtime.JXContext;
+import com.oracle.truffle.jx.runtime.JXStringImage;
 
 @NodeChild("o")
 public abstract class JXRangeNode extends JXExpressionNode {
@@ -38,12 +39,7 @@ public abstract class JXRangeNode extends JXExpressionNode {
   @Specialization(guards = "isString(o)")
   @CompilerDirectives.TruffleBoundary
   public Object doString(TruffleString o, @Cached("lookup()") AllocationReporter reporter) {
-    JXArray res =
-        JanivaLang.get(this).createJXArray(reporter, o.byteLength(TruffleString.Encoding.UTF_8));
-    for (int i = 0; i < o.byteLength(TruffleString.Encoding.UTF_8); i++) {
-      res.writeArrayElement(i, o.substringUncached(i, 1, TruffleString.Encoding.UTF_8, true));
-    }
-    return res;
+    return new JXStringImage(o);
   }
 
   protected boolean isArray(Object o) {

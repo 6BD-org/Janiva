@@ -7,7 +7,7 @@ import com.oracle.truffle.jx.nodes.JXStatementNode;
 public class JXLambdaArgBindingNode extends JXStatementNode {
 
   private int offset;
-  private JXExpressionNode val;
+  protected JXExpressionNode val;
 
   public JXLambdaArgBindingNode(int offset, JXExpressionNode val) {
     this.offset = offset;

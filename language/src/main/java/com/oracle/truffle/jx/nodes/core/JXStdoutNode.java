@@ -4,7 +4,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.system.IOUtils;
+import com.oracle.truffle.jx.runtime.io.IOUtils;
 import java.io.IOException;
 
 @NodeChild("child")

@@ -90,7 +90,7 @@ public class MetaStack {
   }
 
   public void startLambda() {
-    logger.info("Opening lambda scope");
+    logger.debug("Opening lambda scope");
     this.lexicalScope = new LexicalScope(lexicalScope, ScopeType.LAMBDA);
     this.frameStack.push(FrameDescriptor.newBuilder());
   }

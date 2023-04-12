@@ -51,6 +51,7 @@ import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.nodes.core.*;
+import com.oracle.truffle.jx.nodes.expression.JXFeedValueNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
@@ -66,6 +67,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.xmbsmdsj.janiva.utils.CollectionUtils;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.slf4j.Logger;
@@ -283,6 +285,16 @@ public class JXNodeFactory {
     }
   }
 
+  public JXExpressionNode feedValue(JXExpressionNode child, List<JXExpressionNode> val) {
+    if (CollectionUtils.isEmpty(val)) {
+      // feed nothing
+      return child;
+    }
+    JXFeedValueNode res = new JXFeedValueNode(child);
+    res.feed(val);
+    return res;
+  }
+
   /**
    * @param valName
    * @param val
@@ -322,6 +334,17 @@ public class JXNodeFactory {
 
   public JXExpressionNode materialize(Token lambdaName, List<JXExpressionNode> parameters) {
     TruffleString ts = asTruffleString(lambdaName, false);
+
+    // First we lookup local attributes
+    Integer slot = metaStack.lookupAttribute(ts, true);
+    if (slot != null) {
+      JXFeedValueNode res = new JXFeedValueNode(new JXValueAccessNode(slot, ts));
+      res.feed(parameters);
+      return res;
+    }
+
+    // Then we look at already defined ones
+
     if (LambdaRegistry.getInstance().isBuiltIn(ts)) {
       return BuiltInLambda.valueOf(ts).create(parameters, source);
     }
@@ -333,7 +356,10 @@ public class JXNodeFactory {
     for (int i = 0; i < parameters.size(); i++) {
       argBindings.add(new JXLambdaArgBindingNode(i, parameters.get(i)));
     }
-    return new JXLambdaNode(this.language, lt, argBindings, lt.getBody());
+    JXFeedValueNode res =
+        new JXFeedValueNode(new JXLambdaNode(this.language, lt, argBindings, lt.getBody()));
+    res.feed(parameters);
+    return res;
   }
 
   /** Creates source description of a single token. */

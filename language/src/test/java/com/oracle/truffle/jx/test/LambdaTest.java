@@ -63,4 +63,15 @@ public class LambdaTest {
           Assert.assertEquals(1, a1);
         });
   }
+
+  @Test
+  public void testPartialApplication() {
+    TestUtil.runWithStackTrace(
+        () -> {
+          String src = TestUtil.readResourceAsString("ut-partial-application.janiva");
+          Value v = context.eval(JanivaLang.ID, src);
+          Assert.assertEquals(5, v.getMember("sum1").execute().asInt());
+          Assert.assertEquals(8, v.getMember("sum2").execute().asInt());
+        });
+  }
 }

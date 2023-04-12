@@ -1,4 +1,4 @@
-package com.oracle.truffle.jx.system;
+package com.oracle.truffle.jx.runtime.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,6 +16,10 @@ public class IOUtils {
   }
 
   private static void processValue(OutputStream os, Value value) throws IOException {
+    if (value.canExecute()) {
+      processValue(os, value.execute());
+      return;
+    }
     if (value.hasMembers()) {
       processObject(os, value);
       return;
