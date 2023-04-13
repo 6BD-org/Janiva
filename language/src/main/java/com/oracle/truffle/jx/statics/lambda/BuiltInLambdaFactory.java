@@ -10,4 +10,8 @@ public interface BuiltInLambdaFactory {
   JXExpressionNode create(List<JXExpressionNode> arguments, Source source);
 
   TruffleString lambdaName();
+
+  default String lambdaNameInJavaString() {
+    return lambdaName().toJavaStringUncached();
+  }
 }

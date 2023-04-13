@@ -45,7 +45,7 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JanivaLang;
-import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;
+import com.oracle.truffle.jx.Reserved;import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;
 import com.oracle.truffle.jx.nodes.JXBinaryNode;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
@@ -254,6 +254,7 @@ public class JXNodeFactory {
    * @return a statement node that will be executed at the beginning of root node
    */
   public JXStatementNode bindImport(Token valName, RootNode imported) {
+    Reserved.validate(valName);
     TruffleString ts = asTruffleString(valName, false);
     int slot = metaStack.requestForGlobal(ts);
     JXStatementNode newImport = new JXImportBindingNode(slot, imported);
@@ -262,6 +263,7 @@ public class JXNodeFactory {
   }
 
   public JXStatementNode bindLatent(Token valName, JXExpressionNode val, boolean isFunction) {
+    Reserved.validate(valName);
     TruffleString ts = asTruffleString(valName, false);
     Integer slot = this.metaStack.lookupAttribute(ts, false);
     if (slot == null) {
@@ -311,6 +313,7 @@ public class JXNodeFactory {
   }
 
   public void defLambda(Token name) {
+    Reserved.validate(name);
     TruffleString lambdaName = asTruffleString(name, false);
     this.lambdaTemplate = new LambdaTemplate(lambdaName);
     this.metaStack.startLambda();
@@ -335,7 +338,15 @@ public class JXNodeFactory {
   public JXExpressionNode materialize(Token lambdaName, List<JXExpressionNode> parameters) {
     TruffleString ts = asTruffleString(lambdaName, false);
 
-    // First we lookup local attributes
+    if (LambdaRegistry.getInstance().isBuiltIn(ts)) {
+      return BuiltInLambda.valueOf(ts).create(parameters, source);
+    }
+
+    /* First we lookup local attributes
+    *
+    * Note that local attributes can be non-lambda values,
+    * in which case, type-checking is done at run-time
+    * */
     Integer slot = metaStack.lookupAttribute(ts, true);
     if (slot != null) {
       JXFeedValueNode res = new JXFeedValueNode(new JXValueAccessNode(slot, ts));
@@ -344,10 +355,6 @@ public class JXNodeFactory {
     }
 
     // Then we look at already defined ones
-
-    if (LambdaRegistry.getInstance().isBuiltIn(ts)) {
-      return BuiltInLambda.valueOf(ts).create(parameters, source);
-    }
     LambdaTemplate lt = LambdaRegistry.getInstance().lookupLambdaBody(ts);
     if (lt == null) {
       throw new JXSyntaxError("Referring to non existing lambda: " + ts);

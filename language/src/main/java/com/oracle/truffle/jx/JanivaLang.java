@@ -196,6 +196,7 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
     RootNode rootNode;
 
     this.installBuiltInLambdas();
+    this.initializeReservedKeywords();
 
     /*
      * Parse the provided source. At this point, we do not have a SLContext yet. Registration of
@@ -312,7 +313,14 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
   private void installBuiltInLambdas() {
     for (BuiltInLambda builtIn : BuiltInLambda.values()) {
       LambdaTemplate lt = new LambdaTemplate(builtIn.lambdaName());
-      LambdaRegistry.getInstance().registerBuiltIn(lt);
+      LambdaRegistry.registerBuiltIn(lt);
+      String name = builtIn.lambdaNameInJavaString();
+      Reserved.register(name, "Built-in lambda: @" + name);
     }
+  }
+
+  private void initializeReservedKeywords() {
+    Reserved.register("import", "primitive: @import");
+    Reserved.register("namespace", "primitive: @namespace");
   }
 }
