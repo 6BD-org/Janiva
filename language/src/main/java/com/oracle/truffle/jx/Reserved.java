@@ -22,7 +22,7 @@ public class Reserved {
     }
 
     public boolean equals(Object that) {
-      return (that instanceof Entry) && ((Entry)that).keyword.equals(this.keyword);
+      return (that instanceof Entry) && ((Entry) that).keyword.equals(this.keyword);
     }
   }
 
@@ -33,12 +33,15 @@ public class Reserved {
 
   /**
    * Validate that a token is free to use
+   *
    * @param token
    */
   public static void validate(Token token) {
     String s = token.getText();
     if (keywords.containsKey(s)) {
-      throw new JXSyntaxError("Keyword: " + s + " is reserved: " + keywords.get(s).message);
+      throw new JXSyntaxError(
+          JXSyntaxError.Type.USE_RESERVED_KEYWORD,
+          "Keyword: " + s + " is reserved: " + keywords.get(s).message);
     }
   }
 }

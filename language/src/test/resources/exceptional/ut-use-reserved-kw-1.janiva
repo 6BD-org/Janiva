@@ -1,0 +1,4 @@
+@stdout << {
+    import << "1",
+    "a": $import
+}
