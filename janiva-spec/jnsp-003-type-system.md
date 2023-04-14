@@ -62,6 +62,69 @@ Boolean values can be either `true` or `false`
 }
 ```
 ## Object
+An object composes of zero or multiple attributes. Attributes in object are simply key-value pairs, where keys are strings 
+and values can be any type including `null`. When assembling object, only o-bound attributes are used while l-bound ones are 
+discarded, that's why programmer should use l-binding whenever possible, because assembling objects are quite expensive due
+to overheads such as dynamic object shape transitions, while l-binding is fast, because it used stack frame, which are 
+statically determined during static analysis.
+
+A bad example is like
+
+```
+{
+  "_a": 1,
+  "_b": $_a + 1,
+  "result": $_b + 1
+}
+```
+
+do this instead
+
+```
+{
+  _a << 1,
+  _b << $_a + 1,
+  "result": $_b + 1
+}
+
+```
+
+### Member accessing
+One main ability of object is member accessing. Members of an object can be accessed using "." operator, just like most 
+object-oriented languages.
+
+```
+_some_obj << @import << "mylib.obj"
+
+@stdout << {
+    "res": $_some_obj.val
+}
+```
+
+The difference between member accessing and attribute referring is that 
+attribute referring is performed before object assembly while member can be accessed only when object assembly is finished. This 
+brings one limitation that only o-bound attributes can be access from out-side of the object. Following code won't work
+
+```
+{
+  "a": {
+    _key << 1,
+  },
+  // This won't work, because l-bounded attribute is accessed from out-side of the object
+  "b": $a._key
+}
+```
+
+Do this instead
+
+```
+{
+  "a": {
+    "key": 1,
+  },
+  "b": $a.key
+}
+```
 
 ## Array
 
@@ -90,3 +153,5 @@ allocating them.
 ```
 
 ## Lambda
+
+Please see [Functional support](./jsnp-004-functional.md) for lambda details.
