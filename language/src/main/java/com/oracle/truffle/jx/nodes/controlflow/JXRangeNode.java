@@ -12,7 +12,7 @@ import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXArray;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 import com.oracle.truffle.jx.runtime.JXContext;
-import com.oracle.truffle.jx.runtime.JXStringImage;
+import com.oracle.truffle.jx.runtime.view.JXIntegerRangeArrayView;import com.oracle.truffle.jx.runtime.view.JXStringArrayView;
 
 @NodeChild("o")
 public abstract class JXRangeNode extends JXExpressionNode {
@@ -26,20 +26,13 @@ public abstract class JXRangeNode extends JXExpressionNode {
   @CompilerDirectives.TruffleBoundary
   @Specialization(guards = "isNumber(o)")
   public Object doLong(JXBigNumber o, @Cached("lookup()") AllocationReporter reporter) {
-    if (o.getValue().longValue() > Integer.MAX_VALUE) {
-      throw new JXException("ranged number must be less or equal to " + Integer.MAX_VALUE, this);
-    }
-    JXArray res = JanivaLang.get(this).createJXArray(reporter, o.intValue());
-    for (int i = 0; i < o.intValue(); i++) {
-      res.writeArrayElement(i, i);
-    }
-    return res;
+    return new JXIntegerRangeArrayView(o.intValue());
   }
 
   @Specialization(guards = "isString(o)")
   @CompilerDirectives.TruffleBoundary
   public Object doString(TruffleString o, @Cached("lookup()") AllocationReporter reporter) {
-    return new JXStringImage(o);
+    return new JXStringArrayView(o);
   }
 
   protected boolean isArray(Object o) {
