@@ -22,13 +22,18 @@ public class JXPartialLambda extends DynamicObject implements TruffleObject {
   private static final TruffleString PROP_ARGS =
       TruffleString.fromJavaStringUncached("__ARGS", TruffleString.Encoding.UTF_8);
 
+  private static final Shape SHAPE = Shape.newBuilder().layout(JXPartialLambda.class).build();
+
+  @DynamicField private int _i1;
+  @DynamicField private Object _o1;
+
   private CallTarget callTarget;
   private Object[] partialArgs;
   private int offset;
   private LambdaTemplate template;
 
   public JXPartialLambda(CallTarget callTarget, LambdaTemplate template) {
-    super(Shape.newBuilder().build());
+    super(SHAPE);
     this.callTarget = callTarget;
     this.partialArgs = new Object[template.parameterCount()];
     this.offset = 0;
