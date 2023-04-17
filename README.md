@@ -1,5 +1,6 @@
 # Janiva
-
+Janiva programming language, inspired & bootstrapped by 
+[Simple Language](https://github.com/graalvm/simplelanguage)
 
 # Build Project
 

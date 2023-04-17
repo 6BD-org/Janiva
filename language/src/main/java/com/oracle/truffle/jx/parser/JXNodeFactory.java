@@ -68,7 +68,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.xmbsmdsj.janiva.utils.CollectionUtils;
-import org.antlr.v4.runtime.Parser;
+import lombok.Builder;import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,7 +272,8 @@ public class JXNodeFactory {
     return new JXAttributeBindingNode(slot, val, true);
   }
 
-  public JXExpressionNode referAttribute(Token attributeName, boolean isFunc) {
+  public JXExpressionNode referAttribute(Token attributeName, @Deprecated boolean isFunc) {
+    isFunc = this.metaStack.isCurrentLambdaScope();
     TruffleString ts = asTruffleString(attributeName, false);
 
     if (!isFunc) {
@@ -285,16 +286,6 @@ public class JXNodeFactory {
       assert this.lambdaTemplate != null;
       return new JXLambdaAttrAccessNode(ts, lambdaTemplate);
     }
-  }
-
-  public JXExpressionNode feedValue(JXExpressionNode child, List<JXExpressionNode> val) {
-    if (CollectionUtils.isEmpty(val)) {
-      // feed nothing
-      return child;
-    }
-    JXFeedValueNode res = new JXFeedValueNode(child);
-    res.feed(val);
-    return res;
   }
 
   /**
@@ -317,6 +308,7 @@ public class JXNodeFactory {
     TruffleString lambdaName = asTruffleString(name, false);
     this.lambdaTemplate = new LambdaTemplate(lambdaName);
     this.metaStack.startLambda();
+    LambdaRegistry.getInstance().register(lambdaName, lambdaTemplate);
   }
 
   public void addFormalParameter(Token name) {
@@ -330,7 +322,7 @@ public class JXNodeFactory {
   }
 
   public void finishDefLambda() {
-    this.lambdaTemplate.finish(LambdaRegistry.getInstance(), metaStack.buildTop());
+    this.lambdaTemplate.finish(metaStack.buildTop());
     metaStack.close();
     this.lambdaTemplate = null;
   }
@@ -349,7 +341,7 @@ public class JXNodeFactory {
     * */
     Integer slot = metaStack.lookupAttribute(ts, true);
     if (slot != null) {
-      JXFeedValueNode res = new JXFeedValueNode(new JXValueAccessNode(slot, ts));
+      JXFeedValueNode res = new JXFeedValueNode(() -> new JXValueAccessNode(slot, ts));
       res.feed(parameters);
       return res;
     }
@@ -363,8 +355,9 @@ public class JXNodeFactory {
     for (int i = 0; i < parameters.size(); i++) {
       argBindings.add(new JXLambdaArgBindingNode(i, parameters.get(i)));
     }
+    // We use lazy lambda access, because it's body may not be finalized yet
     JXFeedValueNode res =
-        new JXFeedValueNode(new JXLambdaNode(this.language, lt, argBindings, lt.getBody()));
+        new JXFeedValueNode(() -> new JXLambdaNode(this.language, lt, argBindings, lt.getBody()));
     res.feed(parameters);
     return res;
   }

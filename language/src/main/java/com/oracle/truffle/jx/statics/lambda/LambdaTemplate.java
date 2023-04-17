@@ -8,22 +8,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LambdaTemplate {
-  private List<TruffleString> parameterNames;
-  private TruffleString name;
+
+  enum State {
+    DEFINED, FINALIZED
+  }
+  private final List<TruffleString> parameterNames;
+  private final TruffleString name;
   private JXExpressionNode body;
   private FrameDescriptor descriptor;
+
+  /**
+   * State is used for early expose of partially defined lambdas
+   */
+  private volatile State state;
 
   public LambdaTemplate(TruffleString name) {
     this.parameterNames = new ArrayList<>();
     this.name = name;
-  }
-
-  public LambdaTemplate(TruffleString name, String... parameters) {
-    this(name);
-    for (String parameter : parameters) {
-      parameterNames.add(
-          TruffleString.fromJavaStringUncached(parameter, TruffleString.Encoding.UTF_8));
-    }
+    this.state = State.DEFINED;
   }
 
   public TruffleString getName() {
@@ -42,9 +44,12 @@ public class LambdaTemplate {
     return this.parameterNames;
   }
 
-  public void finish(LambdaRegistry registry, FrameDescriptor descriptor) {
-    registry.register(this.name, this);
+  public void finish(FrameDescriptor descriptor) {
+    if (this.state == State.FINALIZED) {
+      throw new JXException("Cannot re-finalize lambda: " + this.name);
+    }
     this.descriptor = descriptor;
+    this.state = State.FINALIZED;
   }
 
   public void addBody(JXExpressionNode body) {

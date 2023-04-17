@@ -9,19 +9,19 @@ import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXPartialLambda;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.List;import java.util.function.Supplier;
 
 public class JXFeedValueNode extends JXExpressionNode {
   private List<JXExpressionNode> args = new ArrayList<>();
 
-  private final JXExpressionNode child;
+  private final Supplier<JXExpressionNode> child;
 
-  public JXFeedValueNode(JXExpressionNode child) {
+  public JXFeedValueNode(Supplier<JXExpressionNode> child) {
     this.child = child;
   }
 
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    Object cValue = child.executeGeneric(virtualFrame);
+    Object cValue = child.get().executeGeneric(virtualFrame);
     DynamicObjectLibrary library = DynamicObjectLibrary.getUncached();
     if (isPartialApplicable(cValue)) {
       // Need to clone to avoid mutating internal state of original one
