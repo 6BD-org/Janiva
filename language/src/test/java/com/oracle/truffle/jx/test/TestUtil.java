@@ -1,6 +1,6 @@
 package com.oracle.truffle.jx.test;
 
-import java.io.IOException;
+import org.graalvm.polyglot.Value;import java.io.IOException;
 import java.io.InputStream;
 
 public class TestUtil {
@@ -20,5 +20,18 @@ public class TestUtil {
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
+  }
+
+  /**
+   * Recursively evaluate a value until it is not executable any more
+   * @param v
+   * @return
+   */
+  public static Value deepEval(Value v) {
+    Value res = v;
+    while (res.canExecute()) {
+      res = res.execute();
+    }
+    return res;
   }
 }

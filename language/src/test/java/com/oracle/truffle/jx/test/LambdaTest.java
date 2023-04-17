@@ -32,7 +32,7 @@ public class LambdaTest {
   public void testLambdaDefinition() {
     TestUtil.runWithStackTrace(
         () -> {
-          String src = TestUtil.readResourceAsString("ut-lambda-def.janiva");
+          String src = TestUtil.readResourceAsString("lambda/ut-lambda-def.janiva");
           Value v = context.eval(JanivaLang.ID, src);
         });
   }
@@ -68,10 +68,20 @@ public class LambdaTest {
   public void testPartialApplication() {
     TestUtil.runWithStackTrace(
         () -> {
-          String src = TestUtil.readResourceAsString("ut-partial-application.janiva");
+          String src = TestUtil.readResourceAsString("lambda/ut-partial-application.janiva");
           Value v = context.eval(JanivaLang.ID, src);
           Assert.assertEquals(5, v.getMember("sum1").execute().asInt());
           Assert.assertEquals(8, v.getMember("sum2").execute().asInt());
         });
+  }
+
+  @Test
+  public void testRecursion() {
+      TestUtil.runWithStackTrace(() -> {
+          String src = TestUtil.readResourceAsString("lambda/ut-lambda-recursion.janiva");
+          Value v = context.eval(JanivaLang.ID, src);
+          v = TestUtil.deepEval(v);
+          Assert.assertEquals(3, v.getMember("message").asInt());
+      });
   }
 }

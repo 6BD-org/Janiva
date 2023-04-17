@@ -207,6 +207,8 @@ object[$isFunc]                                  {$result=$object.result;}
 j_list                                  {$result=$j_list.result;}
 |
 arithmatics[$isFunc]                             {$result=$arithmatics.result;}
+|// bin op, > < >= <=
+bin_op[$isFunc]                         {$result=$bin_op.result;}
 |
 lambda_invocation                       {$result=$lambda_invocation.result;}
 ;
@@ -246,6 +248,15 @@ j_boolean returns [JXExpressionNode result]
 :
 BOOL_LITERAL                            {$result = factory.createBoolean($BOOL_LITERAL);}
 ;
+
+// bin op always return true or false
+bin_op[boolean isFunc] returns [JXExpressionNode result]
+:
+left=arithmatics[isFunc]
+op=BIN_OP
+right=arithmatics[isFunc]               {$result=factory.createBinary($op, $left.result, $right.result);}
+;
+
 
 arithmatics[boolean isFunc] returns [JXExpressionNode result]
 :
@@ -336,6 +347,7 @@ fragment STRING_CHAR : ~('"' | '\r' | '\n');
 fragment TRUE : 'true';
 fragment FALSE : 'false';
 fragment REF : '$';
+fragment COMP: ('>' | '<' | '<=' | '>=');
 
 L1_OP : ('+'|'-');
 L2_OP : ('*'|'/');
@@ -355,6 +367,7 @@ STREAM_PRODUCE: '>>';
 REF_ATTR : REF;
 REF_LAMBDA: '@';
 LAMBDA_DEF_INTRO: '::';
+BIN_OP: COMP;
 
 IMPORT : '@import';
 

@@ -95,6 +95,17 @@ public class MetaStack {
     this.frameStack.push(FrameDescriptor.newBuilder());
   }
 
+  public boolean isCurrentLambdaScope() {
+    LexicalScope s = this.lexicalScope;
+    while (s != null) {
+      if (s.type == ScopeType.LAMBDA) {
+        return true;
+      }
+      s = s.outer;
+    }
+    return false;
+  }
+
   public void appendArray(JXExpressionNode node) {
     this.lexicalScope.arrayNodes.add(node);
   }
