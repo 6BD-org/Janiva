@@ -1,7 +1,8 @@
 package com.oracle.truffle.jx.test;
 
-import org.graalvm.polyglot.Value;import java.io.IOException;
+import java.io.IOException;
 import java.io.InputStream;
+import org.graalvm.polyglot.Value;
 
 public class TestUtil {
   public static void runWithStackTrace(Runnable r) {
@@ -24,6 +25,7 @@ public class TestUtil {
 
   /**
    * Recursively evaluate a value until it is not executable any more
+   *
    * @param v
    * @return
    */

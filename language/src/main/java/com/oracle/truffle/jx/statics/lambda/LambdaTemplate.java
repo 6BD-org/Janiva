@@ -10,16 +10,16 @@ import java.util.List;
 public class LambdaTemplate {
 
   enum State {
-    DEFINED, FINALIZED
+    DEFINED,
+    FINALIZED
   }
+
   private final List<TruffleString> parameterNames;
   private final TruffleString name;
   private JXExpressionNode body;
   private FrameDescriptor descriptor;
 
-  /**
-   * State is used for early expose of partially defined lambdas
-   */
+  /** State is used for early expose of partially defined lambdas */
   private volatile State state;
 
   public LambdaTemplate(TruffleString name) {

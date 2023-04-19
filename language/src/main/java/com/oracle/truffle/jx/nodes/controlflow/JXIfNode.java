@@ -46,7 +46,6 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.jx.nodes.util.JXUnboxNodeGen;
 
 @NodeInfo(shortName = "if", description = "The node implementing a condional statement")
@@ -82,7 +81,8 @@ public final class JXIfNode extends JXExpressionNode {
      * In the interpreter, record profiling information that the condition was executed and with
      * which outcome.
      */
-    if (condition.profile(evaluateCondition(frame))) {
+    boolean cond = evaluateCondition(frame);
+    if (condition.profile(cond)) {
       /* Execute the then-branch. */
       return thenPartNode.executeGeneric(frame);
     } else {

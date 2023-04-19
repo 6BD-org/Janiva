@@ -283,6 +283,8 @@ j_number                                {$result = $j_number.result;}
 |
 ref_attribute[isFunc]                           {$result = $ref_attribute.result;}
 |
+lambda_invocation                               {$result=$lambda_invocation.result;}
+|
 BRACKET_OPEN
 arithmatics[$isFunc]                             {$result = $arithmatics.result;}
 BRACKET_CLOSE
