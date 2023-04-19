@@ -3,7 +3,8 @@ package com.oracle.truffle.jx.statics.lambda;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
 import java.util.HashMap;
-import java.util.Map;import java.util.Set;import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LambdaRegistry {
 
@@ -37,5 +38,4 @@ public class LambdaRegistry {
   public boolean isBuiltIn(TruffleString name) {
     return builtIn.containsKey(name);
   }
-
 }

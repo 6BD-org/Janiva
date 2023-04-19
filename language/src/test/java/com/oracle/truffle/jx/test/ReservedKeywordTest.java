@@ -1,12 +1,14 @@
 package com.oracle.truffle.jx.test;
 
 import com.oracle.truffle.jx.JanivaLang;
-import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
 import lombok.extern.slf4j.Slf4j;
 import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.PolyglotException;import org.junit.After;
-import org.junit.Assert;import org.junit.Before;
-import org.junit.Test;import org.junit.runner.RunWith;
+import org.graalvm.polyglot.PolyglotException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +33,8 @@ public class ReservedKeywordTest {
 
   @Test
   public void test() {
-    for (int i=0; i<1; i++) {
-      String fileName = "exceptional/ut-use-reserved-kw-" + (i+1) + ".janiva";
+    for (int i = 0; i < 1; i++) {
+      String fileName = "exceptional/ut-use-reserved-kw-" + (i + 1) + ".janiva";
       Throwable thrown = null;
       try {
         context.eval(JanivaLang.ID, TestUtil.readResourceAsString(fileName));

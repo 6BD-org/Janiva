@@ -75,7 +75,6 @@ public class JXException extends AbstractTruffleException {
     return new JXException("Method: " + clazz.getName() + "#" + name + " is not implemented");
   }
 
-
   /**
    * Provides a user-readable message for run-time type errors. SL is strongly typed, i.e., there
    * are no automatic type conversions of values.

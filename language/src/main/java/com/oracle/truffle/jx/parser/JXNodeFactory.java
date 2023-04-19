@@ -45,7 +45,8 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JanivaLang;
-import com.oracle.truffle.jx.Reserved;import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;
+import com.oracle.truffle.jx.Reserved;
+import com.oracle.truffle.jx.builtins.JXNewObjectBuiltinFactory;
 import com.oracle.truffle.jx.nodes.JXBinaryNode;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXRootNode;
@@ -67,8 +68,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.xmbsmdsj.janiva.utils.CollectionUtils;
-import lombok.Builder;import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -335,10 +335,10 @@ public class JXNodeFactory {
     }
 
     /* First we lookup local attributes
-    *
-    * Note that local attributes can be non-lambda values,
-    * in which case, type-checking is done at run-time
-    * */
+     *
+     * Note that local attributes can be non-lambda values,
+     * in which case, type-checking is done at run-time
+     * */
     Integer slot = metaStack.lookupAttribute(ts, true);
     if (slot != null) {
       JXFeedValueNode res = new JXFeedValueNode(() -> new JXValueAccessNode(slot, ts));

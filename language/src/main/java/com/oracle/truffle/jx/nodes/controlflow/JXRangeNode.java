@@ -6,13 +6,12 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.instrumentation.AllocationReporter;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JXException;
-import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXArray;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 import com.oracle.truffle.jx.runtime.JXContext;
-import com.oracle.truffle.jx.runtime.view.JXIntegerRangeArrayView;import com.oracle.truffle.jx.runtime.view.JXStringArrayView;
+import com.oracle.truffle.jx.runtime.view.JXIntegerRangeArrayView;
+import com.oracle.truffle.jx.runtime.view.JXStringArrayView;
 
 @NodeChild("o")
 public abstract class JXRangeNode extends JXExpressionNode {

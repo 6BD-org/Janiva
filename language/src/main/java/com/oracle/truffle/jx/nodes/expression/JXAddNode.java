@@ -45,15 +45,14 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.JanivaLang;
 import com.oracle.truffle.jx.nodes.JXBinaryNode;
 import com.oracle.truffle.jx.nodes.JanivaTypes;
 import com.oracle.truffle.jx.nodes.util.SLToTruffleStringNode;
-import com.oracle.truffle.jx.runtime.JXBigNumber;import com.oracle.truffle.jx.runtime.JXPartialLambda;
-import java.math.BigDecimal;
+import com.oracle.truffle.jx.runtime.JXBigNumber;
 
 /**
  * SL node that performs the "+" operation, which performs addition on arbitrary precision numbers,
@@ -87,7 +86,6 @@ public abstract class JXAddNode extends JXBinaryNode {
   protected long add(long left, long right) {
     return Math.addExact(left, right);
   }
-
 
   /**
    * This is the slow path of the arbitrary-precision arithmetic. The {@link JXBigNumber} type of

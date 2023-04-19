@@ -77,10 +77,11 @@ public class LambdaTest {
 
   @Test
   public void testRecursion() {
-      TestUtil.runWithStackTrace(() -> {
+    TestUtil.runWithStackTrace(
+        () -> {
           String src = TestUtil.readResourceAsString("lambda/ut-lambda-recursion.janiva");
           Value v = context.eval(JanivaLang.ID, src);
           Assert.assertEquals(3, v.getMember("message").asInt());
-      });
+        });
   }
 }

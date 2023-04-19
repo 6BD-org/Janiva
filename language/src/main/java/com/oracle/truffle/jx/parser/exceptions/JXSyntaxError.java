@@ -30,6 +30,4 @@ public class JXSyntaxError extends AbstractTruffleException {
   public Type getType() {
     return this.type;
   }
-
-
 }

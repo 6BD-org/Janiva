@@ -1,5 +1,8 @@
-@fibb :: (x) >> @if << ($x < 2) << 1 <<
-    ( (@fibb << ($x - 1)) + (@fibb << ($x - 2)) ) #
+// Naive approach of calculating fibonacci
+@fibb :: (x) >>
+    @if << ($x < 2)
+    << 1
+    << @fibb << ($x - 1) + @fibb << ($x - 2) #
 
 @stdout << {
     "result": @fibb << 4

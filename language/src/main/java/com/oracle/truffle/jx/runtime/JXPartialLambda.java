@@ -10,9 +10,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
-import java.util.List;
 
 @ExportLibrary(InteropLibrary.class)
 public class JXPartialLambda extends DynamicObject implements TruffleObject {
