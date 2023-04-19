@@ -13,18 +13,15 @@ public class JXLambdaNode extends JXExpressionNode {
   private JXLambdaExecutor executor;
 
   private LambdaTemplate lambdaTemplate;
-  private int presentArgLen;
 
   public JXLambdaNode(
       TruffleLanguage<?> language,
       LambdaTemplate template,
-      List<JXLambdaArgBindingNode> parameterBindingNodes,
       JXExpressionNode evalNode) {
     this.lambdaTemplate = template;
     this.executor =
         new JXLambdaExecutor(
-            language, template.getFrameDescriptor(), parameterBindingNodes, evalNode);
-    presentArgLen = parameterBindingNodes.size();
+            language, template.getFrameDescriptor(), evalNode);
   }
 
   @Override

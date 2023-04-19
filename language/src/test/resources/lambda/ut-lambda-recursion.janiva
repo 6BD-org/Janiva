@@ -1,4 +1,4 @@
 @my_lambda :: (x) >>
-  @if << ( $x >= 3 ) << {"message": $x} << (@my_lambda << $x + 1 ) #
+  @if << ( $x >= 3 ) << {"message": $x} << (@my_lambda << ($x + 1) ) #
 
 @stdout << ( @my_lambda << 1 )

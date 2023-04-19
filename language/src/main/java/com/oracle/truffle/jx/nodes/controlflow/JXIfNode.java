@@ -82,7 +82,8 @@ public final class JXIfNode extends JXExpressionNode {
      * In the interpreter, record profiling information that the condition was executed and with
      * which outcome.
      */
-    if (condition.profile(evaluateCondition(frame))) {
+    boolean cond = evaluateCondition(frame);
+    if (condition.profile(cond)) {
       /* Execute the then-branch. */
       return thenPartNode.executeGeneric(frame);
     } else {

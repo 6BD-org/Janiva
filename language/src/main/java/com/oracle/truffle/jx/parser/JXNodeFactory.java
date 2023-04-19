@@ -351,13 +351,9 @@ public class JXNodeFactory {
     if (lt == null) {
       throw new JXSyntaxError("Referring to non existing lambda: " + ts);
     }
-    List<JXLambdaArgBindingNode> argBindings = new ArrayList<>();
-    for (int i = 0; i < parameters.size(); i++) {
-      argBindings.add(new JXLambdaArgBindingNode(i, parameters.get(i)));
-    }
     // We use lazy lambda access, because it's body may not be finalized yet
     JXFeedValueNode res =
-        new JXFeedValueNode(() -> new JXLambdaNode(this.language, lt, argBindings, lt.getBody()));
+        new JXFeedValueNode(() -> new JXLambdaNode(this.language, lt, lt.getBody()));
     res.feed(parameters);
     return res;
   }
