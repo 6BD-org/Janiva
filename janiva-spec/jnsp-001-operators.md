@@ -1,4 +1,4 @@
-# Jnsp-001: Operators
+# Jnsp-001: Syntax and Operators
 
 ## Arithmetics
 
