@@ -211,8 +211,22 @@ arithmatics[$isFunc]                             {$result=$arithmatics.result;}
 bin_op[$isFunc]                         {$result=$bin_op.result;}
 |
 lambda_invocation                       {$result=$lambda_invocation.result;}
+|
+attr_access[$isFunc]                    {$result=$attr_access.result;}
 ;
 
+attr_access[boolean isFunc] returns [JXExpressionNode result]:
+
+val=ref_attribute[$isFunc] {$result = $val.result;}
+(
+ATTR_ACCESS
+(
+key=STRING_LITERAL {$result = factory.createAttrAccess($result, $key, true);}
+|
+key=NUMERIC_LITERAL {$result = factory.createAttrAccess($result, $key, false);}
+)
+)*
+;
 
 
 // refer to bounded attribute
@@ -366,6 +380,7 @@ BRACKET_OPEN: '(';
 BRACKET_CLOSE: ')';
 STREAM_ACCEPTS: '<<';
 STREAM_PRODUCE: '>>';
+ATTR_ACCESS: '->';
 REF_ATTR : REF;
 REF_LAMBDA: '@';
 LAMBDA_DEF_INTRO: '::';

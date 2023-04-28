@@ -10,12 +10,12 @@ import java.util.List;
 
 public class JXObjectAssemblyNode extends JXExpressionNode {
   private final List<JXStatementNode> bindings;
-  private final List<JXValueAccessNode> accessors;
+  private final List<JXSlotAccessNode> accessors;
   private final JXNewObjectBuiltin newObjectBuiltin;
 
   public JXObjectAssemblyNode(
       List<JXStatementNode> bindings,
-      List<JXValueAccessNode> accessors,
+      List<JXSlotAccessNode> accessors,
       JXNewObjectBuiltin newObjectBuiltin) {
     this.accessors = accessors;
     this.newObjectBuiltin = newObjectBuiltin;
@@ -34,7 +34,7 @@ public class JXObjectAssemblyNode extends JXExpressionNode {
       }
       bindingNode.executeVoid(frame);
     }
-    for (JXValueAccessNode n : accessors) {
+    for (JXSlotAccessNode n : accessors) {
       dynamicObjectLibrary.put(jxObject, n.getName(), n.executeGeneric(frame));
     }
     return jxObject;
