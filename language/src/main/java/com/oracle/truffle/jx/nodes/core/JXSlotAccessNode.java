@@ -4,12 +4,12 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 
-public class JXValueAccessNode extends JXExpressionNode {
+public class JXSlotAccessNode extends JXExpressionNode {
 
   private final int slot;
   private final TruffleString name;
 
-  public JXValueAccessNode(int slot, TruffleString name) {
+  public JXSlotAccessNode(int slot, TruffleString name) {
     this.slot = slot;
     this.name = name;
   }

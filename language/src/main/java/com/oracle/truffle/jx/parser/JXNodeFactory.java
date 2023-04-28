@@ -205,7 +205,7 @@ public class JXNodeFactory {
         new JXObjectAssemblyNode(
             nodes,
             metaStack.locals().entrySet().stream()
-                .map(e -> new JXValueAccessNode(e.getValue(), e.getKey()))
+                .map(e -> new JXSlotAccessNode(e.getValue(), e.getKey()))
                 .collect(Collectors.toList()),
             JXNewObjectBuiltinFactory.getInstance().createNode());
     metaStack.close();
@@ -281,10 +281,10 @@ public class JXNodeFactory {
       if (slot == null) {
         throw new JXSyntaxError("Can not find attribute: " + attributeName);
       }
-      return new JXValueAccessNode(slot, ts);
+      return new JXSlotAccessNode(slot, ts);
     } else {
       assert this.lambdaTemplate != null;
-      return new JXLambdaAttrAccessNode(ts, lambdaTemplate);
+      return new JXLambdaSlotAccessNode(ts, lambdaTemplate);
     }
   }
 
@@ -341,7 +341,7 @@ public class JXNodeFactory {
      * */
     Integer slot = metaStack.lookupAttribute(ts, true);
     if (slot != null) {
-      JXFeedValueNode res = new JXFeedValueNode(() -> new JXValueAccessNode(slot, ts));
+      JXFeedValueNode res = new JXFeedValueNode(() -> new JXSlotAccessNode(slot, ts));
       res.feed(parameters);
       return res;
     }
@@ -357,6 +357,15 @@ public class JXNodeFactory {
     res.feed(parameters);
     return res;
   }
+
+  public JXExpressionNode createAttrAccess(JXExpressionNode val, Token attr, boolean isObject) {
+    return JXAttributeAccessNodeGen.create(
+        val,
+        isObject
+            ? new JXStringLiteralNode(asTruffleString(attr, true))
+            : new JXNumberLiteralNode(BigDecimal.valueOf(Integer.parseInt(attr.getText())), false));
+  }
+
 
   /** Creates source description of a single token. */
   private static void srcFromToken(JXStatementNode node, Token token) {

@@ -6,12 +6,12 @@ import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 
-public class JXLambdaAttrAccessNode extends JXExpressionNode {
+public class JXLambdaSlotAccessNode extends JXExpressionNode {
 
   private final TruffleString name;
   private LambdaTemplate lambdaTemplate;
 
-  public JXLambdaAttrAccessNode(TruffleString name, LambdaTemplate lambdaTemplate) {
+  public JXLambdaSlotAccessNode(TruffleString name, LambdaTemplate lambdaTemplate) {
     this.name = name;
     this.lambdaTemplate = lambdaTemplate;
   }
