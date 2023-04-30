@@ -2,7 +2,6 @@ package com.oracle.truffle.jx.nodes.core;
 
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
@@ -36,10 +35,10 @@ public abstract class JXAttributeAccessNode extends JXExpressionNode {
   public Object executeObject(
       Object val,
       Object attr,
-      @Cached SLToMemberNode n) {
-    InteropLibrary library = InteropLibrary.getUncached(); // don't know why cached library doesn't work
+      @Cached SLToMemberNode n,
+      @CachedLibrary("val") InteropLibrary libVal) {
     try {
-      return library.readMember((JXObject) val, n.execute(attr));
+      return libVal.readMember((JXObject) val, n.execute(attr));
     } catch (UnsupportedMessageException | UnknownIdentifierException e) {
       throw new JXException("error reading object attribute " + e.getMessage(), this);
     }
