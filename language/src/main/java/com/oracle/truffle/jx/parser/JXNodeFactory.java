@@ -53,6 +53,7 @@ import com.oracle.truffle.jx.nodes.JXRootNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.nodes.core.*;
 import com.oracle.truffle.jx.nodes.expression.JXFeedValueNode;
+import com.oracle.truffle.jx.nodes.expression.JXFeedValueNodeGen;
 import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
@@ -341,7 +342,7 @@ public class JXNodeFactory {
      * */
     Integer slot = metaStack.lookupAttribute(ts, true);
     if (slot != null) {
-      JXFeedValueNode res = new JXFeedValueNode(() -> JXSlotAccessNodeGen.create(slot, ts));
+      JXFeedValueNode res = JXFeedValueNodeGen.create(JXSlotAccessNodeGen.create(slot, ts));
       res.feed(parameters);
       return res;
     }
@@ -352,8 +353,7 @@ public class JXNodeFactory {
       throw new JXSyntaxError("Referring to non existing lambda: " + ts);
     }
     // We use lazy lambda access, because it's body may not be finalized yet
-    JXFeedValueNode res =
-        new JXFeedValueNode(() -> new JXLambdaNode(this.language, lt, lt.getBody()));
+    JXFeedValueNode res = JXFeedValueNodeGen.create(JXLambdaNodeGen.create(lt));
     res.feed(parameters);
     return res;
   }

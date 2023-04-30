@@ -73,6 +73,9 @@ public final class JXIfNode extends JXExpressionNode {
     this.conditionNode = JXUnboxNodeGen.create(conditionNode);
     this.thenPartNode = thenPartNode;
     this.elsePartNode = elsePartNode;
+    this.insert(conditionNode);
+    this.insert(thenPartNode);
+    this.insert(elsePartNode);
   }
 
   @Override
