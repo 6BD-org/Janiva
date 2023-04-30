@@ -1,5 +1,7 @@
 package com.oracle.truffle.jx.nodes.core;
 
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.jx.builtins.JXNewObjectBuiltin;
@@ -8,6 +10,7 @@ import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.runtime.JXObject;
 import java.util.List;
 
+@NodeChild
 public class JXObjectAssemblyNode extends JXExpressionNode {
   private final List<JXStatementNode> bindings;
   private final List<JXSlotAccessNode> accessors;
@@ -20,6 +23,10 @@ public class JXObjectAssemblyNode extends JXExpressionNode {
     this.accessors = accessors;
     this.newObjectBuiltin = newObjectBuiltin;
     this.bindings = bindings;
+    bindings.forEach(this::insert);
+    accessors.forEach(this::insert);
+    this.insert(newObjectBuiltin);
+    // Need to adopt children in order to support cached library
   }
 
   @Override
