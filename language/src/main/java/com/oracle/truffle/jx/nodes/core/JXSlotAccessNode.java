@@ -1,34 +1,20 @@
 package com.oracle.truffle.jx.nodes.core;
 
+import com.oracle.truffle.api.dsl.NodeField;import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 
-public class JXSlotAccessNode extends JXExpressionNode {
+@NodeField(name = "slot", type = int.class)
+@NodeField(name = "name", type = TruffleString.class)
+public abstract class JXSlotAccessNode extends JXExpressionNode {
 
-  private final int slot;
-  private final TruffleString name;
+  abstract int getSlot();
+  abstract TruffleString getName();
 
-  public JXSlotAccessNode(int slot, TruffleString name) {
-    this.slot = slot;
-    this.name = name;
+  @Specialization
+  public Object executeInt(VirtualFrame frame) {
+    return frame.getObject(getSlot());
   }
 
-  @Override
-  public Object executeGeneric(VirtualFrame frame) {
-    return frame.getObject(slot);
-  }
-
-  public int getSlot() {
-    return slot;
-  }
-
-  /**
-   * Used when assembling objects
-   *
-   * @return
-   */
-  public TruffleString getName() {
-    return name;
-  }
 }

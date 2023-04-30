@@ -205,7 +205,7 @@ public class JXNodeFactory {
         new JXObjectAssemblyNode(
             nodes,
             metaStack.locals().entrySet().stream()
-                .map(e -> new JXSlotAccessNode(e.getValue(), e.getKey()))
+                .map(e -> JXSlotAccessNodeGen.create(e.getValue(), e.getKey()))
                 .collect(Collectors.toList()),
             JXNewObjectBuiltinFactory.getInstance().createNode());
     metaStack.close();
@@ -269,7 +269,7 @@ public class JXNodeFactory {
     if (slot == null) {
       slot = metaStack.requestForLatentSlot(ts, val);
     }
-    return new JXAttributeBindingNode(slot, val, true);
+    return JXAttributeBindingNodeGen.create(val, slot, true);
   }
 
   public JXExpressionNode referAttribute(Token attributeName, @Deprecated boolean isFunc) {
@@ -281,7 +281,7 @@ public class JXNodeFactory {
       if (slot == null) {
         throw new JXSyntaxError("Can not find attribute: " + attributeName);
       }
-      return new JXSlotAccessNode(slot, ts);
+      return JXSlotAccessNodeGen.create(slot, ts);
     } else {
       assert this.lambdaTemplate != null;
       return new JXLambdaSlotAccessNode(ts, lambdaTemplate);
@@ -300,7 +300,7 @@ public class JXNodeFactory {
       throw new JXSyntaxError();
     }
     int frameSlot = metaStack.requestForSlot(ts, null);
-    return new JXAttributeBindingNode(frameSlot, val);
+    return JXAttributeBindingNodeGen.create(val, frameSlot, false);
   }
 
   public void defLambda(Token name) {
@@ -341,7 +341,7 @@ public class JXNodeFactory {
      * */
     Integer slot = metaStack.lookupAttribute(ts, true);
     if (slot != null) {
-      JXFeedValueNode res = new JXFeedValueNode(() -> new JXSlotAccessNode(slot, ts));
+      JXFeedValueNode res = new JXFeedValueNode(() -> JXSlotAccessNodeGen.create(slot, ts));
       res.feed(parameters);
       return res;
     }
