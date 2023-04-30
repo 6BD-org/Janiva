@@ -2,6 +2,8 @@ package com.oracle.truffle.jx.nodes.expression;
 
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
@@ -10,26 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class JXFeedValueNode extends JXExpressionNode {
+@NodeChild("child")
+public abstract class JXFeedValueNode extends JXExpressionNode {
 
-  private Object[] EMPTY_ARGS = new Object[] {};
-  private List<JXExpressionNode> args = new ArrayList<>();
+  private final Object[] EMPTY_ARGS = new Object[] {};
+  private final List<JXExpressionNode> args = new ArrayList<>();
 
-  private final Supplier<JXExpressionNode> child;
-  private final DynamicObjectLibrary library;
-
-  public JXFeedValueNode(Supplier<JXExpressionNode> child) {
-    this.child = child;
-    this.library = DynamicObjectLibrary.getUncached();
-  }
-
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    Object cValue = child.get().executeGeneric(virtualFrame);
-    DynamicObjectLibrary library = DynamicObjectLibrary.getUncached();
-    if (isPartialApplicable(cValue)) {
+  @Specialization(limit = "3")
+  public Object executeSpecialized(
+          VirtualFrame virtualFrame,
+          DynamicObject child,
+          @CachedLibrary("child") DynamicObjectLibrary library) {
+    if (isPartialApplicable(child)) {
       // Need to clone to avoid mutating internal state of original one
       JXPartialLambda res =
-          ((JXPartialLambda) cValue)
+          ((JXPartialLambda) child)
               .clone(library)
               .mergeArgs(args.stream().map(a -> a.executeGeneric(virtualFrame)).toArray(), library);
       if (res.isExecutable()) {
@@ -39,7 +36,7 @@ public class JXFeedValueNode extends JXExpressionNode {
         return res;
       }
     }
-    throw new JXException("Not supported: " + cValue.getClass(), this);
+    throw new JXException("Not supported: " + child.getClass(), this);
   }
 
   public void feed(List<JXExpressionNode> args) {

@@ -1,25 +1,21 @@
 package com.oracle.truffle.jx.nodes.core;
 
 import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.dsl.NodeField;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.jx.nodes.JXExpressionNode;
+import com.oracle.truffle.jx.JanivaLang;import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXPartialLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 
-public class JXLambdaNode extends JXExpressionNode {
+@NodeField(name = "lambdaTemplate", type = LambdaTemplate.class)
+public abstract class JXLambdaNode extends JXExpressionNode {
 
-  private JXLambdaExecutor executor;
+  protected abstract LambdaTemplate getLambdaTemplate();
 
-  private LambdaTemplate lambdaTemplate;
-
-  public JXLambdaNode(
-      TruffleLanguage<?> language, LambdaTemplate template, JXExpressionNode evalNode) {
-    this.lambdaTemplate = template;
-    this.executor = new JXLambdaExecutor(language, template.getFrameDescriptor(), evalNode);
-  }
-
-  @Override
-  public Object executeGeneric(VirtualFrame frame) {
-    return new JXPartialLambda(this.executor.getCallTarget(), lambdaTemplate);
+  @Specialization
+  public Object executeSpecialized(VirtualFrame frame) {
+    JXLambdaExecutor executor = new JXLambdaExecutor(JanivaLang.get(this), getLambdaTemplate().getFrameDescriptor(), getLambdaTemplate().getBody());
+    return new JXPartialLambda(executor.getCallTarget(), getLambdaTemplate());
   }
 }

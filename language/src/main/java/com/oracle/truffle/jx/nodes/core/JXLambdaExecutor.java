@@ -13,6 +13,7 @@ public class JXLambdaExecutor extends RootNode {
       TruffleLanguage<?> language, FrameDescriptor frameDescriptor, JXExpressionNode evalNode) {
     super(language, frameDescriptor);
     this.evalNode = evalNode;
+    this.insert(evalNode);
   }
 
   @Override
