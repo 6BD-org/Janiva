@@ -269,7 +269,7 @@ public class JXNodeFactory {
     if (slot == null) {
       slot = metaStack.requestForLatentSlot(ts, val);
     }
-    return new JXAttributeBindingNode(slot, val, true);
+    return JXAttributeBindingNodeGen.create(val, slot, true);
   }
 
   public JXExpressionNode referAttribute(Token attributeName, @Deprecated boolean isFunc) {
@@ -300,7 +300,7 @@ public class JXNodeFactory {
       throw new JXSyntaxError();
     }
     int frameSlot = metaStack.requestForSlot(ts, null);
-    return new JXAttributeBindingNode(frameSlot, val);
+    return JXAttributeBindingNodeGen.create(val, frameSlot, false);
   }
 
   public void defLambda(Token name) {

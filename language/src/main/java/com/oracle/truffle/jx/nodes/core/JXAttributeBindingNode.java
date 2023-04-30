@@ -1,54 +1,32 @@
 package com.oracle.truffle.jx.nodes.core;
 
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.NodeField;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
 
-public class JXAttributeBindingNode extends JXStatementNode {
+@NodeChild(value = "val")
+@NodeField(name = "slot", type = int.class)
+@NodeField(name = "latent", type = boolean.class)
+public abstract class JXAttributeBindingNode extends JXExpressionNode {
 
-  private final int slot;
-  private final JXExpressionNode expressionNode;
-  private final boolean latent;
+  abstract int getSlot();
+  abstract boolean isLatent();
 
-  public JXAttributeBindingNode(int slot, JXExpressionNode expressionNode) {
-    this.slot = slot;
-    this.expressionNode = expressionNode;
-    this.latent = false;
-  }
-
-  /**
-   * Create a Attribute binding node with latent parameter
-   *
-   * @param slot
-   * @param expressionNode
-   * @param latent if an attribute is latent, it's hidden from final output, but can be referred by
-   *     other attributes
-   */
-  public JXAttributeBindingNode(int slot, JXExpressionNode expressionNode, boolean latent) {
-    this.slot = slot;
-    this.expressionNode = expressionNode;
-    this.latent = latent;
-  }
-
-  @Override
-  public void executeVoid(VirtualFrame frame) {
-    if (!latent) {
-      if (frame.getObject(slot) != null) {
-        throw new JXException("Cannot re-bind a non-latent variable: " + slot, this);
+  @Specialization
+  public Object executeVal(VirtualFrame frame, Object val) {
+    if (!isLatent()) {
+      if (frame.getObject(getSlot()) != null) {
+        throw new JXException("Cannot re-bind a non-latent variable: " + getSlot(), this);
       }
-      frame.setObject(slot, expressionNode.executeGeneric(frame));
+      frame.setObject(getSlot(), val);
     } else {
       // Latent variable can be bound multiple times
-      frame.setObject(slot, expressionNode.executeGeneric(frame));
+      frame.setObject(getSlot(), val);
     }
-  }
-
-  public boolean isLatent() {
-    return this.latent;
-  }
-
-  public int getSlot() {
-    return this.slot;
+    return val;
   }
 }
