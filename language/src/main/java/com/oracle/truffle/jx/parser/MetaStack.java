@@ -6,7 +6,6 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXBoolLiteralNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXNumberLiteralNode;
-import com.oracle.truffle.jx.nodes.expression.value.JXObjectNode;
 import com.oracle.truffle.jx.nodes.expression.value.JXStringLiteralNode;
 import java.util.*;
 import java.util.function.Supplier;
@@ -167,7 +166,7 @@ public class MetaStack {
   }
 
   private FrameSlotKind inferSlotKind(JXExpressionNode val) {
-    if (val instanceof JXStringLiteralNode || val instanceof JXObjectNode) {
+    if (val instanceof JXStringLiteralNode) {
       return FrameSlotKind.Object;
     }
     if (val instanceof JXBoolLiteralNode) {
