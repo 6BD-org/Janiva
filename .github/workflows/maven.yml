@@ -26,6 +26,6 @@ jobs:
           java --version
           gu --version
           native-image --version
-          apt install maven -y
+          sudo apt install maven -y
           ./generate_parser.sh
           mvn clean package
