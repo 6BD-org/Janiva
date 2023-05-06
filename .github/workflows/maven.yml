@@ -19,6 +19,10 @@ jobs:
           java-version: '17'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Maven
+        run: |
+          sudo apt update -y
+          sudo apt install maven -y
       - name: Example step
         run: |
           echo "GRAALVM_HOME: $GRAALVM_HOME"
@@ -26,6 +30,5 @@ jobs:
           java --version
           gu --version
           native-image --version
-          sudo apt install maven -y
           ./generate_parser.sh
           mvn clean package
