@@ -48,7 +48,7 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
-public final class SLMain {
+public final class JXMain {
 
   private static final String SL = "sl";
 
