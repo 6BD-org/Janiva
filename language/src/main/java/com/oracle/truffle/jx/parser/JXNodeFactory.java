@@ -79,6 +79,7 @@ import org.slf4j.LoggerFactory;
  * automatically generated parser to keep the attributed grammar of SL small.
  */
 public class JXNodeFactory {
+  private static final TruffleString defaultNamespace = JXStrings.fromJavaString("default");
   static {
   }
 
@@ -91,6 +92,7 @@ public class JXNodeFactory {
   /* State while parsing a source unit. */
   private final Source source;
   private final TruffleString sourceString;
+  private TruffleString namespace;
   private JXExpressionNode rootNode;
 
   private final MetaStack metaStack = new MetaStack();
@@ -106,6 +108,11 @@ public class JXNodeFactory {
     this.language = language;
     this.source = source;
     this.sourceString = JXStrings.fromJavaString(source.getCharacters().toString());
+    this.namespace = defaultNamespace;
+  }
+
+  public void defineNamespace(Token token) {
+    this.namespace = asTruffleString(token, true);
   }
 
   public void setRootStream(Token streamName) {
@@ -309,7 +316,7 @@ public class JXNodeFactory {
     TruffleString lambdaName = asTruffleString(name, false);
     this.lambdaTemplate = new LambdaTemplate(lambdaName);
     this.metaStack.startLambda();
-    LambdaRegistry.getInstance().register(lambdaName, lambdaTemplate);
+    LambdaRegistry.getInstance(namespace).register(lambdaName, lambdaTemplate);
   }
 
   public void addFormalParameter(Token name) {
@@ -328,10 +335,10 @@ public class JXNodeFactory {
     this.lambdaTemplate = null;
   }
 
-  public JXExpressionNode materialize(Token lambdaName, List<JXExpressionNode> parameters) {
+  public JXExpressionNode materialize(Token namespaceToken, Token lambdaName, List<JXExpressionNode> parameters) {
     TruffleString ts = asTruffleString(lambdaName, false);
-
-    if (LambdaRegistry.getInstance().isBuiltIn(ts)) {
+    TruffleString namespace = namespaceToken == null ? defaultNamespace : asTruffleString(namespaceToken, true);
+    if (LambdaRegistry.getInstance(namespace).isBuiltIn(ts)) {
       return BuiltInLambda.valueOf(ts).create(parameters, source);
     }
 
@@ -348,7 +355,7 @@ public class JXNodeFactory {
     }
 
     // Then we look at already defined ones
-    LambdaTemplate lt = LambdaRegistry.getInstance().lookupLambdaBody(ts);
+    LambdaTemplate lt = LambdaRegistry.getInstance(namespace).lookupLambdaBody(ts);
     if (lt == null) {
       throw new JXSyntaxError("Referring to non existing lambda: " + ts);
     }

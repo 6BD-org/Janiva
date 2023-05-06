@@ -8,7 +8,7 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;
+import com.oracle.truffle.api.object.DynamicObject;import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
@@ -54,10 +54,11 @@ public abstract class JXAttributeAccessNode extends JXExpressionNode {
   @Specialization(guards = "arrayElem(val, attr)", limit = "3")
   public Object executeArray(
       Object val,
-      Object attr) {
-    InteropLibrary library = InteropLibrary.getUncached();
+      Object attr,
+      @CachedLibrary("val") InteropLibrary libVal,
+      @CachedLibrary("attr") InteropLibrary libAttr) {
     try {
-      return library.readArrayElement(val, library.asLong(attr));
+      return libVal.readArrayElement(val, libAttr.asLong(attr));
     } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
       throw new JXException("error reading array element " + e.getMessage(), this);
     }

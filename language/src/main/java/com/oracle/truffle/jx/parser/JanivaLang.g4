@@ -120,10 +120,17 @@ public static RootNode parseSL(JanivaLang language, Source source) {
 
 janiva
 :
+namespace_def?
 bind_import*
 lambda_def*
 j_root_value
 EOF
+;
+
+namespace_def
+:
+NAMESPACE_DEF
+ns=IDENTIFIER                      {factory.defineNamespace($ns);}
 ;
 
 bind_latent [boolean isFunc] returns [JXStatementNode result]
@@ -327,7 +334,7 @@ lambda_def
 :
 REF_LAMBDA
 funcName=IDENTIFIER                     {factory.defLambda($funcName);}
-LAMBDA_DEF_INTRO
+INTRO
 arg_list
 STREAM_PRODUCE
 body=j_value[true]                      {factory.addBody($body.result);}
@@ -337,11 +344,14 @@ END                                     {factory.finishDefLambda();}
 lambda_invocation returns [JXExpressionNode result]
 :
 REF_LAMBDA                              {List<JXExpressionNode> args = new ArrayList<>();}
-lambdaName=IDENTIFIER
 (
-STREAM_ACCEPTS
-arg=j_value[false]                          {args.add($arg.result);}
-)*                                      {$result = factory.materialize($lambdaName, args);}
+    ns=IDENTIFIER
+    INTRO
+)? lambdaName=IDENTIFIER
+(
+    STREAM_ACCEPTS
+    arg=j_value[false]                          {args.add($arg.result);}
+)*                                      {$result = factory.materialize($ns, $lambdaName, args);}
 ;
 
 
@@ -383,8 +393,9 @@ STREAM_PRODUCE: '>>';
 ATTR_ACCESS: '->';
 REF_ATTR : REF;
 REF_LAMBDA: '@';
-LAMBDA_DEF_INTRO: '::';
+INTRO: '::';
 BIN_OP: COMP;
+NAMESPACE_DEF: 'namespace';
 
 IMPORT : '@import';
 

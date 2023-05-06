@@ -8,10 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LambdaRegistry {
 
-  private static final LambdaRegistry instance = new LambdaRegistry();
+  private static final Map<TruffleString, LambdaRegistry> registries = new ConcurrentHashMap<>();
   // TODO: namespacing
-  public static LambdaRegistry getInstance() {
-    return instance;
+  public static LambdaRegistry getInstance(TruffleString namespace) {
+    return registries.computeIfAbsent(namespace, ns -> new LambdaRegistry());
   }
 
   private final Map<TruffleString, LambdaTemplate> registrations = new HashMap<>();
