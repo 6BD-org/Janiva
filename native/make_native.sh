@@ -47,5 +47,5 @@ fi
 "$JAVA_HOME"/bin/native-image \
     --macro:truffle --no-fallback --initialize-at-build-time \
     -cp ../language/target/simplelanguage.jar:../launcher/target/sl-launcher.jar \
-    com.oracle.truffle.sl.launcher.SLMain \
+    com.oracle.truffle.jx.launcher.JXMain \
     slnative

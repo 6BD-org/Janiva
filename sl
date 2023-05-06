@@ -43,7 +43,7 @@
 # If you update this number make sure the graalvm.version value in ./pom.xml matches
 VERSION="22.1.0"
 
-MAIN_CLASS="com.oracle.truffle.sl.launcher.SLMain"
+MAIN_CLASS="com.oracle.truffle.jx.launcher.JXMain"
 SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd -P)"
 
 function extractGraalVMVersion() {
