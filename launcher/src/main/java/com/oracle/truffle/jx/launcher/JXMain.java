@@ -50,7 +50,7 @@ import org.graalvm.polyglot.Value;
 
 public final class JXMain {
 
-  private static final String SL = "sl";
+  private static final String Janiva = "janiva";
 
   /** The main entry point. */
   public static void main(String[] args) throws IOException {
@@ -69,10 +69,10 @@ public final class JXMain {
 
     if (file == null) {
       // @formatter:off
-      source = Source.newBuilder(SL, new InputStreamReader(System.in), "<stdin>").build();
+      source = Source.newBuilder(Janiva, new InputStreamReader(System.in), "<stdin>").build();
       // @formatter:on
     } else {
-      source = Source.newBuilder(SL, new File(file)).build();
+      source = Source.newBuilder(Janiva, new File(file)).build();
     }
 
     System.exit(executeSource(source, System.in, System.out, options));
@@ -84,7 +84,7 @@ public final class JXMain {
     PrintStream err = System.err;
     try {
       context =
-          Context.newBuilder(SL).in(in).out(out).options(options).allowAllAccess(true).build();
+          Context.newBuilder(Janiva).in(in).out(out).options(options).allowAllAccess(true).build();
     } catch (IllegalArgumentException e) {
       err.println(e.getMessage());
       return 1;
@@ -93,7 +93,7 @@ public final class JXMain {
 
     try {
       Value result = context.eval(source);
-      if (context.getBindings(SL).getMember("main") == null) {
+      if (context.getBindings(Janiva).getMember("main") == null) {
         err.println("No function main() defined in SL source file.");
         return 1;
       }

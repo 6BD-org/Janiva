@@ -1,6 +1,12 @@
-_value << @import << "ex.ut-export" #
+@namespace << org.xmbsmdsj.janiva.main #
+
+v_imp << @import << "ex.ut-export" #
+
+@add :: (x, y) >> $x + $y #
 
 @stdout << {
     "k": {"c": "d"},
-    "value": $_value
+    "value": $v_imp,
+    "sum2": @v_imp::add << 1 << 1,
+    "sum2_local": @add << 1 << 1,
 }

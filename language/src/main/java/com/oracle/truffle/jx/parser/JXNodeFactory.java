@@ -104,15 +104,20 @@ public class JXNodeFactory {
 
   private List<JXStatementNode> imports = new ArrayList<>();
 
-  public JXNodeFactory(JanivaLang language, Source source) {
+  public JXNodeFactory(JanivaLang language, Source source, TruffleString nsAlias) {
     this.language = language;
     this.source = source;
     this.sourceString = JXStrings.fromJavaString(source.getCharacters().toString());
-    this.namespace = defaultNamespace;
+    this.namespace = nsAlias == null ? defaultNamespace : nsAlias;
   }
 
   public void defineNamespace(Token token) {
-    this.namespace = asTruffleString(token, true);
+    // We'll not re-define our namespace
+    if (defaultNamespace.equals(this.namespace)) {
+      this.namespace = asTruffleString(token, false);
+      logger.info("Defining namespace {}", this.namespace);
+
+    }
   }
 
   public void setRootStream(Token streamName) {
@@ -249,9 +254,10 @@ public class JXNodeFactory {
    *     directory tree like this | |-a.janiva |-b/ |--c.janiva |--d.janiva by using "b.c", you can
    *     refer to b/c.janiva from a.janiva.
    */
-  public RootNode importFile(Token importedName) {
+  public RootNode importFile(Token importedName, Token alias) {
     TruffleString ts = asTruffleString(importedName, true);
-    return JanivaLangParser.parseSL(language, SourceFinder.findImported(source.getPath(), ts));
+    TruffleString nsAlias = asTruffleString(alias, false);
+    return JanivaLangParser.parseSL(language, SourceFinder.findImported(source.getPath(), ts), nsAlias);
   }
 
   /**
@@ -316,6 +322,7 @@ public class JXNodeFactory {
     TruffleString lambdaName = asTruffleString(name, false);
     this.lambdaTemplate = new LambdaTemplate(lambdaName);
     this.metaStack.startLambda();
+    logger.debug("Defining {} in namespace: {}", lambdaName, namespace);
     LambdaRegistry.getInstance(namespace).register(lambdaName, lambdaTemplate);
   }
 
@@ -337,7 +344,7 @@ public class JXNodeFactory {
 
   public JXExpressionNode materialize(Token namespaceToken, Token lambdaName, List<JXExpressionNode> parameters) {
     TruffleString ts = asTruffleString(lambdaName, false);
-    TruffleString namespace = namespaceToken == null ? defaultNamespace : asTruffleString(namespaceToken, true);
+    TruffleString namespace = inferNamespace(namespaceToken);
     if (LambdaRegistry.getInstance(namespace).isBuiltIn(ts)) {
       return BuiltInLambda.valueOf(ts).create(parameters, source);
     }
@@ -363,6 +370,10 @@ public class JXNodeFactory {
     JXFeedValueNode res = JXFeedValueNodeGen.create(JXLambdaNodeGen.create(lt));
     res.feed(parameters);
     return res;
+  }
+
+  private TruffleString inferNamespace(Token namespaceToken) {
+    return namespaceToken == null ? namespace : asTruffleString(namespaceToken, false);
   }
 
   public JXExpressionNode createAttrAccess(JXExpressionNode val, Token attr, boolean isObject) {

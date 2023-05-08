@@ -101,7 +101,7 @@ private static void throwParseError(Source source, int line, int charPositionInL
     throw new JXParseError(source, line, col, length, String.format("Error(s) parsing script:%n" + location + message));
 }
 
-public static RootNode parseSL(JanivaLang language, Source source) {
+public static RootNode parseSL(JanivaLang language, Source source, TruffleString nsAlias) {
     JanivaLangLexer lexer = new JanivaLangLexer(CharStreams.fromString(source.getCharacters().toString()));
     JanivaLangParser parser = new JanivaLangParser(new CommonTokenStream(lexer));
     lexer.removeErrorListeners();
@@ -109,7 +109,7 @@ public static RootNode parseSL(JanivaLang language, Source source) {
     BailoutErrorListener listener = new BailoutErrorListener(source);
     lexer.addErrorListener(listener);
     parser.addErrorListener(listener);
-    parser.factory = new JXNodeFactory(language, source);
+    parser.factory = new JXNodeFactory(language, source, nsAlias);
     parser.source = source;
     parser.janiva();
     return parser.factory.getRootNode();
@@ -129,8 +129,13 @@ EOF
 
 namespace_def
 :
-NAMESPACE_DEF
-ns=IDENTIFIER                      {factory.defineNamespace($ns);}
+(
+    NAMESPACE_DEF
+    STREAM_ACCEPTS
+    ns=NS_IDENTIFIER     {factory.defineNamespace($ns);}
+    END
+)
+
 ;
 
 bind_latent [boolean isFunc] returns [JXStatementNode result]
@@ -147,14 +152,14 @@ bind_import returns [JXStatementNode result]
 :
     IDENTIFIER                   {Token valName = $IDENTIFIER;}
     STREAM_ACCEPTS
-    import_
+    import_[valName]
     END                         {$result = factory.bindImport(valName, $import_.result);}
 ;
 
-import_ returns [RootNode result]:
+import_[Token alias] returns [RootNode result]:
 IMPORT
 STREAM_ACCEPTS
-imported=STRING_LITERAL                      {$result=factory.importFile($imported);}
+imported=STRING_LITERAL                      {$result=factory.importFile($imported, $alias);}
 ;
 
 j_root_value:
@@ -347,7 +352,8 @@ REF_LAMBDA                              {List<JXExpressionNode> args = new Array
 (
     ns=IDENTIFIER
     INTRO
-)? lambdaName=IDENTIFIER
+)?
+lambdaName=IDENTIFIER
 (
     STREAM_ACCEPTS
     arg=j_value[false]                          {args.add($arg.result);}
@@ -374,12 +380,14 @@ fragment TRUE : 'true';
 fragment FALSE : 'false';
 fragment REF : '$';
 fragment COMP: ('>' | '<' | '<=' | '>=');
+fragment NS_SPLITTER: '.';
 
 L1_OP : ('+'|'-');
 L2_OP : ('*'|'/');
 
 BOOL_LITERAL : TRUE | FALSE;
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
+NS_IDENTIFIER : IDENTIFIER (NS_SPLITTER IDENTIFIER)*;
 STRING_LITERAL : '"' STRING_CHAR* '"';
 NUMERIC_LITERAL : '0' | NON_ZERO_DIGIT DIGIT*;
 LIST_OPEN: '[';
@@ -395,7 +403,7 @@ REF_ATTR : REF;
 REF_LAMBDA: '@';
 INTRO: '::';
 BIN_OP: COMP;
-NAMESPACE_DEF: 'namespace';
+NAMESPACE_DEF: '@namespace';
 
 IMPORT : '@import';
 

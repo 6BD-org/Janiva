@@ -202,7 +202,7 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
      * Parse the provided source. At this point, we do not have a SLContext yet. Registration of
      * the functions with the SLContext happens lazily in SLEvalRootNode.
      */
-    rootNode = JanivaLangParser.parseSL(this, source);
+    rootNode = JanivaLangParser.parseSL(this, source, null);
 
     RootCallTarget main = rootNode.getCallTarget();
     RootNode evalMain;
