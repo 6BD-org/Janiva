@@ -31,18 +31,8 @@ namespace com.xmbsmdsj.some_namespace
 this allows lambdas to be registered under certain namespace. If no namespace is registered, runtime will pick up a default 
 one, naming `default`.
 
-When referring to a lambda under another namespace, use `::` operator, for example
-
-```
-lib << @import "a.b.c" #
-
-@stdout << {
-    "value": @lib::lambda1 << "Hello, world"
-}
-```
-
-Note that we do not normally refer to fully-qualified namespace directly, because that could become unmanageable. Instead, we apply `::` to 
-imported value to get its namespace. 
+Namespaces are currently only used to segregate lambda definitions. Invoking a lambda from another namespace/file is handled
+by `import` and `export` mechanism.
 
 ## Partial application
 
