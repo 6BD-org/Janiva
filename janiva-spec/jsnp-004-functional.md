@@ -85,3 +85,31 @@ Lambdas can be recursively invoked, here's one recursive example of calculating 
     "result": @fibb << 4
 }
 ```
+
+## Composition
+
+Lambdas can be composed to produce a new one, the composed lambda acts like a 
+'pipeline' of the composing lambdas. For example, when you composing l1 and l2 below
+```
+@l1 :: (a) -> $a + 1 #
+@l2 :: (a) -> $a - 1 #
+```
+
+you'll produce a new lambda that applies l1 to its argument, and use the result
+as argument of l2, which is equivalent to
+
+```
+@composed :: (a) -> (($a + 1) - 1)
+```
+
+Composing is performed using `@compose` built in
+
+```
+{
+  // Compose l1 and l2, and bind the result to l3
+  // @l1 and @l2 produce partially-applied lambdas with zero argument
+  l3 << @compose << (@l1) << (@l2),
+}
+```
+
+
