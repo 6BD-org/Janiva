@@ -129,8 +129,12 @@ EOF
 
 namespace_def
 :
-NAMESPACE_DEF
-ns=IDENTIFIER                      {factory.defineNamespace($ns);}
+(
+    NAMESPACE_DEF
+    STREAM_ACCEPTS
+    ns=NS_IDENTIFIER     {factory.defineNamespace($ns);}
+    END
+)
 ;
 
 bind_latent [boolean isFunc] returns [JXStatementNode result]
@@ -226,13 +230,19 @@ attr_access[boolean isFunc] returns [JXExpressionNode result]:
 
 val=ref_attribute[$isFunc] {$result = $val.result;}
 (
-ATTR_ACCESS
-(
-key=STRING_LITERAL {$result = factory.createAttrAccess($result, $key, true);}
-|
-key=NUMERIC_LITERAL {$result = factory.createAttrAccess($result, $key, false);}
-)
+    ATTR_ACCESS
+    (
+        key=STRING_LITERAL {$result = factory.createAttrAccess($result, $key, true);}
+        |
+        key=NUMERIC_LITERAL {$result = factory.createAttrAccess($result, $key, false);}
+    )
 )*
+{List<JXExpressionNode> args = new ArrayList();}
+(
+    STREAM_ACCEPTS
+    arg=j_value[$isFunc]    {args.add($arg.result);}
+)*
+{$result = factory.feedValue($result, args);}
 ;
 
 
@@ -344,14 +354,11 @@ END                                     {factory.finishDefLambda();}
 lambda_invocation returns [JXExpressionNode result]
 :
 REF_LAMBDA                              {List<JXExpressionNode> args = new ArrayList<>();}
-(
-    ns=IDENTIFIER
-    INTRO
-)? lambdaName=IDENTIFIER
+lambdaName=IDENTIFIER
 (
     STREAM_ACCEPTS
     arg=j_value[false]                          {args.add($arg.result);}
-)*                                      {$result = factory.materialize($ns, $lambdaName, args);}
+)*                                      {$result = factory.materialize($lambdaName, args);}
 ;
 
 
@@ -374,12 +381,14 @@ fragment TRUE : 'true';
 fragment FALSE : 'false';
 fragment REF : '$';
 fragment COMP: ('>' | '<' | '<=' | '>=');
+fragment NS_SPLITTER: '.';
 
 L1_OP : ('+'|'-');
 L2_OP : ('*'|'/');
 
 BOOL_LITERAL : TRUE | FALSE;
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
+NS_IDENTIFIER : IDENTIFIER (NS_SPLITTER IDENTIFIER)*;
 STRING_LITERAL : '"' STRING_CHAR* '"';
 NUMERIC_LITERAL : '0' | NON_ZERO_DIGIT DIGIT*;
 LIST_OPEN: '[';
@@ -395,7 +404,7 @@ REF_ATTR : REF;
 REF_LAMBDA: '@';
 INTRO: '::';
 BIN_OP: COMP;
-NAMESPACE_DEF: 'namespace';
+NAMESPACE_DEF: '@namespace';
 
 IMPORT : '@import';
 

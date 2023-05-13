@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
+import org.graalvm.util.CollectionsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +113,12 @@ public class JXNodeFactory {
   }
 
   public void defineNamespace(Token token) {
-    this.namespace = asTruffleString(token, true);
+    // We'll not re-define our namespace
+    if (defaultNamespace.equals(this.namespace)) {
+      this.namespace = asTruffleString(token, false);
+      logger.info("Defining namespace {}", this.namespace);
+
+    }
   }
 
   public void setRootStream(Token streamName) {
@@ -316,6 +322,7 @@ public class JXNodeFactory {
     TruffleString lambdaName = asTruffleString(name, false);
     this.lambdaTemplate = new LambdaTemplate(lambdaName);
     this.metaStack.startLambda();
+    logger.debug("Defining {} in namespace: {}", lambdaName, namespace);
     LambdaRegistry.getInstance(namespace).register(lambdaName, lambdaTemplate);
   }
 
@@ -335,9 +342,15 @@ public class JXNodeFactory {
     this.lambdaTemplate = null;
   }
 
-  public JXExpressionNode materialize(Token namespaceToken, Token lambdaName, List<JXExpressionNode> parameters) {
+  public JXExpressionNode feedValue(JXExpressionNode value, List<JXExpressionNode> parameters) {
+    if (parameters.size() == 0) {
+      return value;
+    }
+    return JXFeedValueNodeGen.create(value).feed(parameters);
+  }
+
+  public JXExpressionNode materialize(Token lambdaName, List<JXExpressionNode> parameters) {
     TruffleString ts = asTruffleString(lambdaName, false);
-    TruffleString namespace = namespaceToken == null ? defaultNamespace : asTruffleString(namespaceToken, true);
     if (LambdaRegistry.getInstance(namespace).isBuiltIn(ts)) {
       return BuiltInLambda.valueOf(ts).create(parameters, source);
     }

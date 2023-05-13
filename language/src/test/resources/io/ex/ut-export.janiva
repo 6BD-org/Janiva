@@ -1,3 +1,8 @@
+@namespace << my.lib #
+
+@add :: (x, y) >> $x + $y #
+
 @export << {
-    "a": 1
+    "a": 1,
+    "lambda_add": @add,
 }

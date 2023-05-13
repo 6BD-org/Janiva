@@ -20,7 +20,8 @@ public abstract class JXAttributeBindingNode extends JXExpressionNode {
   public Object executeVal(VirtualFrame frame, Object val) {
     if (!isLatent()) {
       if (frame.getObject(getSlot()) != null) {
-        throw new JXException("Cannot re-bind a non-latent variable: " + getSlot(), this);
+        // should be able to re-use frame
+        // throw new JXException("Cannot re-bind a non-latent variable: " + getSlot(), this);
       }
       frame.setObject(getSlot(), val);
     } else {

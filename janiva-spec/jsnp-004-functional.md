@@ -34,15 +34,15 @@ one, naming `default`.
 When referring to a lambda under another namespace, use `::` operator, for example
 
 ```
-lib << @import "a.b.c"
+lib << @import "a.b.c" #
 
 @stdout << {
     "value": @lib::lambda1 << "Hello, world"
 }
 ```
 
-Note that we do not refer to namespace directly, because that could become unmanageable. Instead, we apply `::` to 
-imported value to get its namespace.
+Note that we do not normally refer to fully-qualified namespace directly, because that could become unmanageable. Instead, we apply `::` to 
+imported value to get its namespace. 
 
 ## Partial application
 
