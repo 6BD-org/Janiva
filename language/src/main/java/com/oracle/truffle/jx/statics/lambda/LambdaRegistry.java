@@ -1,17 +1,22 @@
 package com.oracle.truffle.jx.statics.lambda;
 
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
+import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;import org.slf4j.Logger;import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LambdaRegistry {
 
+  private static final Logger logger = LoggerFactory.getLogger(LambdaRegistry.class);
   private static final Map<TruffleString, LambdaRegistry> registries = new ConcurrentHashMap<>();
   // TODO: namespacing
   public static LambdaRegistry getInstance(TruffleString namespace) {
-    return registries.computeIfAbsent(namespace, ns -> new LambdaRegistry());
+    if (!registries.containsKey(namespace)) {
+      logger.debug("Initializing lambda registry in namespace {}", namespace);
+      registries.put(namespace, new LambdaRegistry());
+    }
+    return registries.get(namespace);
   }
 
   private final Map<TruffleString, LambdaTemplate> registrations = new HashMap<>();
