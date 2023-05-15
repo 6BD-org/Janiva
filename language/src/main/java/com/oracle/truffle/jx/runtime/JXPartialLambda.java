@@ -13,7 +13,7 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 
 @ExportLibrary(InteropLibrary.class)
-public class JXPartialLambda extends DynamicObject implements TruffleObject {
+public class JXPartialLambda extends DynamicObject implements TruffleObject, JXAbstractLambda {
 
   private static final TruffleString PROP_OFFSET =
       TruffleString.fromJavaStringUncached("__OFFSET", TruffleString.Encoding.UTF_8);
@@ -81,12 +81,12 @@ public class JXPartialLambda extends DynamicObject implements TruffleObject {
     return res;
   }
 
-  public void flushState(DynamicObjectLibrary library) {
+  private void flushState(DynamicObjectLibrary library) {
     library.put(this, PROP_ARGS, this.partialArgs);
     library.put(this, PROP_OFFSET, offset);
   }
 
-  public Object[] getArgs(DynamicObjectLibrary library) {
+  private Object[] getArgs(DynamicObjectLibrary library) {
     return (Object[]) library.getOrDefault(this, PROP_ARGS, new Object[] {});
   }
 }
