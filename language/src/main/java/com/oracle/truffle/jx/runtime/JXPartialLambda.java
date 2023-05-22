@@ -62,13 +62,11 @@ public class JXPartialLambda extends DynamicObject implements TruffleObject {
   @ExportMessage(library = LambdaLibrary.class)
   public JXPartialLambda cloneLambda() {
     JXPartialLambda res = new JXPartialLambda(this.callTarget, this.template);
-      res.offset = this.offset;
-      // values must be immutable
-      if (offset >= 0)
-        System.arraycopy(this.partialArgs, 0, res.partialArgs, 0, offset);
+    res.offset = this.offset;
+    // values must be immutable
+    if (offset >= 0) System.arraycopy(this.partialArgs, 0, res.partialArgs, 0, offset);
     return res;
   }
-
 
   private Object[] getArgs() {
     return this.partialArgs;

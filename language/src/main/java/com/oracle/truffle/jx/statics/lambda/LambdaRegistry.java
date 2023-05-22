@@ -1,7 +1,9 @@
 package com.oracle.truffle.jx.statics.lambda;
 
 import com.oracle.truffle.api.strings.TruffleString;
-import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;import org.slf4j.Logger;import org.slf4j.LoggerFactory;
+import com.oracle.truffle.jx.parser.exceptions.JXSyntaxError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

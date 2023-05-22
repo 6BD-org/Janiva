@@ -9,7 +9,8 @@ import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 import org.junit.After;
-import org.junit.Assert;import org.junit.Before;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -23,8 +24,8 @@ public class ImportTest {
   public void initialize() {
     context =
         Context.newBuilder(JanivaLang.ID)
-                .in(System.in)
-                .out(System.out)
+            .in(System.in)
+            .out(System.out)
             .allowAllAccess(true)
             .build();
   }

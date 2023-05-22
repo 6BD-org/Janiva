@@ -14,6 +14,7 @@ import com.oracle.truffle.jx.nodes.JXStatementNode;
 public abstract class JXAttributeBindingNode extends JXExpressionNode {
 
   abstract int getSlot();
+
   abstract boolean isLatent();
 
   @Specialization
