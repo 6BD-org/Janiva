@@ -81,6 +81,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JXNodeFactory {
   private static final TruffleString defaultNamespace = JXStrings.fromJavaString("default");
+
   static {
   }
 
@@ -117,7 +118,6 @@ public class JXNodeFactory {
     if (defaultNamespace.equals(this.namespace)) {
       this.namespace = asTruffleString(token, false);
       logger.info("Defining namespace {}", this.namespace);
-
     }
   }
 
@@ -385,7 +385,6 @@ public class JXNodeFactory {
             ? new JXStringLiteralNode(asTruffleString(attr, true))
             : new JXNumberLiteralNode(BigDecimal.valueOf(Integer.parseInt(attr.getText())), false));
   }
-
 
   /** Creates source description of a single token. */
   private static void srcFromToken(JXStatementNode node, Token token) {

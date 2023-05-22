@@ -120,11 +120,12 @@ public class ObjectTest {
   @Test
   public void testAttrAccess() {
     logger.debug("start attribute accessing test");
-    TestUtil.runWithStackTrace(() -> {
-        String src = TestUtil.readResourceAsString("object/ut-attribute-accessing.janiva");
-        Value v = context.eval(JanivaLang.ID, src);
-        Assert.assertEquals("foo", v.getMember("result_1").asString());
-        Assert.assertEquals("bar", v.getMember("result_2").asString());
-    });
+    TestUtil.runWithStackTrace(
+        () -> {
+          String src = TestUtil.readResourceAsString("object/ut-attribute-accessing.janiva");
+          Value v = context.eval(JanivaLang.ID, src);
+          Assert.assertEquals("foo", v.getMember("result_1").asString());
+          Assert.assertEquals("bar", v.getMember("result_2").asString());
+        });
   }
 }

@@ -13,17 +13,9 @@ import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 
 @ExportLibrary(InteropLibrary.class)
-public class JXPartialLambda extends DynamicObject implements TruffleObject, JXAbstractLambda {
-
-  private static final TruffleString PROP_OFFSET =
-      TruffleString.fromJavaStringUncached("__OFFSET", TruffleString.Encoding.UTF_8);
-  private static final TruffleString PROP_ARGS =
-      TruffleString.fromJavaStringUncached("__ARGS", TruffleString.Encoding.UTF_8);
-
+@ExportLibrary(LambdaLibrary.class)
+public class JXPartialLambda extends DynamicObject implements TruffleObject {
   private static final Shape SHAPE = Shape.newBuilder().layout(JXPartialLambda.class).build();
-
-  @DynamicField private int _i1;
-  @DynamicField private Object _o1;
 
   private CallTarget callTarget;
   private Object[] partialArgs;
@@ -48,11 +40,12 @@ public class JXPartialLambda extends DynamicObject implements TruffleObject, JXA
   }
 
   @ExportMessage
-  public Object execute(Object[] args, @CachedLibrary("this") DynamicObjectLibrary library) {
-    return callTarget.call(getArgs(library));
+  public Object execute(Object[] args) {
+    return callTarget.call(this.partialArgs);
   }
 
-  public JXPartialLambda mergeArgs(Object[] args, DynamicObjectLibrary library) {
+  @ExportMessage(library = LambdaLibrary.class)
+  public JXPartialLambda mergeArgs(Object[] args) {
     if (args.length == 0) {
       return this;
     }
@@ -63,30 +56,19 @@ public class JXPartialLambda extends DynamicObject implements TruffleObject, JXA
       partialArgs[offset] = arg;
       offset++;
     }
-    flushState(library);
     return this;
   }
 
-  public JXPartialLambda clone(DynamicObjectLibrary dynamicObjectLibrary) {
+  @ExportMessage(library = LambdaLibrary.class)
+  public JXPartialLambda cloneLambda() {
     JXPartialLambda res = new JXPartialLambda(this.callTarget, this.template);
-    try {
-      res.offset = dynamicObjectLibrary.getIntOrDefault(this, PROP_OFFSET, 0);
-      // values must be immutable
-      if (offset >= 0)
-        System.arraycopy(this.getArgs(dynamicObjectLibrary), 0, res.partialArgs, 0, offset);
-    } catch (UnexpectedResultException e) {
-      throw new RuntimeException(e);
-    }
-    res.flushState(dynamicObjectLibrary);
+    res.offset = this.offset;
+    // values must be immutable
+    if (offset >= 0) System.arraycopy(this.partialArgs, 0, res.partialArgs, 0, offset);
     return res;
   }
 
-  private void flushState(DynamicObjectLibrary library) {
-    library.put(this, PROP_ARGS, this.partialArgs);
-    library.put(this, PROP_OFFSET, offset);
-  }
-
-  private Object[] getArgs(DynamicObjectLibrary library) {
-    return (Object[]) library.getOrDefault(this, PROP_ARGS, new Object[] {});
+  private Object[] getArgs() {
+    return this.partialArgs;
   }
 }
