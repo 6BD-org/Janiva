@@ -68,6 +68,11 @@ public class JXPartialLambda extends DynamicObject implements TruffleObject {
     return res;
   }
 
+  @ExportMessage(library = LambdaLibrary.class)
+  public boolean isLambda() {
+    return true;
+  }
+
   private Object[] getArgs() {
     return this.partialArgs;
   }

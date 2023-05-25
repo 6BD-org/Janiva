@@ -14,7 +14,7 @@ import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.JXPartialLambda;
 import com.oracle.truffle.jx.runtime.LambdaLibrary;
-import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.nativebridge.In;import org.graalvm.polyglot.PolyglotException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public abstract class JXFeedValueNode extends JXExpressionNode {
       DynamicObject child,
       InteropLibrary library,
       LambdaLibrary lambdaLibrary) {
-    if (isPartialApplicable(child)) {
+    if (isPartialApplicable(lambdaLibrary, child)) {
       // Need to clone to avoid mutating internal state of original one
       Object cloned = lambdaLibrary.cloneLambda(child);
       Object res =
@@ -78,7 +78,7 @@ public abstract class JXFeedValueNode extends JXExpressionNode {
     return this;
   }
 
-  boolean isPartialApplicable(Object o) {
-    return o instanceof JXPartialLambda;
+  boolean isPartialApplicable(LambdaLibrary lambdaLibrary, Object o) {
+    return lambdaLibrary.isLambda(o);
   }
 }

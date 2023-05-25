@@ -14,6 +14,8 @@ public abstract class LambdaLibrary extends Library {
 
   public abstract Object mergeArgs(Object receiver, Object[] args);
 
+  public abstract boolean isLambda(Object receiver);
+
   public static LambdaLibrary getUncached() {
     return FACTORY.getUncached();
   }
