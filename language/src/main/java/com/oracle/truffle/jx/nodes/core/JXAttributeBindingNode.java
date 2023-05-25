@@ -4,9 +4,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.nodes.JXStatementNode;
 
 @NodeChild(value = "val")
 @NodeField(name = "slot", type = int.class)

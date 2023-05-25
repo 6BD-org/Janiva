@@ -87,10 +87,11 @@ public class LambdaTest {
 
   @Test
   public void testComposition() {
-      TestUtil.runWithStackTrace( () -> {
+    TestUtil.runWithStackTrace(
+        () -> {
           String src = TestUtil.readResourceAsString("lambda/ut-lambda-composition.janiva");
           Value v = context.eval(JanivaLang.ID, src);
           Assert.assertEquals(3, v.getMember("result").asInt());
-      } );
+        });
   }
 }

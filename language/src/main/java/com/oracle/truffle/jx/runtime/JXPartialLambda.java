@@ -2,14 +2,10 @@ package com.oracle.truffle.jx.runtime;
 
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.interop.*;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
-import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 
 @ExportLibrary(InteropLibrary.class)

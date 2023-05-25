@@ -1,18 +1,13 @@
 package com.oracle.truffle.jx.runtime;
 
-import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
-import lombok.extern.slf4j.Slf4j;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @ExportLibrary(InteropLibrary.class)
 @ExportLibrary(LambdaLibrary.class)
@@ -33,9 +28,13 @@ public class JXComposedLambda extends DynamicObject implements TruffleObject {
   }
 
   @ExportMessage(library = LambdaLibrary.class)
-  public JXComposedLambda cloneLambda(@CachedLibrary(limit = LIB_CACHE) LambdaLibrary lambdaLibrary) {
+  public JXComposedLambda cloneLambda(
+      @CachedLibrary(limit = LIB_CACHE) LambdaLibrary lambdaLibrary) {
     return new JXComposedLambda(
-        Arrays.stream(members).peek(m -> log.debug("composing:{}", m.getClass())).map(lambdaLibrary::cloneLambda).toArray(Object[]::new));
+        Arrays.stream(members)
+            .peek(m -> log.debug("composing:{}", m.getClass()))
+            .map(lambdaLibrary::cloneLambda)
+            .toArray(Object[]::new));
   }
 
   @ExportMessage(library = LambdaLibrary.class)
@@ -72,5 +71,4 @@ public class JXComposedLambda extends DynamicObject implements TruffleObject {
   public boolean isExecutable(@CachedLibrary(limit = LIB_CACHE) InteropLibrary library) {
     return library.isExecutable(members[0]);
   }
-
 }
