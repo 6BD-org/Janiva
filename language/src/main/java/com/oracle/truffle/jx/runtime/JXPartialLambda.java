@@ -2,14 +2,10 @@ package com.oracle.truffle.jx.runtime;
 
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.interop.*;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
-import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 
 @ExportLibrary(InteropLibrary.class)
@@ -66,6 +62,11 @@ public class JXPartialLambda extends DynamicObject implements TruffleObject {
     // values must be immutable
     if (offset >= 0) System.arraycopy(this.partialArgs, 0, res.partialArgs, 0, offset);
     return res;
+  }
+
+  @ExportMessage(library = LambdaLibrary.class)
+  public boolean isLambda() {
+    return true;
   }
 
   private Object[] getArgs() {

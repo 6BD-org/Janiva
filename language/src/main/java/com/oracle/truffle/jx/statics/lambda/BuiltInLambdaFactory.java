@@ -11,6 +11,10 @@ public interface BuiltInLambdaFactory {
 
   TruffleString lambdaName();
 
+  default String namespace() {
+    return "default";
+  }
+
   default String lambdaNameInJavaString() {
     return lambdaName().toJavaStringUncached();
   }

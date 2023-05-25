@@ -1,0 +1,9 @@
+@namespace << org.xmbsmdsj.lambda.compose #
+
+@func1 :: (x1, x2) >> {"key": $x1, "value": $x2} #
+@sum_kv :: (kv) >> ($kv -> "key") + ($kv -> "value") #
+
+@stdout << {
+    my_func << @compose << (@func1) << (@sum_kv),
+    "result": $my_func << 1 << 2
+}

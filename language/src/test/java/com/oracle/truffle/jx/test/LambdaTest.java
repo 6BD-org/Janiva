@@ -84,4 +84,14 @@ public class LambdaTest {
           Assert.assertEquals(3, v.getMember("message").asInt());
         });
   }
+
+  @Test
+  public void testComposition() {
+    TestUtil.runWithStackTrace(
+        () -> {
+          String src = TestUtil.readResourceAsString("lambda/ut-lambda-composition.janiva");
+          Value v = context.eval(JanivaLang.ID, src);
+          Assert.assertEquals(3, v.getMember("result").asInt());
+        });
+  }
 }

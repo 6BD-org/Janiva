@@ -1,5 +1,7 @@
 # Jnsp-004: Functional Programming
 
+Janiva supports lambdas (lambdas and functions can be used interchangeably, depending on the context).
+
 ## Built-in
 
 ## Lambda definition
@@ -56,6 +58,20 @@ This is auto-evaluation property of janiva's lambda, saying if a lambda with `N`
 it will be automatically evaluated. Because if it doesn't, there's no syntax to evaluate a lambda with no argument.
 
 **Note that built-in lambdas are not partially applicable**
+
+## Lambda Composition
+Lambdas can be composed. Partially applied lambdas can be composed to a single one, for example, `f1 :: (number, number) >> {?}` and 
+`f2 :: ({?}) >> [?]` can be composed together to produce a new one : `f3 :: (number, number) >> [?]`.
+
+Lambda composition is performed using `@compose` built-in, for example
+
+```
+// Note that we need to add brackets to lambdas to be composed if it is followed by << operators.
+@compose << (@f1) << (@f2)
+
+// Here @f1 is partially applied 
+@compose << (@f1 << 1) << @f2
+```
 
 ## Lambda hierarchy
 

@@ -1,6 +1,5 @@
 package com.oracle.truffle.jx.nodes.expression;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
@@ -9,16 +8,11 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
-import com.oracle.truffle.jx.runtime.JXPartialLambda;
 import com.oracle.truffle.jx.runtime.LambdaLibrary;
-import org.graalvm.polyglot.PolyglotException;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 @NodeChild("child")
 public abstract class JXFeedValueNode extends JXExpressionNode {
@@ -52,7 +46,7 @@ public abstract class JXFeedValueNode extends JXExpressionNode {
       DynamicObject child,
       InteropLibrary library,
       LambdaLibrary lambdaLibrary) {
-    if (isPartialApplicable(child)) {
+    if (isPartialApplicable(lambdaLibrary, child)) {
       // Need to clone to avoid mutating internal state of original one
       Object cloned = lambdaLibrary.cloneLambda(child);
       Object res =
@@ -78,7 +72,7 @@ public abstract class JXFeedValueNode extends JXExpressionNode {
     return this;
   }
 
-  boolean isPartialApplicable(Object o) {
-    return o instanceof JXPartialLambda;
+  boolean isPartialApplicable(LambdaLibrary lambdaLibrary, Object o) {
+    return lambdaLibrary.isLambda(o);
   }
 }

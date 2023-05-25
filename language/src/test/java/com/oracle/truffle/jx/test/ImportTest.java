@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 import org.junit.After;

@@ -1,7 +1,6 @@
 package com.oracle.truffle.jx.nodes.core;
 
 import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.jx.builtins.JXNewObjectBuiltin;

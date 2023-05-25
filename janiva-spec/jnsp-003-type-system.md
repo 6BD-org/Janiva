@@ -155,3 +155,49 @@ allocating them.
 ## Lambda
 
 Please see [Functional support](./jsnp-004-functional.md) for lambda details.
+
+
+## Type description
+Janiva is dynamically typed, which means types declarations are not part of executable code. However, a type description
+system is required when making a statement about the language or code. For example, when you refer to a lambda that takes
+three number arguments and produces an object, it is quite helpful when you have access to a precise type description 
+language.
+
+### Attribute type
+
+Type description of an attribute is written as `attribute_name :: type_name`. For example, 
+
+```
+{
+  "a": 1, // "a" :: number
+}
+```
+
+### Lambda type
+
+Lambda types are slightly more complex that plain values, because both type of parameter list and return type are 
+required. The type of lambda is written as `lambda_name :: (t_arg_1, t_arg_2) >> t_r` where `t_arg_N` is type
+of Nth argument and `t_r` is type of return type
+
+### Object type
+Object composes of multiple attributes, thus the type description of an object may include all possible attributes when
+the object is static.
+
+```
+"obj" :: {"a":: string, "b" :: number}
+```
+
+Also, for dynamic objects, simple use a `{?}`
+
+### Array type
+
+Static arrays are singly typed, which means all items in that array are of same type. Such arrays can be represented 
+by `[type]`. For example
+```
+{
+  // a :: [number]
+  a << [1, 2, 3]
+}
+```
+
+For dynamic arrays, simply use `[?]`

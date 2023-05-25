@@ -308,11 +308,17 @@ factor[$isFunc]                                  {$result = $factor.result;}
 ;
 
 factor[boolean isFunc] returns [JXExpressionNode result]:
+BRACKET_OPEN
+factor[isFunc] {$result = $factor.result;}
+BRACKET_CLOSE
+|
 j_string                                {$result = $j_string.result;}
 |
 j_number                                {$result = $j_number.result;}
 |
 ref_attribute[isFunc]                           {$result = $ref_attribute.result;}
+|
+attr_access[isFunc]     {$result=$attr_access.result;}
 |
 lambda_invocation                               {$result=$lambda_invocation.result;}
 |

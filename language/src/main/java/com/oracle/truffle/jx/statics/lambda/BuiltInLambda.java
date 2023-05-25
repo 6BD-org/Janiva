@@ -7,6 +7,7 @@ import com.oracle.truffle.jx.nodes.controlflow.JXIfNode;
 import com.oracle.truffle.jx.nodes.controlflow.JXRangeNodeGen;
 import com.oracle.truffle.jx.nodes.core.JXExportNodeGen;
 import com.oracle.truffle.jx.nodes.core.JXStdoutNodeGen;
+import com.oracle.truffle.jx.nodes.functional.JXComposeNode;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,6 +56,18 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
     @Override
     public TruffleString lambdaName() {
       return TruffleString.fromJavaStringUncached("stdout", TruffleString.Encoding.UTF_8);
+    }
+  },
+  COMPOSE {
+
+    @Override
+    public JXExpressionNode create(List<JXExpressionNode> arguments, Source source) {
+      return new JXComposeNode(arguments.toArray(new JXExpressionNode[0]));
+    }
+
+    @Override
+    public TruffleString lambdaName() {
+      return TruffleString.fromJavaStringUncached("compose", TruffleString.Encoding.UTF_8);
     }
   };
 

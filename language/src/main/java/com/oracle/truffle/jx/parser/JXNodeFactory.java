@@ -71,7 +71,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
-import org.graalvm.util.CollectionsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -8,8 +8,6 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
-import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
@@ -17,9 +15,7 @@ import com.oracle.truffle.jx.nodes.util.SLToMemberNode;
 import com.oracle.truffle.jx.runtime.JXArray;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 import com.oracle.truffle.jx.runtime.JXObject;
-import com.oracle.truffle.jx.runtime.exceptions.JXRuntimeException;
 import com.oracle.truffle.jx.runtime.view.AbstractArrayView;
-import org.graalvm.nativebridge.In;
 
 @NodeChild("val")
 @NodeChild("attr")
