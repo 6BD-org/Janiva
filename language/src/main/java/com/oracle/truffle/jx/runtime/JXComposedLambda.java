@@ -7,29 +7,22 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
 import java.util.Arrays;
+import com.oracle.truffle.jx.constants.CacheLimits;
 import lombok.extern.slf4j.Slf4j;
 
 @ExportLibrary(InteropLibrary.class)
 @ExportLibrary(LambdaLibrary.class)
 @Slf4j
-public class JXComposedLambda extends DynamicObject implements TruffleObject {
-  private static final Shape SHAPE = Shape.newBuilder().layout(JXComposedLambda.class).build();
-
-  private static final String PROP_MEMBERS = "members";
-  private static final String LIB_CACHE = "2";
-
-  @DynamicField private Object _o1;
-
+public class JXComposedLambda implements TruffleObject {
   private final Object[] members;
 
   public JXComposedLambda(Object[] composedLambdas) {
-    super(SHAPE);
     this.members = composedLambdas;
   }
 
   @ExportMessage(library = LambdaLibrary.class)
   public JXComposedLambda cloneLambda(
-      @CachedLibrary(limit = LIB_CACHE) LambdaLibrary lambdaLibrary) {
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return new JXComposedLambda(
         Arrays.stream(members)
             .peek(m -> log.debug("composing:{}", m.getClass()))
@@ -39,7 +32,7 @@ public class JXComposedLambda extends DynamicObject implements TruffleObject {
 
   @ExportMessage(library = LambdaLibrary.class)
   public JXComposedLambda mergeArgs(
-      Object[] args, @CachedLibrary(limit = LIB_CACHE) LambdaLibrary lambdaLibrary) {
+      Object[] args, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     // clone, merge args and
     this.members[0] = lambdaLibrary.mergeArgs(lambdaLibrary.cloneLambda(this.members[0]), args);
     return this;
@@ -48,8 +41,8 @@ public class JXComposedLambda extends DynamicObject implements TruffleObject {
   @ExportMessage
   public Object execute(
       Object[] args,
-      @CachedLibrary(limit = LIB_CACHE) InteropLibrary library,
-      @CachedLibrary(limit = LIB_CACHE) LambdaLibrary lambdaLibrary)
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
       throws UnsupportedMessageException, UnsupportedTypeException, ArityException {
     Object res = library.execute(this.members[0], args);
     for (int i = 1; i < this.members.length; i++) {
@@ -68,7 +61,7 @@ public class JXComposedLambda extends DynamicObject implements TruffleObject {
   }
 
   @ExportMessage
-  public boolean isExecutable(@CachedLibrary(limit = LIB_CACHE) InteropLibrary library) {
+  public boolean isExecutable(@CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) InteropLibrary library) {
     return library.isExecutable(members[0]);
   }
 }

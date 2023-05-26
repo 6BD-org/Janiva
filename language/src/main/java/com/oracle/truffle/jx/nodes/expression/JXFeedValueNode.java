@@ -9,6 +9,7 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.jx.JXException;
+import com.oracle.truffle.jx.constants.CacheLimits;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.LambdaLibrary;
 import java.util.ArrayList;
@@ -25,25 +26,18 @@ public abstract class JXFeedValueNode extends JXExpressionNode {
    * @throws AssertionError when the root node is exchanged (This could happen when applying an
    *     exported lambda)
    */
-  @Specialization(limit = "3", rewriteOn = AssertionError.class)
+  @Specialization(limit = "10")
   public Object executeSpecialized(
       VirtualFrame virtualFrame,
-      DynamicObject child,
-      @CachedLibrary("child") InteropLibrary library,
-      @CachedLibrary("child") LambdaLibrary lambdaLibrary)
-      throws AssertionError {
+      Object child,
+      @CachedLibrary(limit = "10") InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return doExecute(virtualFrame, child, library, lambdaLibrary);
-  }
-
-  @Specialization
-  public Object executeUncached(VirtualFrame virtualFrame, DynamicObject child) {
-    InteropLibrary library = InteropLibrary.getUncached();
-    return doExecute(virtualFrame, child, library, LambdaLibrary.getUncached());
   }
 
   protected Object doExecute(
       VirtualFrame virtualFrame,
-      DynamicObject child,
+      Object child,
       InteropLibrary library,
       LambdaLibrary lambdaLibrary) {
     if (isPartialApplicable(lambdaLibrary, child)) {
