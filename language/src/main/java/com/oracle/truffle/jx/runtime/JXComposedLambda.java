@@ -32,7 +32,8 @@ public class JXComposedLambda implements TruffleObject {
 
   @ExportMessage(library = LambdaLibrary.class)
   public JXComposedLambda mergeArgs(
-      Object[] args, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+      Object[] args,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     // clone, merge args and
     this.members[0] = lambdaLibrary.mergeArgs(lambdaLibrary.cloneLambda(this.members[0]), args);
     return this;
@@ -61,7 +62,8 @@ public class JXComposedLambda implements TruffleObject {
   }
 
   @ExportMessage
-  public boolean isExecutable(@CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) InteropLibrary library) {
+  public boolean isExecutable(
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) InteropLibrary library) {
     return library.isExecutable(members[0]);
   }
 }
