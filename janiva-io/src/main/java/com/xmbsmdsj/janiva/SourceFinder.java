@@ -4,12 +4,15 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.xmbsmdsj.janiva.constants.LanguageConstants;
 import com.xmbsmdsj.janiva.exceptions.JanivaIOException;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class SourceFinder {
   private static final Pattern DOT_SPLITTER = Pattern.compile("\\.");
   private static final String SYS_ROOT =
@@ -23,18 +26,23 @@ public class SourceFinder {
    *     path/sub/sub2/obj.janiva // the relative path should be evaluated in under src's path }
    * @return
    */
-  public static Source findImported(String src, TruffleString importPath) {
+  public static Source findImported(String basePath, TruffleString importPath) {
+    if (basePath == null || basePath.length() == 0) {
+      throw new IllegalArgumentException("import is not permitted when base path is absent");
+    }
     String s = importPath.toJavaStringUncached();
-    String basePath = new File(src).getParent();
-    if (basePath == null) basePath = File.separator;
+    if (basePath == null) {
+      basePath = File.separator;
+    }
     String targetSourcePath;
+    log.debug("basePath={}", basePath);
     if (basePath.endsWith(File.separator)) {
       targetSourcePath = basePath + translate(s);
     } else {
       targetSourcePath = basePath + File.separator + translate(s);
     }
     try {
-      return Source.newBuilder(LanguageConstants.LANG, new URL("file://" + targetSourcePath))
+      return Source.newBuilder(LanguageConstants.LANG, new URL("file:///" + targetSourcePath))
           .build();
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
