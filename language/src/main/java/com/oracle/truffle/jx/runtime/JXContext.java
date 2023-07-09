@@ -168,7 +168,7 @@ public final class JXContext {
   }
 
   /*
-   * Methods for object creation / object property access.
+   * Methods for object creation / object prop`erty access.
    */
   public AllocationReporter getAllocationReporter() {
     return allocationReporter;

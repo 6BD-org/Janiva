@@ -1,8 +1,12 @@
 package com.oracle.truffle.jx.test;
 
 import com.oracle.truffle.jx.JanivaLang;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+
+import com.xmbsmdsj.janiva.constants.LanguageConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;
@@ -21,10 +25,13 @@ public class ImportTest {
 
   @Before
   public void initialize() {
+    String rootPath = this.getClass().getClassLoader().getResource("io/ut-import.janiva").getFile();
+    String modulePath = new File(rootPath).getParent();
     context =
         Context.newBuilder(JanivaLang.ID)
             .in(System.in)
             .out(System.out)
+            .option("janiva.module-root", modulePath)
             .allowAllAccess(true)
             .build();
   }

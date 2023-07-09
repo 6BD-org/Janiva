@@ -69,6 +69,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.xmbsmdsj.janiva.constants.LanguageConstants;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.slf4j.Logger;
@@ -256,7 +258,8 @@ public class JXNodeFactory {
    */
   public RootNode importFile(Token importedName) {
     TruffleString ts = asTruffleString(importedName, true);
-    return JanivaLangParser.parseSL(language, SourceFinder.findImported(source.getPath(), ts));
+    return JanivaLangParser.parseSL(
+        language, SourceFinder.findImported(this.language.getModuleRoot(), ts));
   }
 
   /**

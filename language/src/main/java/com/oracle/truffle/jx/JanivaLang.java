@@ -63,6 +63,9 @@ import com.oracle.truffle.jx.runtime.*;
 import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
+import com.xmbsmdsj.janiva.constants.LanguageConstants;
+import org.graalvm.options.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -88,6 +91,7 @@ import java.util.concurrent.ConcurrentHashMap;
   StandardTags.ReadVariableTag.class,
   StandardTags.WriteVariableTag.class
 })
+@Option.Group("janiva")
 public final class JanivaLang extends TruffleLanguage<JXContext> {
 
   public static final String ID = "janiva";
@@ -104,15 +108,32 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
 
   private final Shape rootShape;
   private final Shape jxArrayShape;
+  private JXContext context;
+  private OptionDescriptors optionDescriptor;
 
   public JanivaLang() {
     this.rootShape = Shape.newBuilder().layout(JXObject.class).build();
     this.jxArrayShape = Shape.newBuilder().layout(JXArray.class).build();
+    this.optionDescriptor = new JanivaLangOptionDescriptors();
   }
+
+  @Option(
+      name = "module-root",
+      help = "Janiva module root",
+      category = OptionCategory.USER,
+      stability = OptionStability.STABLE)
+  public static final OptionKey<String> ModuleRoot = new OptionKey<String>("");
 
   @Override
   protected JXContext createContext(Env env) {
-    return new JXContext(this, env, new ArrayList<>(EXTERNAL_BUILTINS));
+    this.context = new JXContext(this, env, new ArrayList<>(EXTERNAL_BUILTINS));
+    // cache it for parser to access
+    return this.context;
+  }
+
+  @Override
+  protected OptionDescriptors getOptionDescriptors() {
+    return this.optionDescriptor;
   }
 
   @Override
@@ -322,5 +343,10 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
   private void initializeReservedKeywords() {
     Reserved.register("import", "primitive: @import");
     Reserved.register("namespace", "primitive: @namespace");
+  }
+
+  public String getModuleRoot() {
+    String o = this.context.getEnv().getOptions().get(ModuleRoot);
+    return o;
   }
 }
