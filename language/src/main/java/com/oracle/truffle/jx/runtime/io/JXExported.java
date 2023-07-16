@@ -28,6 +28,8 @@ public class JXExported implements TruffleObject {
     if (mode != Mode.Value) {
       throw new IllegalStateException("Cannot get value from non-value export");
     }
+    JXObject val = (JXObject) this.jxObject;
+
     return this.jxObject;
   }
 }

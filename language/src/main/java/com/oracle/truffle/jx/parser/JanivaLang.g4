@@ -390,7 +390,7 @@ fragment COMP: ('>' | '<' | '<=' | '>=');
 fragment NS_SPLITTER: '.';
 
 L1_OP : ('+'|'-');
-L2_OP : ('*'|'/');
+L2_OP : ('*'|'/'|'%');
 
 BOOL_LITERAL : TRUE | FALSE;
 IDENTIFIER : LETTER (LETTER | DIGIT)*;

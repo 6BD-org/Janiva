@@ -16,9 +16,11 @@ import com.oracle.truffle.jx.runtime.JXArray;
 import com.oracle.truffle.jx.runtime.JXBigNumber;
 import com.oracle.truffle.jx.runtime.JXObject;
 import com.oracle.truffle.jx.runtime.view.AbstractArrayView;
+import lombok.extern.slf4j.Slf4j;
 
 @NodeChild("val")
 @NodeChild("attr")
+@Slf4j
 public abstract class JXAttributeAccessNode extends JXExpressionNode {
 
   /**
@@ -35,7 +37,10 @@ public abstract class JXAttributeAccessNode extends JXExpressionNode {
       @Cached SLToMemberNode n,
       @CachedLibrary("val") InteropLibrary libVal) {
     try {
-      return libVal.readMember((JXObject) val, n.execute(attr));
+
+      String attrVal = n.execute(attr);
+      log.debug("accessing attr: {}", attrVal);
+      return libVal.readMember((JXObject) val, attrVal);
     } catch (UnsupportedMessageException | UnknownIdentifierException e) {
       throw new JXException("error reading object attribute " + e.getMessage(), this);
     }
