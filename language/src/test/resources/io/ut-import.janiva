@@ -1,6 +1,7 @@
-_value << @import << "ex.ut-export" #
+_lib << @import << "ex.ut-export" #
 
 @stdout << {
     "k": {"c": "d"},
-    "value": $_value -> "lambda_add" << 1 << 2
+    "value": $_lib -> "lambda_add" << 1 << 2,
+    "v5mod2": $_lib -> "mod" << 5 << 2,
 }

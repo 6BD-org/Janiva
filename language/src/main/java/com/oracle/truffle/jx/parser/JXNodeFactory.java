@@ -96,7 +96,7 @@ public class JXNodeFactory {
   private final Source source;
   private final TruffleString sourceString;
   private TruffleString namespace;
-  private JXExpressionNode rootNode;
+  private RootNode rootNode;
 
   private final MetaStack metaStack = new MetaStack();
   private final JanivaLang language;
@@ -137,12 +137,8 @@ public class JXNodeFactory {
   }
 
   public void registerRootNode(JXExpressionNode node) {
-    this.rootNode = node;
-  }
-
-  public RootNode getRootNode() {
-    return new JXRootNode(
-        language, metaStack.buildRoot(), rootNode, JXStrings.fromJavaString("#root")) {
+    this.rootNode = new JXRootNode(
+            language, metaStack.buildRoot(), node, JXStrings.fromJavaString("#root")) {
 
       @Override
       public Object execute(VirtualFrame frame) {
@@ -151,6 +147,10 @@ public class JXNodeFactory {
         return res;
       }
     };
+  }
+
+  public RootNode getRootNode() {
+    return this.rootNode;
   }
 
   public JXExpressionNode createDecimal(Token whole, Token dec) {
@@ -273,7 +273,7 @@ public class JXNodeFactory {
     Reserved.validate(valName);
     TruffleString ts = asTruffleString(valName, false);
     int slot = metaStack.requestForGlobal(ts);
-    JXStatementNode newImport = new JXImportBindingNode(slot, imported);
+    JXStatementNode newImport = new JXImportBindingNode(slot, imported, () -> rootNode);
     this.imports.add(newImport);
     return newImport;
   }

@@ -92,6 +92,9 @@ public abstract class JXBinaryNode extends JXExpressionNode {
       case "||":
         result = new JXLogicalOrNode(leftUnboxed, rightUnboxed);
         break;
+      case "%":
+        result = JXModuloNodeGen.create(leftUnboxed, rightUnboxed);
+        break;
       default:
         throw new RuntimeException("unexpected operation: " + op.getText());
     }

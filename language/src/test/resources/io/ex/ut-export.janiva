@@ -1,8 +1,9 @@
 @namespace << my.lib #
-
+math << @import << "ex.utils.math" #
 @add :: (x, y) >> $x + $y #
 
 @export << {
     "a": 1,
     "lambda_add": @add,
+    "mod": $math -> "mod",
 }

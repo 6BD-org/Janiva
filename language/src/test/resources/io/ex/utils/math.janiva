@@ -1,0 +1,8 @@
+@namespace << utils.math #
+
+@modulo :: (dividend, divisor) >> $dividend % $divisor #
+
+
+@export << {
+  "mod": @modulo,
+}
