@@ -31,24 +31,39 @@ public class SourceFinder {
       throw new IllegalArgumentException("import is not permitted when base path is absent");
     }
     String s = importPath.toJavaStringUncached();
-    if (basePath == null) {
-      basePath = File.separator;
+    return findImported(basePath, s);
+  }
+
+  public static Source findImported(String basePath, String importPath) {
+    if (basePath == null || basePath.length() == 0) {
+      throw new IllegalArgumentException("import is not permitted when base path is absent");
     }
     String targetSourcePath;
     log.debug("basePath={}", basePath);
     if (basePath.endsWith(File.separator)) {
-      targetSourcePath = basePath + translate(s);
+      targetSourcePath = basePath + translate(importPath);
     } else {
-      targetSourcePath = basePath + File.separator + translate(s);
+      targetSourcePath = basePath + File.separator + translate(importPath);
     }
+    return getSource(targetSourcePath);
+  }
+
+  public static Source getSource(String absPath) {
     try {
-      return Source.newBuilder(LanguageConstants.LANG, new URL("file:///" + targetSourcePath))
-          .build();
+      return Source.newBuilder(LanguageConstants.LANG, new URL("file:///" + absPath))
+              .build();
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     } catch (IOException ioe) {
-      throw new JanivaIOException("Cannot read file: " + targetSourcePath, ioe);
+      throw new JanivaIOException("Cannot read file: " + absPath, ioe);
     }
+  }
+
+  public static String getSourceString(String base, String path) {
+    String absPath = base + File.separator + path;
+    Source s = getSource(absPath);
+    CharSequence charSeq = s.getCharacters();
+    return charSeq.toString();
   }
 
   /**
