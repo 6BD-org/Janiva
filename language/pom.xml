@@ -44,7 +44,7 @@
   <parent>
     <groupId>com.oracle</groupId>
     <artifactId>janiva-parent</artifactId>
-    <version>${graalvm.version}</version>
+    <version>22.3.0</version>
   </parent>
   <artifactId>janiva</artifactId>
     <properties>
@@ -191,7 +191,6 @@
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4-runtime</artifactId>
-      <version>4.9.2</version>
     </dependency>
   </dependencies>
 </project>
