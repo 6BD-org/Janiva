@@ -1,0 +1,4 @@
+_lib1 << @import << "lib1.lib" #
+
+
+@stdout << {}
