@@ -6,9 +6,7 @@ import com.xmbsmdsj.janiva.constants.LanguageConstants;
 import com.xmbsmdsj.janiva.exceptions.JanivaIOException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.regex.Pattern;
 
@@ -50,8 +48,7 @@ public class SourceFinder {
 
   public static Source getSource(String absPath) {
     try {
-      return Source.newBuilder(LanguageConstants.LANG, new URL("file:///" + absPath))
-              .build();
+      return Source.newBuilder(LanguageConstants.LANG, new URL("file:///" + absPath)).build();
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     } catch (IOException ioe) {
@@ -59,20 +56,23 @@ public class SourceFinder {
     }
   }
 
-  public static String getSourceString(String base, String path) {
+  public static String getSourceString(String base, String path) throws FileNotFoundException, IOException{
     String absPath = base + File.separator + path;
-    Source s = getSource(absPath);
-    CharSequence charSeq = s.getCharacters();
-    return charSeq.toString();
+    File f = new File(absPath);
+    try (InputStream is = new FileInputStream(f)) {
+      return new String(is.readAllBytes());
+    }
   }
 
   /**
-   * translate to slash path
+   * translate import path to (relative) slash path
+   * for example
+   * com.xmbsmdsj.lib1.code -> com/xmbsmdsj/lib1/code.janiva
    *
    * @param dotPath
    * @return
    */
-  private static String translate(String dotPath) {
+  public static String translate(String dotPath) {
     String[] splitted = DOT_SPLITTER.split(dotPath);
     if (splitted.length == 0) {
       throw new JanivaIOException("Empty imported path");
