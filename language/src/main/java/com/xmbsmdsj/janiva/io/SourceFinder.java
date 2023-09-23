@@ -1,16 +1,14 @@
-package com.xmbsmdsj.janiva;
+package com.xmbsmdsj.janiva.io;
 
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
-import com.xmbsmdsj.janiva.constants.LanguageConstants;
-import com.xmbsmdsj.janiva.exceptions.JanivaIOException;
-import lombok.extern.slf4j.Slf4j;
+import com.xmbsmdsj.janiva.io.constants.LanguageConstants;
+import com.xmbsmdsj.janiva.io.exceptions.JanivaIOException;
 
 import java.io.*;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-@Slf4j
 public class SourceFinder {
   private static final Pattern DOT_SPLITTER = Pattern.compile("\\.");
   private static final String SYS_ROOT =
@@ -25,7 +23,7 @@ public class SourceFinder {
    * @return
    */
   public static Source findImported(String basePath, TruffleString importPath) {
-    if (basePath == null || basePath.length() == 0) {
+    if (basePath == null || basePath.isEmpty()) {
       throw new IllegalArgumentException("import is not permitted when base path is absent");
     }
     String s = importPath.toJavaStringUncached();
@@ -33,11 +31,10 @@ public class SourceFinder {
   }
 
   public static Source findImported(String basePath, String importPath) {
-    if (basePath == null || basePath.length() == 0) {
+    if (basePath == null || basePath.isEmpty()) {
       throw new IllegalArgumentException("import is not permitted when base path is absent");
     }
     String targetSourcePath;
-    log.debug("basePath={}", basePath);
     if (basePath.endsWith(File.separator)) {
       targetSourcePath = basePath + translate(importPath);
     } else {

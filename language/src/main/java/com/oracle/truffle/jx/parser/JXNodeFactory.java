@@ -63,14 +63,13 @@ import com.oracle.truffle.jx.runtime.JXStrings;
 import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
-import com.xmbsmdsj.janiva.SourceFinder;
+import com.xmbsmdsj.janiva.io.SourceFinder;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.xmbsmdsj.janiva.constants.LanguageConstants;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.slf4j.Logger;

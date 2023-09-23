@@ -70,7 +70,7 @@ public final class JXMain {
 
     if (file == null) {
       System.err.println("source code must be specified");
-      System.exit(1);
+      // System.exit(1);
     } else {
       codeFile = new File(file);
       source = Source.newBuilder(Janiva, codeFile).build();

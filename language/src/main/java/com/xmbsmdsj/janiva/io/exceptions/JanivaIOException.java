@@ -1,4 +1,4 @@
-package com.xmbsmdsj.janiva.exceptions;
+package com.xmbsmdsj.janiva.io.exceptions;
 
 public class JanivaIOException extends RuntimeException {
   public JanivaIOException(String message) {

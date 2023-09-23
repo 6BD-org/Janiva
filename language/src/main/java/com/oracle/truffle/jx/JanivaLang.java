@@ -66,8 +66,8 @@ import com.oracle.truffle.jx.runtime.*;
 import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
-import com.xmbsmdsj.janiva.constants.LanguageConstants;
-import com.xmbsmdsj.janiva.exceptions.JanivaIOException;
+import com.xmbsmdsj.janiva.io.SourceFinder;
+import com.xmbsmdsj.janiva.io.exceptions.JanivaIOException;
 import org.graalvm.options.*;
 
 import java.io.IOException;
@@ -259,8 +259,14 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
    * @param s source
    */
   private void beforeParse(Source s) {
+    if (s.getPath() == null) {
+      // Source code isn't associated with a path
+      // meaning it's from memory instead of project
+      return;
+    }
     AnalyzerRunner runner = new AnalyzerRunner(getModuleRoot(), getGrammar());
-    DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(s.getPath());
+    // TODO: optimize entrance file
+    DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(s.getName().split("\\.")[0]);
     dependencyAnalyzer.addDetector(new CircDetector());
     runner.addAnalyzer(dependencyAnalyzer);
     runner.run();
@@ -268,6 +274,7 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
     if (!runner.getErrors().isEmpty()) {
       StringBuilder sb = new StringBuilder();
       for (RuntimeException error : runner.getErrors()) {
+        error.printStackTrace();
         sb.append(error.getMessage()).append("\n");
       }
       System.err.println(sb);
@@ -277,7 +284,7 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
   }
 
   private String getGrammar() {
-    try (var is = JanivaLang.class.getResourceAsStream(GRAMMAR_FILE)) {
+    try (var is = JanivaLang.class.getResourceAsStream("/" + GRAMMAR_FILE)) {
       if (is == null) {
         throw new JanivaIOException("grammar file not found: " + GRAMMAR_FILE);
       }

@@ -43,14 +43,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.oracle</groupId>
   <artifactId>janiva-parent</artifactId>
-  <version>22.3.0</version>
+  <version>1.0.0</version>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <m2e.apt.activation>jdt_apt</m2e.apt.activation>
     <!-- If you update this number make sure the VERSION value in ./sl matches -->
-    <graalvm.version>22.3.0</graalvm.version>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
+    <graalvm.version>23.1.0</graalvm.version>
     <lomobk.version>1.18.30</lomobk.version>
     <antlr4.version>4.9.2</antlr4.version>
   </properties>
@@ -59,7 +57,6 @@
     <module>language</module>
     <module>launcher</module>
     <module>native</module>
-    <module>janiva-io</module>
   </modules>
 
   <dependencyManagement>
@@ -84,20 +81,40 @@
         <artifactId>truffle-dsl-processor</artifactId>
         <version>${graalvm.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.graalvm.polyglot</groupId>
+        <artifactId>polyglot</artifactId>
+        <version>${graalvm.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-runtime</artifactId>
         <version>${antlr4.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.antlr</groupId>
-        <artifactId>antlr4</artifactId>
-        <version>${antlr4.version}</version>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+          <configuration>
+            <source>17</source>
+            <target>17</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
