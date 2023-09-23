@@ -51,7 +51,7 @@
     <graalvm.version>22.3.0</graalvm.version>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-    <lomobk.version>1.18.26</lomobk.version>
+    <lomobk.version>1.18.30</lomobk.version>
     <antlr4.version>4.9.2</antlr4.version>
   </properties>
   <packaging>pom</packaging>

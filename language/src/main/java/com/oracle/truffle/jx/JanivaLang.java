@@ -55,6 +55,9 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
+import com.oracle.truffle.jx.analyzer.AnalyzerRunner;
+import com.oracle.truffle.jx.analyzer.CircDetector;
+import com.oracle.truffle.jx.analyzer.DependencyAnalyzer;
 import com.oracle.truffle.jx.builtins.*;
 import com.oracle.truffle.jx.nodes.*;
 import com.oracle.truffle.jx.nodes.local.JXReadArgumentNode;
@@ -64,8 +67,10 @@ import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
 import com.xmbsmdsj.janiva.constants.LanguageConstants;
+import com.xmbsmdsj.janiva.exceptions.JanivaIOException;
 import org.graalvm.options.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -96,6 +101,7 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
 
   public static final String ID = "janiva";
   public static final String MIME_TYPE = "application/janiva";
+  public static final String GRAMMAR_FILE = "JanivaLang.g4";
 
   public static final TruffleString.Encoding STRING_ENCODING = TruffleString.Encoding.UTF_16;
 
@@ -214,6 +220,9 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
   @Override
   public CallTarget parse(ParsingRequest request) throws Exception {
     Source source = request.getSource();
+
+    beforeParse(source);
+
     RootNode rootNode;
 
     this.installBuiltInLambdas();
@@ -243,6 +252,39 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
       evalMain = new SLEvalRootNode(this, null);
     }
     return evalMain.getCallTarget();
+  }
+
+  /**
+   * Perform language specific static analysis
+   * @param s source
+   */
+  private void beforeParse(Source s) {
+    AnalyzerRunner runner = new AnalyzerRunner(getModuleRoot(), getGrammar());
+    DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(s.getPath());
+    dependencyAnalyzer.addDetector(new CircDetector());
+    runner.addAnalyzer(dependencyAnalyzer);
+    runner.run();
+
+    if (!runner.getErrors().isEmpty()) {
+      StringBuilder sb = new StringBuilder();
+      for (RuntimeException error : runner.getErrors()) {
+        sb.append(error.getMessage()).append("\n");
+      }
+      System.err.println(sb);
+      throw new JXException(sb.toString());
+    }
+
+  }
+
+  private String getGrammar() {
+    try (var is = JanivaLang.class.getResourceAsStream(GRAMMAR_FILE)) {
+      if (is == null) {
+        throw new JanivaIOException("grammar file not found: " + GRAMMAR_FILE);
+      }
+      return new String(is.readAllBytes());
+    } catch (IOException e) {
+      throw new JanivaIOException(e.getMessage());
+    }
   }
 
   /**
