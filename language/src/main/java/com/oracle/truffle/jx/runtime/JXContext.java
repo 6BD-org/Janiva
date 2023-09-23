@@ -62,7 +62,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import org.graalvm.polyglot.Context;
 
 /**
  * The run-time state of SL during execution. The context is created by the {@link JanivaLang}. It

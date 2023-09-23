@@ -54,7 +54,8 @@ public final class JXMain {
 
   /** The main entry point. */
   public static void main(String[] args) throws IOException {
-    Source source;
+    Source source = null;
+    File codeFile = null;
     Map<String, String> options = new HashMap<>();
     String file = null;
     for (String arg : args) {
@@ -68,11 +69,11 @@ public final class JXMain {
     }
 
     if (file == null) {
-      // @formatter:off
-      source = Source.newBuilder(Janiva, new InputStreamReader(System.in), "<stdin>").build();
-      // @formatter:on
+      System.err.println("source code must be specified");
+      // System.exit(1);
     } else {
-      source = Source.newBuilder(Janiva, new File(file)).build();
+      codeFile = new File(file);
+      source = Source.newBuilder(Janiva, codeFile).build();
     }
 
     System.exit(executeSource(source, System.in, System.out, options));
@@ -113,6 +114,7 @@ public final class JXMain {
       context.close();
     }
   }
+
 
   private static boolean parseOption(Map<String, String> options, String arg) {
     if (arg.length() <= 2 || !arg.startsWith("--")) {

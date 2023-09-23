@@ -1,4 +1,4 @@
-package com.xmbsmdsj.janiva.utils;
+package com.xmbsmdsj.janiva.io.utils;
 
 import java.util.Collection;
 

@@ -1,8 +1,7 @@
 package com.oracle.truffle.jx.analyzer;
 
-import com.xmbsmdsj.janiva.SourceFinder;import org.antlr.runtime.RecognitionException;
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.tool.Grammar;
+import com.xmbsmdsj.janiva.io.SourceFinder;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,13 +30,6 @@ public class AnalyzerContext {
    */
   public String readJanivaFile(String codePath) throws IOException, FileNotFoundException {
     return SourceFinder.getSourceString(this.moduleRoot, SourceFinder.translate(codePath));
-  }
-
-  public ParserInterpreter newParser(String codePath) throws RecognitionException, IOException {
-    Grammar g = new Grammar(this.grammar);
-    Lexer lexer = g.createLexerInterpreter(CharStreams.fromString(readJanivaFile(codePath)));
-    CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
-    return g.createParserInterpreter(commonTokenStream);
   }
 
   public List<RuntimeException> getErrors() {

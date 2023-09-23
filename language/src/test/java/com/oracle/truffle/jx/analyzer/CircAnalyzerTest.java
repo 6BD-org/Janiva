@@ -19,13 +19,8 @@ public class CircAnalyzerTest {
     String rootPath =
             this.getClass().getClassLoader().getResource(String.format("analyzer/%s/main.janiva", proj)).getFile();
     String modulePath = new File(rootPath).getParent();
-    String grammar;
-    try (InputStream is = JanivaLang.class.getResourceAsStream("/JanivaLang.g4")) {
-      assert is != null;
-      grammar = new String(is.readAllBytes());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    String grammar = "";
+
 
     return new AnalyzerRunner(modulePath, grammar);
   }

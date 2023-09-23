@@ -39,8 +39,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-if [[ ! -f  antlr-4.9.2-complete.jar ]]
+if [[ ! -f  antlr-4.12.0-complete.jar ]]
 then
-  curl -O https://www.antlr.org/download/antlr-4.9.2-complete.jar
+  curl -O https://www.antlr.org/download/antlr-4.12.0-complete.jar
 fi
-java -cp antlr-4.9.2-complete.jar org.antlr.v4.Tool -package com.oracle.truffle.jx.parser -no-listener language/src/main/java/com/oracle/truffle/jx/parser/JanivaLang.g4
+java -cp antlr-4.12.0-complete.jar org.antlr.v4.Tool -package com.oracle.truffle.jx.parser -no-listener language/src/main/java/com/oracle/truffle/jx/parser/JanivaLang.g4
