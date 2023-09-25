@@ -9,6 +9,14 @@ import java.util.List;
 
 public class LambdaTemplate {
 
+  public boolean isBuiltIn() {
+    return isBuiltIn;
+  }
+
+  public void setBuiltIn(boolean builtIn) {
+    isBuiltIn = builtIn;
+  }
+
   enum State {
     DEFINED,
     FINALIZED
@@ -21,6 +29,7 @@ public class LambdaTemplate {
 
   /** State is used for early expose of partially defined lambdas */
   private volatile State state;
+  private boolean isBuiltIn = false;
 
   public LambdaTemplate(TruffleString name) {
     this.parameterNames = new ArrayList<>();

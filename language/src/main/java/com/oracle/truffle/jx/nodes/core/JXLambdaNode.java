@@ -1,6 +1,6 @@
 package com.oracle.truffle.jx.nodes.core;
 
-import com.oracle.truffle.api.dsl.NodeField;
+import com.oracle.truffle.api.CallTarget;import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.jx.JanivaLang;
@@ -15,11 +15,18 @@ public abstract class JXLambdaNode extends JXExpressionNode {
 
   @Specialization
   public Object executeSpecialized(VirtualFrame frame) {
+
+    if (getLambdaTemplate().isBuiltIn()) {
+
+    }
+
     JXLambdaExecutor executor =
         new JXLambdaExecutor(
             JanivaLang.get(this),
             getLambdaTemplate().getFrameDescriptor(),
             getLambdaTemplate().getBody());
+    // TODO: for built-in lambda, need to capture current frame
+
     return new JXPartialLambda(executor.getCallTarget(), getLambdaTemplate());
   }
 }

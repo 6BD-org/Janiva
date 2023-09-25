@@ -7,24 +7,15 @@ import com.oracle.truffle.jx.runtime.LambdaLibrary;
 
 public class JXComposeNode extends JXExpressionNode {
 
-  private final JXExpressionNode[] children;
-
-  public JXComposeNode(JXExpressionNode[] children) {
-    this.children = children;
-    for (JXExpressionNode child : children) {
-      this.insert(child);
-    }
-  }
-
   @Override
   public Object executeGeneric(VirtualFrame frame) {
+    var children = frame.getArguments();
     Object[] lambdas = new Object[children.length];
     LambdaLibrary lambdaLibrary = LambdaLibrary.getUncached();
     int i = 0;
-    for (JXExpressionNode child : children) {
-      Object res = child.executeGeneric(frame);
-      assert lambdaLibrary.isLambda(res);
-      lambdas[i] = res;
+    for (Object child : children) {
+      assert lambdaLibrary.isLambda(child);
+      lambdas[i] = child;
       i++;
     }
     return new JXComposedLambda(lambdas);

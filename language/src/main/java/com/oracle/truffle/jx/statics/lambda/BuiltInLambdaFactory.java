@@ -11,6 +11,21 @@ public interface BuiltInLambdaFactory {
 
   TruffleString lambdaName();
 
+  List<TruffleString> parameters();
+
+  default boolean partialApplicable() {
+    return true;
+  }
+
+  default LambdaTemplate getLambdaTemplate(
+          JXExpressionNode impl) {
+    var lt = new LambdaTemplate(lambdaName());
+    lt.addBody(impl);
+    parameters().forEach(lt::addFormalParam);
+    lt.setBuiltIn(true);
+    return lt;
+  }
+
   default String namespace() {
     return "default";
   }

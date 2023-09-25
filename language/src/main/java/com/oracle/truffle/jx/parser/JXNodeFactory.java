@@ -353,7 +353,15 @@ public class JXNodeFactory {
   public JXExpressionNode materialize(Token lambdaName, List<JXExpressionNode> parameters) {
     TruffleString ts = asTruffleString(lambdaName, false);
     if (LambdaRegistry.getInstance(namespace).isBuiltIn(ts)) {
-      return BuiltInLambda.valueOf(ts).create(parameters, source);
+      var bt = BuiltInLambda.valueOf(ts);
+      var builtInImpl = bt.create(parameters, source);
+      JXFeedValueNode res = JXFeedValueNodeGen.create(JXLambdaNodeGen.create(bt.getLambdaTemplate(builtInImpl)));
+      if (bt.partialApplicable()) {
+        res.feed(parameters);
+        return res;
+      } else {
+        return builtInImpl;
+      }
     }
 
     /* First we lookup local attributes

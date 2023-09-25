@@ -2,14 +2,13 @@ package com.oracle.truffle.jx.nodes.core;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.jx.nodes.JXExpressionNode;
+import com.oracle.truffle.api.frame.VirtualFrame;import com.oracle.truffle.jx.nodes.JXExpressionNode;
 import com.oracle.truffle.jx.runtime.io.JXExported;
 
-@NodeChild("child")
 public abstract class JXExportNode extends JXExpressionNode {
 
   @Specialization
-  public Object exportObject(Object child) {
-    return new JXExported(child);
+  public Object exportObject(VirtualFrame frame) {
+    return new JXExported(frame.getArguments()[0]);
   }
 }
