@@ -7,6 +7,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.constants.CacheLimits;
@@ -63,6 +64,9 @@ public abstract class JXFeedValueNode extends JXExpressionNode {
   public JXFeedValueNode feed(List<JXExpressionNode> args) {
     if (args == null) return this;
     this.args.addAll(args);
+    for (JXExpressionNode arg : args) {
+      this.insert(arg);
+    }
     return this;
   }
 
