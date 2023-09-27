@@ -202,6 +202,4 @@ public final class JXObject extends DynamicObject implements TruffleObject {
       @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
     objectLibrary.put(this, fromJavaStringNode.execute(name, JanivaLang.STRING_ENCODING), value);
   }
-
-
 }

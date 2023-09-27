@@ -69,7 +69,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
 import org.slf4j.Logger;
@@ -136,16 +135,16 @@ public class JXNodeFactory {
   }
 
   public void registerRootNode(JXExpressionNode node) {
-    this.rootNode = new JXRootNode(
-            language, metaStack.buildRoot(), node, JXStrings.fromJavaString("#root")) {
+    this.rootNode =
+        new JXRootNode(language, metaStack.buildRoot(), node, JXStrings.fromJavaString("#root")) {
 
-      @Override
-      public Object execute(VirtualFrame frame) {
-        imports.forEach(i -> i.executeVoid(frame));
-        Object res = super.execute(frame);
-        return res;
-      }
-    };
+          @Override
+          public Object execute(VirtualFrame frame) {
+            imports.forEach(i -> i.executeVoid(frame));
+            Object res = super.execute(frame);
+            return res;
+          }
+        };
   }
 
   public RootNode getRootNode() {
@@ -355,7 +354,8 @@ public class JXNodeFactory {
     if (LambdaRegistry.getInstance(namespace).isBuiltIn(ts)) {
       var bt = BuiltInLambda.valueOf(ts);
       var builtInImpl = bt.create(parameters, source);
-      JXFeedValueNode res = JXFeedValueNodeGen.create(JXLambdaNodeGen.create(bt.getLambdaTemplate(builtInImpl)));
+      JXFeedValueNode res =
+          JXFeedValueNodeGen.create(JXLambdaNodeGen.create(bt.getLambdaTemplate(builtInImpl)));
       if (bt.partialApplicable()) {
         res.feed(parameters);
         return res;

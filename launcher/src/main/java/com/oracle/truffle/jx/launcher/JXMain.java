@@ -115,7 +115,6 @@ public final class JXMain {
     }
   }
 
-
   private static boolean parseOption(Map<String, String> options, String arg) {
     if (arg.length() <= 2 || !arg.startsWith("--")) {
       return false;

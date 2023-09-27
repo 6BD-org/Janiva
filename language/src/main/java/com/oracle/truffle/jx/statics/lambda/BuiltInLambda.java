@@ -17,11 +17,7 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
   IF {
     @Override
     public JXExpressionNode create(List<JXExpressionNode> arguments, Source source) {
-      return new JXIfNode(
-              arguments.get(0),
-              arguments.get(1),
-              arguments.get(2)
-      );
+      return new JXIfNode(arguments.get(0), arguments.get(1), arguments.get(2));
     }
 
     @Override
@@ -35,7 +31,9 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
     }
 
     @Override
-    public boolean partialApplicable() {return false;}
+    public boolean partialApplicable() {
+      return false;
+    }
   },
   RANGE {
     @Override
@@ -109,7 +107,7 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
     }
   };
 
-  private static TruffleString s(String s ) {
+  private static TruffleString s(String s) {
     return TruffleString.fromJavaStringUncached(s, TruffleString.Encoding.UTF_8);
   }
 

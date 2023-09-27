@@ -28,11 +28,12 @@ public class AlgorithmTest {
   @Test
   public void testFibonacci() {
 
-    TestUtil.runWithStackTrace(() -> {
-      Value v =
-              context.eval(JanivaLang.ID, TestUtil.readResourceAsString("algorithms/fibonacci.janiva"));
-      Assert.assertEquals(5, v.getMember("result").asInt());
-
-    });
+    TestUtil.runWithStackTrace(
+        () -> {
+          Value v =
+              context.eval(
+                  JanivaLang.ID, TestUtil.readResourceAsString("algorithms/fibonacci.janiva"));
+          Assert.assertEquals(5, v.getMember("result").asInt());
+        });
   }
 }

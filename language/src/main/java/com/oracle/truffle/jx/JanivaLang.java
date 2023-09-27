@@ -66,16 +66,14 @@ import com.oracle.truffle.jx.runtime.*;
 import com.oracle.truffle.jx.statics.lambda.BuiltInLambda;
 import com.oracle.truffle.jx.statics.lambda.LambdaRegistry;
 import com.oracle.truffle.jx.statics.lambda.LambdaTemplate;
-import com.xmbsmdsj.janiva.io.SourceFinder;
 import com.xmbsmdsj.janiva.io.exceptions.JanivaIOException;
-import org.graalvm.options.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.graalvm.options.*;
 
 /** */
 @TruffleLanguage.Registration(
@@ -256,6 +254,7 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
 
   /**
    * Perform language specific static analysis
+   *
    * @param s source
    */
   private void beforeParse(Source s) {
@@ -280,7 +279,6 @@ public final class JanivaLang extends TruffleLanguage<JXContext> {
       System.err.println(sb);
       throw new JXException(sb.toString());
     }
-
   }
 
   private String getGrammar() {

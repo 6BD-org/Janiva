@@ -1,11 +1,8 @@
 package com.oracle.truffle.jx.runtime.io;
 
+import com.oracle.truffle.api.interop.*;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import com.oracle.truffle.api.interop.*;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;
-import org.graalvm.polyglot.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,15 +12,23 @@ public class IOUtils {
 
   // TODO: support cached library
   public static void writeJanivaObjectIntoStream(
-          InteropLibrary library,
-          OutputStream os,
-          Object object
-  )
-          throws IOException, UnsupportedMessageException, UnsupportedTypeException, ArityException, InvalidArrayIndexException, UnknownIdentifierException {
+      InteropLibrary library, OutputStream os, Object object)
+      throws IOException,
+          UnsupportedMessageException,
+          UnsupportedTypeException,
+          ArityException,
+          InvalidArrayIndexException,
+          UnknownIdentifierException {
     processValue(library, os, object);
   }
 
-  private static void processValue(InteropLibrary library, OutputStream os, Object value) throws IOException, UnsupportedMessageException, UnsupportedTypeException, ArityException, InvalidArrayIndexException, UnknownIdentifierException {
+  private static void processValue(InteropLibrary library, OutputStream os, Object value)
+      throws IOException,
+          UnsupportedMessageException,
+          UnsupportedTypeException,
+          ArityException,
+          InvalidArrayIndexException,
+          UnknownIdentifierException {
     if (library.isExecutable(value)) {
       processValue(library, os, library.execute(value));
       return;
@@ -50,13 +55,20 @@ public class IOUtils {
     }
   }
 
-  private static String numberToString(InteropLibrary library, Object object) throws UnsupportedMessageException {
+  private static String numberToString(InteropLibrary library, Object object)
+      throws UnsupportedMessageException {
     if (library.fitsInLong(object)) return Long.valueOf(library.asLong(object)).toString();
     if (library.fitsInDouble(object)) return Double.valueOf(library.asDouble(object)).toString();
     return "NAN";
   }
 
-  private static void processObject(InteropLibrary library, OutputStream os, Object value) throws IOException, UnsupportedMessageException, UnsupportedTypeException, ArityException, InvalidArrayIndexException, UnknownIdentifierException {
+  private static void processObject(InteropLibrary library, OutputStream os, Object value)
+      throws IOException,
+          UnsupportedMessageException,
+          UnsupportedTypeException,
+          ArityException,
+          InvalidArrayIndexException,
+          UnknownIdentifierException {
     // apply executable first
     if (library.isExecutable(value)) {
       processObject(library, os, library.execute(value));
@@ -66,7 +78,7 @@ public class IOUtils {
     os.write("{\n".getBytes());
     var memberArray = library.getMembers(value);
 
-    for (int i=0; i<library.getArraySize(memberArray); i++) {
+    for (int i = 0; i < library.getArraySize(memberArray); i++) {
       var memberKey = library.asString(library.readArrayElement(memberArray, i));
       os.write(quote(memberKey).getBytes());
       os.write(": ".getBytes());
@@ -80,9 +92,13 @@ public class IOUtils {
     os.write("\n}".getBytes());
   }
 
-
-
-  private static void processArray(InteropLibrary library, OutputStream os, Object array) throws IOException, UnsupportedMessageException, InvalidArrayIndexException, UnsupportedTypeException, ArityException, UnknownIdentifierException {
+  private static void processArray(InteropLibrary library, OutputStream os, Object array)
+      throws IOException,
+          UnsupportedMessageException,
+          InvalidArrayIndexException,
+          UnsupportedTypeException,
+          ArityException,
+          UnknownIdentifierException {
     os.write("[ ".getBytes());
     long arrSize = library.getArraySize(array);
     for (int i = 0; i < arrSize; i++) {

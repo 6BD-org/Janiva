@@ -1,7 +1,6 @@
 package com.oracle.truffle.jx.analyzer;
 
 import com.xmbsmdsj.janiva.io.SourceFinder;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;

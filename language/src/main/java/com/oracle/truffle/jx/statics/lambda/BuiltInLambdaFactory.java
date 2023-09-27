@@ -17,8 +17,7 @@ public interface BuiltInLambdaFactory {
     return true;
   }
 
-  default LambdaTemplate getLambdaTemplate(
-          JXExpressionNode impl) {
+  default LambdaTemplate getLambdaTemplate(JXExpressionNode impl) {
     var lt = new LambdaTemplate(lambdaName());
     lt.addBody(impl);
     parameters().forEach(lt::addFormalParam);
