@@ -2,13 +2,7 @@ package com.oracle.truffle.jx.nodes.expression;
 
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.constants.CacheLimits;
 import com.oracle.truffle.jx.nodes.JXExpressionNode;
@@ -35,17 +29,12 @@ public abstract class JXFeedValueNode extends JXExpressionNode {
     return doExecute(virtualFrame, child, lambdaLibrary);
   }
 
-  protected Object doExecute(
-      VirtualFrame virtualFrame,
-      Object child,
-      LambdaLibrary lambdaLibrary) {
+  protected Object doExecute(VirtualFrame virtualFrame, Object child, LambdaLibrary lambdaLibrary) {
     if (isPartialApplicable(lambdaLibrary, child)) {
       // Need to clone to avoid mutating internal state of original one
       Object cloned = lambdaLibrary.cloneLambda(child);
-      Object res =
-          lambdaLibrary.mergeArgs(
-              cloned, args.stream().map(a -> a.executeGeneric(virtualFrame)).toArray());
-      return res;
+      return lambdaLibrary.mergeArgs(
+          cloned, args.stream().map(a -> a.executeGeneric(virtualFrame)).toArray());
     }
     throw new JXException("Not supported: " + child.getClass(), this);
   }

@@ -29,6 +29,7 @@ public class LambdaTemplate {
 
   /** State is used for early expose of partially defined lambdas */
   private volatile State state;
+
   private boolean isBuiltIn = false;
 
   public LambdaTemplate(TruffleString name) {

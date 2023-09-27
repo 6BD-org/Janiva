@@ -1,11 +1,9 @@
 package com.oracle.truffle.jx.test;
 
 import com.oracle.truffle.jx.JanivaLang;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
-
 import lombok.extern.slf4j.Slf4j;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Source;

@@ -4,7 +4,6 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.strings.TruffleString;
 import com.xmbsmdsj.janiva.io.constants.LanguageConstants;
 import com.xmbsmdsj.janiva.io.exceptions.JanivaIOException;
-
 import java.io.*;
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -53,7 +52,8 @@ public class SourceFinder {
     }
   }
 
-  public static String getSourceString(String base, String path) throws FileNotFoundException, IOException{
+  public static String getSourceString(String base, String path)
+      throws FileNotFoundException, IOException {
     String absPath = base + File.separator + path;
     File f = new File(absPath);
     try (InputStream is = new FileInputStream(f)) {
@@ -62,9 +62,8 @@ public class SourceFinder {
   }
 
   /**
-   * translate import path to (relative) slash path
-   * for example
-   * com.xmbsmdsj.lib1.code -> com/xmbsmdsj/lib1/code.janiva
+   * translate import path to (relative) slash path for example com.xmbsmdsj.lib1.code ->
+   * com/xmbsmdsj/lib1/code.janiva
    *
    * @param dotPath
    * @return

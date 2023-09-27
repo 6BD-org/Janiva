@@ -1,14 +1,16 @@
 package com.oracle.truffle.jx.runtime;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.Shape;
-import java.math.BigInteger;import java.util.Arrays;
-import com.oracle.truffle.jx.JXException;import com.oracle.truffle.jx.constants.CacheLimits;
-import com.oracle.truffle.jx.constants.Constants;import lombok.extern.slf4j.Slf4j;
+import com.oracle.truffle.jx.JXException;
+import com.oracle.truffle.jx.constants.CacheLimits;
+import com.oracle.truffle.jx.constants.Constants;
+import java.math.BigInteger;
+import java.util.Arrays;
+import lombok.extern.slf4j.Slf4j;
 
 @ExportLibrary(InteropLibrary.class)
 @ExportLibrary(LambdaLibrary.class)
@@ -56,16 +58,15 @@ public class JXComposedLambda implements TruffleObject {
       for (int i = 1; i < this.members.length; i++) {
         // clone next, merge args and execute
         res =
-                library.execute(
-                        lambdaLibrary.mergeArgs(
-                                lambdaLibrary.cloneLambda(this.members[i]), new Object[] {res}));
+            library.execute(
+                lambdaLibrary.mergeArgs(
+                    lambdaLibrary.cloneLambda(this.members[i]), new Object[] {res}));
       }
       outputCache = res;
       return outputCache;
-    } catch (ArityException|UnsupportedTypeException|UnsupportedMessageException e) {
+    } catch (ArityException | UnsupportedTypeException | UnsupportedMessageException e) {
       throw new JXException(e.getMessage());
     }
-
   }
 
   @ExportMessage(library = LambdaLibrary.class)
@@ -79,173 +80,236 @@ public class JXComposedLambda implements TruffleObject {
     return library.isExecutable(members[0]);
   }
 
-
   @ExportMessage(library = InteropLibrary.class)
-  public boolean isBoolean(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean isBoolean(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.isBoolean(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage
-  public boolean asBoolean(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException {
+  public boolean asBoolean(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.asBoolean(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public boolean isString(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean isString(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.isString(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public String asString(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException {
+  public String asString(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.asString(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public boolean isNumber(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean isNumber(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.isNumber(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public boolean fitsInByte(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean fitsInByte(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.fitsInByte(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public byte asByte(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException {
+  public byte asByte(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.asByte(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public boolean fitsInShort(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean fitsInShort(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.fitsInShort(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public short asShort(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException {
+  public short asShort(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.asShort(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public boolean fitsInInt(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean fitsInInt(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.fitsInInt(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public int asInt(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException {
+  public int asInt(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.asInt(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public boolean fitsInLong(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean fitsInLong(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.fitsInLong(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public long asLong(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException {
+  public long asLong(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.asLong(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public boolean fitsInDouble(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean fitsInDouble(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.fitsInDouble(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public double asDouble(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException {
+  public double asDouble(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.asDouble(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public boolean fitsInFloat(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean fitsInFloat(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.fitsInFloat(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public float asFloat(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException {
+  public float asFloat(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.asFloat(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
+
   @ExportMessage(library = InteropLibrary.class)
-  public boolean fitsInBigInteger(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean fitsInBigInteger(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.fitsInBigInteger(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
+
   @ExportMessage(library = InteropLibrary.class)
-  public BigInteger asBigInteger(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)throws UnsupportedMessageException {
+  public BigInteger asBigInteger(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.asBigInteger(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public boolean hasMembers(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean hasMembers(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.hasMembers(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
   public Object getMembers(
-          boolean includeInternal, @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException {
+      boolean includeInternal,
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.getMembers(execute(EMPTY_ARGS, library, lambdaLibrary), includeInternal);
   }
 
   @ExportMessage(library = InteropLibrary.class)
   public boolean isMemberReadable(
-          String member, @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+      String member,
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.isMemberReadable(execute(EMPTY_ARGS, library, lambdaLibrary), member);
   }
 
   @ExportMessage(library = InteropLibrary.class)
   public Object readMember(
-          String member, @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException, UnknownIdentifierException {
+      String member,
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException, UnknownIdentifierException {
     return library.readMember(execute(EMPTY_ARGS, library, lambdaLibrary), member);
   }
 
   @ExportMessage(library = InteropLibrary.class)
   public boolean isMemberModifiable(
-          String member, @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+      String member,
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.isMemberModifiable(execute(EMPTY_ARGS, library, lambdaLibrary), member);
   }
+
   @ExportMessage(library = InteropLibrary.class)
   public boolean isMemberInsertable(
-          String member, @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+      String member,
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.isMemberInsertable(execute(EMPTY_ARGS, library, lambdaLibrary), member);
   }
 
   @ExportMessage(library = InteropLibrary.class)
   public void writeMember(
-          String member,
-          Object value,
-          @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException, UnknownIdentifierException, UnsupportedTypeException {
+      String member,
+      Object value,
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException, UnknownIdentifierException, UnsupportedTypeException {
     library.writeMember(execute(EMPTY_ARGS, library, lambdaLibrary), member, value);
   }
 
   @ExportMessage(library = InteropLibrary.class)
   public boolean hasArrayElements(
-          @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.hasArrayElements(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
-  public long getArraySize(@CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws UnsupportedMessageException {
+  public long getArraySize(
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws UnsupportedMessageException {
     return library.getArraySize(execute(EMPTY_ARGS, library, lambdaLibrary));
   }
 
   @ExportMessage(library = InteropLibrary.class)
   public Object readArrayElement(
-          long index, @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
-          throws InvalidArrayIndexException, UnsupportedMessageException {
+      long index,
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary)
+      throws InvalidArrayIndexException, UnsupportedMessageException {
     return library.readArrayElement(execute(EMPTY_ARGS, library, lambdaLibrary), index);
   }
+
   @ExportMessage(library = InteropLibrary.class)
-  public boolean isArrayElementReadable(long index, @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library, @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
+  public boolean isArrayElementReadable(
+      long index,
+      @Cached.Shared("s") @CachedLibrary(limit = DELEGATE_LIB_CACHE) InteropLibrary library,
+      @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
     return library.isArrayElementReadable(execute(EMPTY_ARGS, library, lambdaLibrary), index);
   }
 }

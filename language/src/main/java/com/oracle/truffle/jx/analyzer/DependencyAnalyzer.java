@@ -1,6 +1,5 @@
 package com.oracle.truffle.jx.analyzer;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -12,8 +11,7 @@ public class DependencyAnalyzer implements Analyzer {
   private final String entranceFile;
   private static final Pattern importPattern =
       Pattern.compile(
-          "(([_a-zA-Z]+[_a-zA-Z0-9]*)\\s*<<)?\\s*@import\\s*<<\\s\"(?<importPath>.*)\"\\s*#\\s*$"
-      );
+          "(([_a-zA-Z]+[_a-zA-Z0-9]*)\\s*<<)?\\s*@import\\s*<<\\s\"(?<importPath>.*)\"\\s*#\\s*$");
   private final Map<String, List<String>> cache = new HashMap<>();
   private final List<Detector> detectors = new ArrayList<>();
 
@@ -40,10 +38,12 @@ public class DependencyAnalyzer implements Analyzer {
       try {
         detectors.forEach(d -> d.visit(ctx, next));
 
-        resolveDependency(ctx, next).forEach(dep -> {
-          stack.push(dep);
-          detectors.forEach(d -> d.enter(ctx, dep));
-        });
+        resolveDependency(ctx, next)
+            .forEach(
+                dep -> {
+                  stack.push(dep);
+                  detectors.forEach(d -> d.enter(ctx, dep));
+                });
       } catch (IOException e) {
         ctx.reportError(new RuntimeException(e));
       }
@@ -54,7 +54,8 @@ public class DependencyAnalyzer implements Analyzer {
    * @param codePath relative import path of the code. for example, lib1.lib, lib2.lib
    * @return
    */
-  protected List<String> resolveDependency(AnalyzerContext ctx, String codePath) throws IOException {
+  protected List<String> resolveDependency(AnalyzerContext ctx, String codePath)
+      throws IOException {
     if (cache.containsKey(codePath)) {
       return cache.get(codePath);
     }
@@ -85,6 +86,7 @@ public class DependencyAnalyzer implements Analyzer {
   public interface Detector {
     /**
      * Invoked when dependency is pushed to stack
+     *
      * @param context
      * @param codePath
      */
@@ -92,6 +94,7 @@ public class DependencyAnalyzer implements Analyzer {
 
     /**
      * invoked when dependency is poped from stack
+     *
      * @param context
      * @param codePath
      */
@@ -99,6 +102,7 @@ public class DependencyAnalyzer implements Analyzer {
 
     /**
      * invoked when dependency is visited
+     *
      * @param context
      * @param codePath
      */

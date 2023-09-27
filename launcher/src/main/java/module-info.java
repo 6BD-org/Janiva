@@ -1,4 +1,3 @@
 module com.xmbsmdsj.janiva.launcher {
-    requires org.graalvm.polyglot;
-
+  requires org.graalvm.polyglot;
 }
