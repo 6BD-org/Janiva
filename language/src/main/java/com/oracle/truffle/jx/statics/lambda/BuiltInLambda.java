@@ -90,7 +90,7 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
 
     @Override
     public JXExpressionNode create(List<JXExpressionNode> arguments, Source source) {
-      return new JXComposeNode();
+      return new JXComposeNode(arguments);
     }
 
     @Override
@@ -100,7 +100,12 @@ public enum BuiltInLambda implements BuiltInLambdaFactory {
 
     @Override
     public List<TruffleString> parameters() {
-      return Arrays.asList(s("left"), s("right"));
+      return Collections.emptyList();
+    }
+
+    @Override
+    public boolean partialApplicable() {
+      return false;
     }
   };
 

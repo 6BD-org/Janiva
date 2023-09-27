@@ -31,15 +31,13 @@ public abstract class JXFeedValueNode extends JXExpressionNode {
   public Object executeSpecialized(
       VirtualFrame virtualFrame,
       Object child,
-      @CachedLibrary(limit = "10") InteropLibrary library,
       @CachedLibrary(limit = CacheLimits.LIMIT_LAMBDA_LIB) LambdaLibrary lambdaLibrary) {
-    return doExecute(virtualFrame, child, library, lambdaLibrary);
+    return doExecute(virtualFrame, child, lambdaLibrary);
   }
 
   protected Object doExecute(
       VirtualFrame virtualFrame,
       Object child,
-      InteropLibrary library,
       LambdaLibrary lambdaLibrary) {
     if (isPartialApplicable(lambdaLibrary, child)) {
       // Need to clone to avoid mutating internal state of original one
@@ -47,16 +45,7 @@ public abstract class JXFeedValueNode extends JXExpressionNode {
       Object res =
           lambdaLibrary.mergeArgs(
               cloned, args.stream().map(a -> a.executeGeneric(virtualFrame)).toArray());
-      if (library.isExecutable(res)) {
-        // automatically evaluate
-        try {
-          return library.execute(res);
-        } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
-          throw new RuntimeException(e);
-        }
-      } else {
-        return res;
-      }
+      return res;
     }
     throw new JXException("Not supported: " + child.getClass(), this);
   }
