@@ -1,7 +1,7 @@
 package com.oracle.truffle.jx.nodes.core;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.interop.ArityException;import com.oracle.truffle.api.interop.InteropLibrary;import com.oracle.truffle.api.interop.UnsupportedMessageException;import com.oracle.truffle.api.interop.UnsupportedTypeException;import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.jx.JXException;
 import com.oracle.truffle.jx.nodes.JXStatementNode;
 import com.oracle.truffle.jx.runtime.io.JXExported;
@@ -22,8 +22,18 @@ public class JXImportBindingNode extends JXStatementNode {
   }
 
   @Override
-  public void executeVoid(VirtualFrame frame) {
+  public void executeVoid(
+          VirtualFrame frame
+  ) {
+    var lib = InteropLibrary.getFactory().getUncached();
     Object imported = rn.execute(frame);
+    if (lib.isExecutable(imported)) {
+      try {
+        imported = lib.execute(imported);
+      } catch (ArityException | UnsupportedMessageException | UnsupportedTypeException e) {
+        throw new JXException(e.getMessage(), this);
+      }
+    }
     if (imported instanceof JXExported) {
       frame.setObject(slot, ((JXExported) imported).getValue());
     } else {
